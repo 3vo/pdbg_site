@@ -158,7 +158,7 @@ export default function AboutPage() {
                 <InfoRow label="GitHub">
                   <span className="text-zinc-300">
                     <a
-                      href="https://github.com/3vo/pdbg-site"
+                      href="https://github.com/3vo/pdbg_site"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-zinc-100 underline underline-offset-4 decoration-zinc-500 hover:text-white hover:decoration-zinc-300 transition"
