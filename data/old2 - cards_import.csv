@@ -1,0 +1,195 @@
+card_id,related_ids_raw,related,name,cost,xp,effect,highlight_effect,set,card_location,image_url,highlight_color,primary_types,keywords,subtypes,symbols
+PDB-016,PDB-017,"{""PDB-017""}",Bill,,,You start the game with Bill's Abra in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Bill.webp,,Trainer,,,__none__
+PDB-017,PDB-016,"{""PDB-016""}",Bill's Abra,1,0,Choose one of the following:\n • Gain +2 Energy.\n • Put a TM / HM from your discard pile into your hand.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Bill's%20Abra.webp,,Starter|Pokemon,,,__none__
+PDB-018,"PDB-102, PDB-121","{""PDB-102"",""PDB-121""}",Blastoise,7,2,"+3 Energy
+Attack: Each opponent discards two random cards.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Blastoise.webp,,Pokemon,Attack,Evolved Pokemon,__none__
+PDB-019,PDB-020,"{""PDB-020""}",Brock,,,You start the game with Brock's Onix in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Brock.webp,,Trainer,,,__none__
+PDB-020,PDB-019,"{""PDB-019""}",Brock's Onix,1,0,"+1 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Brock's%20Onix.webp,,Starter|Pokemon,Defense,,__none__
+PDB-021,,{},Bug Catcher Wants to Fight!,1,2,,"When you gain this, put this under your Trainer.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Bug%20Catcher%20Wants%20to%20Fight.webp,blue,Encounter,,,__none__
+PDB-022,"PDB-051, PDB-118","{""PDB-051"",""PDB-118""}",Bulbasaur,3,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Ivysaur from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Bulbasaur.webp,,Pokemon,Evolve,,__none__
+PDB-023,"PDB-024, PDB-069","{""PDB-024"",""PDB-069""}",Butterfree,7,2,"+3 Energy
+Attack: Each opponent gains a Poison and discards a card.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Butterfree.webp,,Pokemon,Attack,Evolved Pokemon,__none__
+PDB-024,"PDB-069, PDB-023","{""PDB-069"",""PDB-023""}",Caterpie,2,1,"+1 Energy
+Evolve 3: Put this under your Trainer. Gain Metapod from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Charizard.webp,,Pokemon,Evolve,,__none__
+PDB-025,"PDB-026, PDB-027","{""PDB-026"",""PDB-027""}",Charizard,7,2,"+3 Energy
+You may destroy up to two cards in your discard pile.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Charizard.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-026,"PDB-027, PDB-025","{""PDB-027"",""PDB-025""}",Charmander,3,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Charmeleon from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Charmander.webp,,Pokemon,Evolve,,__none__
+PDB-027,"PDB-026, PDB-025","{""PDB-026"",""PDB-025""}",Charmeleon,5,1,"+2 Energy
+You may destroy a card in your discard pile.
+Evolve 6: Put this under your Trainer. Gain Charizard from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Charmeleon.webp,,Pokemon,Evolve,Evolved Pokemon,__none__
+PDB-028,PDB-030,"{""PDB-030""}",Diglett,4,1,"+1 Energy
+Defense: You may reveal this to avoid an Attack. If you do, draw a card, then put this on the bottom of your deck.
+Evolve 5: Put this under your Trainer. Gain Dugtrio from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Diglett.webp,,Pokemon,Defense|Evolve,,__none__
+PDB-029,,{},Ditto,4,1,Copy the effects of a Pokemon you control in play until the end of your turn. This can't be copied or Evolve.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Ditto.webp,,Pokemon,,,__none__
+PDB-030,PDB-028,"{""PDB-028""}",Dugtrio,6,2,"+3 Energy
+Defense: You may reveal this to avoid an Attack. If you do, draw two cards, then put this on the bottom of your deck.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Dugtrio.webp,,Pokemon,Defense,Evolved Pokemon,__none__
+PDB-031,"PDB-036, PDB-052, PDB-117","{""PDB-036"",""PDB-052"",""PDB-117""}",Eevee,3,1,"+1 Energy
+Evolve 3: Put this under your Trainer. Gain Flareon, Jolteon, or Vaporeon from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Eevee.webp,,Pokemon,Evolve,,__none__
+PDB-032,,{},Electabuzz,5,1,"+2 Energy
+Attack: That opponent puts all Tackle and Energy Removal from their discard pile on top of their deck.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Electabuzz.webp,,Pokemon,Attack,,__none__
+PDB-033,PDB-119,"{""PDB-119""}",Electrode,6,2,"+2 Energy
+You may put this under your Trainer. If you do, gain +5 Energy.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Electrode.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-034,,{},Energy Removal,,0,,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Energy%20Removal.webp,,Starter,,,__none__
+PDB-035,,{},Farfetch'd,2,1,Put an Item with cost 5 or less from your discard pile into your hand.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Farfetch'd.webp,,Pokemon,,,__none__
+PDB-036,PDB-031,"{""PDB-031""}",Flareon,5,1,"+2 Energy
+You may destroy a card in your discard pile.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Flareon.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-037,,{},Full Heal,5,1,"+2 Energy
+Draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Full%20Heal.webp,,Item,,,__none__
+PDB-038,PDB-039,"{""PDB-039""}",Gary,,,You go first. You start the game with Gary's Squirtle in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Gary.webp,,Trainer,,,__none__
+PDB-039,PDB-038,"{""PDB-038""}",Gary's Squirtle,1,0,+2 Energy,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Gary's%20Squirtle.webp,,Starter|Pokemon,,,__none__
+PDB-040,,{},Good Rod,4,1,Add the top card of the Main Deck to the Route. Gain a Pokemon with cost 4 or less that is in the Route.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Good%20Rod.webp,,Item,,,__none__
+PDB-041,"PDB-076, PDB-083","{""PDB-076"",""PDB-083""}",Grimer,4,1,"+1 Energy and choose an opponent.
+Attack: That opponent gains a Poison.
+Evolve 5: Put this under your Trainer. Gain Muk from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Grimer.webp,,Pokemon,Attack|Evolve,,__none__
+PDB-042,PDB-062,"{""PDB-062""}",Gyarados,8,3,"+4 Energy
+Destroy up to three cards in your hand and/or discard pile.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Gyarados.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-043,,{},Hitmonchan,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent discards a random card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Hitmonchan.webp,,Pokemon,Attack,,__none__
+PDB-044,,{},Hitmonlee,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent discards a random card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Hitmonlee.webp,,Pokemon,Attack,,__none__
+PDB-045,,{},HM01 Cut,3,1,"+1 Energy
+Look at the top two cards of your deck. You may destroy one, then put the rest on top of your deck in any order.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/HM01%20Cut.webp,,TM / HM,,,__none__
+PDB-046,,{},HM02 Fly,3,1,"Draw a card.
+Put all cards from the Route on the bottom of the Main Deck, then refill the Route.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/HM02%20Fly.webp,,TM / HM,,,__none__
+PDB-047,,{},HM03 Surf,3,1,"+2 Energy
+During this turn, when there are one or more empty slots in the Route, you may refill the Route.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/HM03%20Surf.webp,,TM / HM,,,__none__
+PDB-048,,{},HM04 Strength,3,1,"+2 Energy
+Look at the top card of your deck. You may discard it.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/HM04%20Strength.webp,,TM / HM,,,__none__
+PDB-049,,{},HM05 Flash,3,1,Search your deck for a card with cost 5 or less. Reveal it and put it into your hand.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/HM05%20Flash.webp,,TM / HM,,,__none__
+PDB-050,,{},Item Finder,5,1,"Choose one of the following:
+ • Put an Item from your discard pile to your hand.
+ • Gain an Item that is in the Route.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Item%20Finder.webp,,Item,,,__none__
+PDB-051,"PDB-022, PDB-118","{""PDB-022"",""PDB-118""}",Ivysaur,5,1,"+2 Energy
+Draw a card.
+Evolve 6: Put this under your Trainer. Gain Venusaur from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Ivysaur.webp,,Pokemon,Evolve,Evolved Pokemon,__none__
+PDB-052,PDB-031,"{""PDB-031""}",Jolteon,5,1,"+2 Energy and choose an opponent.
+That opponent discards a card, then puts two cards with cost 0 from their discard pile on top of their deck.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Jolteon.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-053,,{},Kadabra,5,1,"+2 Energy
+You may switch your discard pile with your deck. If you do, shuffle your deck.
+Evolve 6: Put this under your Trainer. Gain Alakazam from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Kadabra.webp,,Pokemon,Evolve,Evolved Pokemon,__none__
+PDB-054,,{},Kangaskhan,6,2,"+2 Energy
+Attack: Each opponent discards a card with cost 3 or more.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Kangaskhan.webp,,Pokemon,Attack,,__none__
+PDB-055,PDB-056,"{""PDB-056""}",Kingler,5,1,"+2 Energy and choose an opponent.
+That opponent reveals their hand, then discards a Defense card.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Kingler.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-056,PDB-055,"{""PDB-055""}",Krabby,4,1,"+1 Energy and choose an opponent.
+That opponent discards a Defense card.
+Evolve 4: Put this under your Trainer. Gain Kingler from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Krabby.webp,,Pokemon,Evolve,,__none__
+PDB-057,,{},Lapras,5,1,"+2 Energy
+Defense: You may shuffle this from your discard pile into your deck to avoid an Attack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Lapras.webp,,Pokemon,Defense,,__none__
+PDB-058,,{},Lass Wants To Fight!,2,3,,"When you gain this, put this under your Trainer.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Lass%20Wants%20to%20Fight.webp,blue,Encounter,,,__none__
+PDB-059,"PDB-061, PDB-060","{""PDB-061"",""PDB-060""}",Machamp,8,3,+8 Energy,,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Machamp.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-060,"PDB-061, PDB-059","{""PDB-061"",""PDB-059""}",Machoke,6,2,"+3 Energy
+Evolve 7: Put this under your Trainer. Gain Machamp from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Machoke.webp,,Pokemon,Evolve,,__none__
+PDB-061,"PDB-060, PDB-059","{""PDB-060"",""PDB-059""}",Machop,4,1,"+2 Energy
+Evolve 4: Put this under your Trainer. Gain Machoke from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Machop.webp,,Pokemon,Evolve,,__none__
+PDB-062,PDB-042,"{""PDB-042""}",Magikarp,1,0,Evolve 7: Put this under your Trainer. Gain Gyarados from the Evolution Stack.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Magikarp.webp,,Pokemon,Evolve,,__none__
+PDB-063,,{},Magmar,5,1,"+2 Energy
+Discard the top card of your deck. You may destroy it.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Magmar.webp,,Pokemon,,,__none__
+PDB-064,,{},Magnemite,3,1,"+1 Energy
+Put all Magnemite from your discard pile into your hand. Gain an additional +1 Energy for each other Magnemite you have already played this turn.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Magnemite.webp,,Pokemon,,,__none__
+PDB-065,PDB-083,"{""PDB-083""}",Make It Double!,,,Encounter Attack: Discard a card and gain a Poison.,"This can't be bought or gained. At the end of the turn, destroy this.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Make%20It%20Double.webp,yellow,Encounter,Encounter Attack,,Team Rocket
+PDB-066,,{},Master Ball,6,2,Gain a Pokemon that is in the Route.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Master%20Ball.webp,,Item,,,__none__
+PDB-067,,{},Max Revive,7,2,"+1 Energy
+Put a Pokemon from your discard pile into your hand, then draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Max%20Revive.webp,,Item,,,__none__
+PDB-068,,{},Meowth That's Right!,,,Encounter Attack: Discard two cards.,"This can't be bought or gained. At the end of the turn, destroy this.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Meowth%20That's%20Right.webp,yellow,Encounter,Encounter Attack,,Team Rocket
+PDB-069,"PDB-024, PDB-023","{""PDB-024"",""PDB-023""}",Metapod,5,1,"+2 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw a card.
+Evolve 6: Put this under your Trainer. Gain Butterfree from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Metapod.webp,,Pokemon,Defense|Evolve,Evolved Pokemon,__none__
+PDB-070,,{},Mew,8,3,"You may gain a card that is in the Route.
+You may gain the top card of the Main Deck.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Mew.webp,,Pokemon,,Mythical Pokemon,__none__
+PDB-071,,{},Mewtwo,8,3,"+4 Energy
+Each opponent discards their hand, then puts the top four cards of their deck into their hand.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Mewtwo.webp,,Pokemon,,Legendary Pokemon,__none__
+PDB-072,PDB-073,"{""PDB-073""}",Misty,,,You start the game with Misty's Staryu in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Misty.webp,,Trainer,,,__none__
+PDB-073,PDB-072,"{""PDB-072""}",Misty's Staryu,1,0,"+2 Energy
+Defense: You may discard this to avoid an Attack.",,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Misty's%20Staryu.webp,,Starter|Pokemon,Defense,,__none__
+PDB-074,,{},Moltres,7,2,"+3 Energy
+You may destroy two cards in your hand.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Moltres.webp,,Pokemon,,Legendary Pokemon,__none__
+PDB-075,,{},Mr. Mime,6,2,"+1 Energy
+Defense: You may reveal this to avoid an Attack. If you do, draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Mr%20Mime.webp,,Pokemon,Defense,,__none__
+PDB-076,"PDB-041, PDB-083","{""PDB-041"",""PDB-083""}",Muk,6,2,"+3 Energy and choose an opponent.
+Attack: That opponent gains two Poison.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Muk.webp,,Pokemon,Attack,Evolved Pokemon,__none__
+PDB-077,PDB-120,"{""PDB-120""}",Ninetales,5,1,"+2 Energy
+You may destroy a card in your hand. If you do, draw a card.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Ninetales.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-078,PDB-079,"{""PDB-079""}",Nurse Joy,,,You start the game with Nurse Joy's Chansey in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Nurse%20Joy.webp,,Trainer,,,__none__
+PDB-079,PDB-078,"{""PDB-078""}",Nurse Joy's Chansey,1,0,"Draw a card.
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Nurse%20Joy's%20Chansey.webp,,Starter|Pokemon,Defense,,__none__
+PDB-080,PDB-081,"{""PDB-081""}",Officer Jenny,,,You start the game with Officer Jenny's Growlithe in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Officer%20Jenny.webp,,Trainer,,,__none__
+PDB-081,PDB-080,"{""PDB-080""}",Officer Jenny's Growlithe,1,0,"+2 Energy
+Each opponent discards a card.",,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Officer%20Jenny's%20Growlithe.webp,,Pokemon,,,__none__
+PDB-082,,{},Pinsir,6,2,"+3 Energy
+Destroy a card in your hand.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Pinsir.webp,,Pokemon,,,__none__
+PDB-083,,{},Poison,,-1,,,[PDB],Poison/Status Condition Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Poison.webp,,,,,__none__
+PDB-084,,{},Pokeball,2,1,The next Pokemon you buy or gain this turn costs two less.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Pokeball.webp,,Item,,,__none__
+PDB-085,"PDB-086, PDB-087","{""PDB-086"",""PDB-087""}",Poliwag,4,1,"+1 Energy
+Attack: Each opponent discards a card.
+Evolve 4: Put this under your Trainer. Gain Poliwhirl from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Poliwag.webp,,Pokemon,Attack|Evolve,,__none__
+PDB-086,"PDB-085, PDB-087","{""PDB-085"",""PDB-087""}",Poliwhirl,5,1,"+2 Energy
+Attack: Each opponent draws two cards, then discards three random cards.
+Evolve 6: Put this under your Trainer. Gain Poliwrath from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Poliwhirl.webp,,Pokemon,Attack|Evolve,Evolved Pokemon,__none__
+PDB-087,"PDB-085, PDB-086","{""PDB-085"",""PDB-086""}",Poliwrath,7,2,"+3 Energy
+Attack: Each opponent chooses one: You draw a card or they discard a random card.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Poliwrath.webp,,Pokemon,Attack,Evolved Pokemon,__none__
+PDB-088,PDB-094,"{""PDB-094""}",Ponyta,2,1,"Draw a card.
+Evolve 5: Put this under your Trainer. Gain Rapidash from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Ponyta.webp,,Pokemon,Evolve,,__none__
+PDB-089,,{},Porygon,5,1,"+2 Energy
+Put a TM / HM from your discard pile into your hand.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Porygon.webp,,Pokemon,,,__none__
+PDB-090,,{},Potion,3,1,+2 Energy,,[PDB],Potion Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Potion.webp,,Item,,,__none__
+PDB-091,PDB-083,"{""PDB-083""}",Prepare For Trouble!,,,Encounter Attack: Gain a Poison,"This can't be bought or gained. At the end of the turn, destroy this.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Prepare%20For%20Trouble.webp,yellow,Encounter,Encounter Attack,,Team Rocket
+PDB-092,PDB-093,"{""PDB-093""}",Professor Oak,,,You start the game with Professor Oak's Pokedex in your deck.,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Professor%20Oak.webp,,Trainer,,,__none__
+PDB-093,PDB-092,"{""PDB-092""}",Professor Oak's Pokedex,1,0,"Choose one of the following:
+ • Gain +2 Energy.
+ • Put the next Pokemon you buy or gain this turn on top of your deck.",,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Professor%20Oak's%20Pokedex.webp,,Starter|Item,,,__none__
+PDB-094,PDB-088,"{""PDB-088""}",Rapidash,5,1,"Draw two cards.
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Rapidash.webp,,Pokemon,Defense,Evolved Pokemon,__none__
+PDB-095,,{},Revive,5,1,Put a Pokemon with cost 7 or less from your discard pile into your hand.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Revive.webp,,Item,,,__none__
+PDB-096,PDB-097,"{""PDB-097""}",Rhydon,5,1,"+2 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Rhydon.webp,,Pokemon,Defense,Evolved Pokemon,__none__
+PDB-097,PDB-096,"{""PDB-096""}",Rhyhorn,3,1,"+1 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw a card.
+Evolve 4: Put this under your Trainer. Gain Rhydon from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Rhyhorn.webp,,Pokemon,Defense|Evolve,,__none__
+PDB-098,,{},Scyther,6,2,"+3 Energy
+Look at the top two cards of your deck. You may destroy one, then put the rest on top of your deck in any order.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Scyther.webp,,Pokemon,,,__none__
+PDB-099,PDB-100,"{""PDB-100""}",Slowbro,5,1,"Put this in front of your Trainer. At the start of your turn, discard this from play and gain +3 Energy.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Slowbro.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-100,PDB-099,"{""PDB-099""}",Slowpoke,2,1,"Put this in front of your Trainer. At the start of your turn, discard this from play and gain +1 Energy.
+Evolve 3: Put this under your Trainer. Gain Slowbro from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Slowpoke.webp,,Pokemon,Evolve,,__none__
+PDB-101,,{},Snorlax,6,2,"+2 Energy
+Defense: You may reveal this to avoid an Attack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Snorlax.webp,,Pokemon,Defense,,__none__
+PDB-102,"PDB-121, PDB-018","{""PDB-121"",""PDB-018""}",Squirtle,3,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Wartortle from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Squirtle.webp,,Pokemon,Evolve,,__none__
+PDB-103,,{},Surrender Now Or Prepare To Fight!,,,"Encounter Attack: Reveal your hand, then discard the highest cost card in your hand.","This can't be bought or gained. At the end of the turn, destroy this.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Surrender%20Now%20or%20Prepare%20to%20Fight.webp,,Encounter,Encounter Attack,,Team Rocket
+PDB-104,,{},Tackle,,,+1 Energy,,[PDB],Setup,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Tackle.webp,,Starter,,,__none__
+PDB-105,PDB-083,"{""PDB-083""}",Tangela,4,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Poison",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Tangela.webp,,Pokemon,Attack,,__none__
+PDB-106,,{},Tauros,6,2,"+3 Energy
+Each opponent discards a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Tauros.webp,,Pokemon,,,__none__
+PDB-107,,{},TM01 Mega Punch,6,2,+4 Energy,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM01%20Mega%20Punch.webp,,TM / HM,,,__none__
+PDB-108,PDB-083,"{""PDB-083""}",TM06 Toxic,4,1,"+1 Energy
+Attack: Each opponent gains a Poison.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM06%20Toxic.webp,,TM / HM,Attack,,__none__
+PDB-109,,{},TM11 Bubblebeam,4,1,"+2 Energy and choose an opponent.
+Attack: That opponent discards a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM11%20Bubblebeam.webp,,TM / HM,Attack,,__none__
+PDB-110,,{},TM18 Counter,4,1,"Defense: You may discard this to avoid an Attack. If you do, draw a card, then if it was an Attack from an opponent, copy the effect of the Attack targeting only that opponent (they may use a Defense to avoid this effect).",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM18%20Counter.webp,,TM / HM,Defense,,__none__
+PDB-111,,{},TM21 Mega Drain,4,1,"+1 Energy and choose an opponent.
+Attack: That opponent discards a card. If they do, draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM21%20Mega%20Drain.webp,,TM / HM,Attack,,__none__
+PDB-112,,{},TM24 Thunderbolt,5,1,"+2 Energy and choose an opponent.
+Attack: Put up to two cards from that opponent's discard pile on top of their deck.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM24%20Thunderbolt.webp,,TM / HM,Attack,,__none__
+PDB-113,,{},TM30 Teleport,3,1,"If this is the first card you have played this turn, discard your hand and draw five cards.
+Defense: You may discard this to avoid an Attack. If you do, draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM30%20Teleport.webp,,TM / HM,Defense,,__none__
+PDB-114,,{},TM31 Mimic,3,1,Each opponent reveals the top card of their deck. You may copy the effects of one of the cards revealed this way until the end of your turn. This can't be copied or Evolve.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM31%20Mimic.webp,,TM / HM,,,__none__
+PDB-115,,{},TM44 Rest,6,2,"If this is the first card you have  played this turn, do not discard your hand at the end of your turn. Draw four cards and then immediately end your turn. Otherwise, draw a card.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TM44%20Rest.webp,,TM / HM,,,__none__
+PDB-116,,{},Ultra Ball,5,1,Gain a Pokemon with cost 6 or less that is in the Route.,,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Ultra%20Ball.webp,,Item,,,__none__
+PDB-117,PDB-031,"{""PDB-031""}",Vaporeon,5,1,"+2 Energy and choose an opponent.
+Attack: Look at that opponent's hand. That opponent discards a card of your choosing.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Vaporeon.webp,,Pokemon,Attack,Evolved Pokemon,__none__
+PDB-118,"PDB-022, PDB-051","{""PDB-022"",""PDB-051""}",Venusaur,7,2,"+3 Energy
+Draw two cards.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Venusaur.webp,,Pokemon,,Evolved Pokemon,__none__
+PDB-119,PDB-033,"{""PDB-033""}",Voltorb,3,1,"+2 Energy
+Evolve 5: Put this under your Trainer. Gain Electrode from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Voltorb.webp,,Pokemon,Evolve,,__none__
+PDB-120,PDB-077,"{""PDB-077""}",Vulpix,3,1,"+2 Energy
+Evolve 5: Put this under your Trainer. Gain Ninetales from the Evolution Stack.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Vulpix.webp,,Pokemon,Evolve,,__none__
+PDB-121,"PDB-102, PDB-018","{""PDB-102"",""PDB-018""}",Wartortle,5,1,"+2 Energy
+Attack: Each opponent discards a random card.
+Evolve 6: Put this under your Trainer. Gain Blastoise from the Evolution Stack.",,[PDB],Evolution Stack,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Wartortle.webp,,Pokemon,Attack|Evolve,Evolved Pokemon,__none__
+PDB-122,,{},Youngster Wants To Fight!,0,1,,"When you gain this, put this under your Trainer.",[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Youngster%20Wants%20to%20Fight.webp,,Encounter,,,__none__
+PDB-123,,{},Zapdos,7,2,"+2 Energy
+You may discard up to two cards. For each card discarded this way, gain +2 Energy.",,[PDB],Main Deck,https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/Zapdos.webp,,Pokemon,,Legendary Pokemon,__none__

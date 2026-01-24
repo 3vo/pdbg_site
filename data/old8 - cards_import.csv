@@ -1,0 +1,229 @@
+card_id,related_ids_raw,related,image_url,name,cost,xp,effect,highlight_effect,highlight_color,card_location,primary_types,keywords,subtypes,symbols,set,image_variants,rules
+TSR-001,TSR-007,"{""TSR-007""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Antidote.webp,Antidote,4,1,"+2 Energy
+Destroy a Badly Poisoned you control in play, in your discard pile, or under your Trainer.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-002,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Arceus.webp,Arceus,8,3,"Choose one of the following:
+ • +2 Energy and put up to two cards in your hand and/or discard pile under your Trainer.
+ • Gain a card in the Destroyed Pile. If you do, put it into your hand.",,,Mythical Pokemon Stack,Pokemon,,Mythical,__none__,[TSR],,
+TSR-003,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Ash.webp,Ash,,,Pokemon you control in play cost one less to Evolve.,,,Setup,Trainer,,,__none__,[TSR],,
+TSR-004,TSR-105,"{""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Awakening.webp,Awakening,4,1,"+2 Energy
+Destroy a Sleep you control in play or in your discard pile.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-005,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Azelf.webp,Azelf,6,2,"+2 Energy
+Each opponent flips their Trainer face-down until the end of their next turn.
+Defense: You may discard this to avoid an Attack. If you do, draw a card, then the opponent who controls the source of that Attack flips their Trainer face-down until the end of their next turn.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-006,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Back%20to%20Basics!.webp,Back To Basics!,,,Encounter Attack: Each player discards a card with cost 1 or more.,"This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Team Rocket,[TSR],,
+TSR-007,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Badly%20Poisoned.webp,Badly Poisoned,0,-1,"Ongoing: When another Status Condition enters play under your control, destroy this. At the end of your turn, put this under your Trainer.","When this enters your hand, put this into play.",red,Poison/Status Condition Stack,Status Condition,Ongoing,,__none__,[TSR],,
+TSR-008,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Barry.webp,Barry,,,"Once during each of your turns, when you play a Pokemon with cost 4 or more, gain +1 Energy.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-009,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Beacon%20Badge.webp,Beacon Badge,12,7,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-010,TSR-011,"{""TSR-011""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Bibarel.webp,Bibarel,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent discards half of their cards in their hand, rounded down.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-011,TSR-010,"{""TSR-010""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Bidoof.webp,Bidoof,3,1,"+1 Energy
+If this is discarded from your hand or deck by a card effect, put this into your hand.
+Evolve 5: Put this under your Trainer. Gain Bibarel from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-012,"TSR-007, TSR-030, TSR-032, TSR-105","{""TSR-007"",""TSR-030"",""TSR-032"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Brock.webp,Brock,,,"Once during each of your turns, you may discard a Pokemon. If you do, you may destroy a Status Condition you control in play, in your discard pile, or under this.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-013,TSR-014,"{""TSR-014""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Bronzong.webp,Bronzong,6,2,"Draw a card.
+You may put a card from your discard pile on the bottom of your deck.
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,,Evolution Stack,Pokemon,Defense,Evolved,__none__,[TSR],,
+TSR-014,TSR-013,"{""TSR-013""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Bronzor.webp,Bronzor,3,1,"Defense: You may discard this to avoid an Attack. If you do, draw two cards.
+Evolve 4: Put this under your Trainer. Gain Bronzong from the Evolution Stack.",,,Main Deck,Pokemon,Defense,,__none__,[TSR],,
+TSR-015,"TSR-007, TSR-030, TSR-105","{""TSR-007"",""TSR-030"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Budew.webp,Budew,2,1,"Ongoing: At the start of your turn, you may discard this from play. If you do, destroy a Badly Poisoned, Confusion, or Sleep you control in play or in your discard pile.",,,Main Deck,Pokemon,Ongoing,,__none__,[TSR],,
+TSR-016,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Carnivine.webp,Carnivine,5,1,"Ongoing: You may discard this from play. If you do, gain a Pokemon with cost 5 or less that is in the Route and put it under your Trainer.",,,Main Deck,Pokemon,Ongoing,,__none__,[TSR],,
+TSR-017,TSR-105,"{""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Chatot.webp,Chatot,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Sleep.",,,Main Deck,Pokemon,Attack,,__none__,[TSR],,
+TSR-018,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Cherish%20Ball!.webp,Cherish Ball!,,,"Encounter Attack: If the top card of the Mythical Pokemon Stack is face-down, flip it face-up.","This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Poke Ball,[TSR],,
+TSR-019,"TSR-086, TSR-075","{""TSR-086"",""TSR-075""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Chimchar.webp,Chimchar,3,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Monferno from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-020,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Chimchar.webp,Choice Band,5,1,Copy the effects of a Pokemon with cost 7 or less you have played this turn until the end of your turn. This can't Evolve or Learn.,,,Main Deck,Item,,,__none__,[TSR],,
+TSR-021,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Choice%20Scarf.webp,Choice Scarf,5,1,"Draw two cards, then discard two cards.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-022,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Coal%20Badge.webp,Coal Badge,7,4,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-023,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Cobble%20Badge.webp,Cobble Badge,8,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-024,"TSR-125, TSR-007","{""TSR-125"",""TSR-007""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Combee.webp,Combee,2,1,Evolve 5: Put this under your Trainer. Gain Vespiquen from the Evolution Stack.,,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-025,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Commander%20Charon.webp,Commander Charon!,,,Encounter Attack: Each player discards an Item.,"This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Team Galactic,[TSR],,
+TSR-026,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Commander%20Jupiter.webp,Commander Jupiter!,3,2,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Galactic,[TSR],,
+TSR-027,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Commander%20Mars.webp,Commander Mars!,3,2,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Galactic,[TSR],,
+TSR-028,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Commander%20Saturn.webp,Commander Saturn!,4,3,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Galactic,[TSR],,
+TSR-029,TSR-030,"{""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Confuse%20Ray.webp,Confuse Ray,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Confusion.",,,Main Deck,Move,Attack,,__none__,[TSR],,
+TSR-030,"TSR-012, TSR-015, TSR-053, TSR-054, TSR-029, TSR-037, TSR-040, TSR-060, TSR-073, TSR-090, TSR-114","{""TSR-012"",""TSR-015"",""TSR-053"",""TSR-054"",""TSR-029"",""TSR-037"",""TSR-040"",""TSR-060"",""TSR-073"",""TSR-090"",""TSR-114""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Confusion.webp,Confusion,0,-1,"Ongoing: The first Attack you play on your turn affects only you. When another Status Condition enters play under your control, destroy this. At the end of your turn, discard this.","When this enters your hand, put this into play.",red,Poison/Status Condition Stack,Status Condition,Ongoing,,__none__,[TSR],,
+TSR-031,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Cresselia.webp,Cresselia,6,2,"+3 Energy
+You may destroy a Status Condition you control in play or in your discard pile.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-032,"TSR-012, TSR-054, TSR-041, TSR-043, TSR-106, TSR-114","{""TSR-012"",""TSR-054"",""TSR-041"",""TSR-043"",""TSR-106"",""TSR-114""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Curse.webp,Curse,0,-1,"Ongoing: When another Status Condition enters play under your control, destroy this. At the end of your turn, discard this, then draw one less card.","When this enters your hand, put this into play.",red,Poison/Status Condition Stack,Status Condition,Ongoing,,__none__,[TSR],,
+TSR-033,TSR-105,"{""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Darkrai.webp,Darkrai,8,3,"+4 Energy
+Gain +1 Energy for each opponent that has a Sleep in play or in their discard pile.
+Attack: Each opponent discards a Pokemon.",,,Mythical Pokemon Stack,Pokemon,Attack,Mythical,__none__,[TSR],,
+TSR-034,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dawn.webp,Dawn,,,"Once during each of your turns, if you control three different card types in play, gain +1 Energy. If you control four or more different card types in play, gain an additional +1 Energy.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-035,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dialga.webp,Dialga,7,2,"+4 Energy
+You may put up to two cards from your discard pile on the bottom of your deck.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-036,"TSR-039, TSR-037","{""TSR-039"",""TSR-037""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dragonair.webp,Dragonair,6,2,"+3 Energy
+You may put a Status Condition you control in play, or in your discard pile, or under your Trainer into the Status Condition Stack.
+Evolve 8: Put this under your Trainer. Gain Dragonite from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[TSR],,
+TSR-037,"TSR-039, TSR-036, TSR-030","{""TSR-039"",""TSR-036"",""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dragonite.webp,Dragonite,8,3,"+7 Energy
+Gain a Confusion.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-038,"TSR-007, TSR-103","{""TSR-007"",""TSR-103""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dragonite.webp,Drapion,6,2,"+3 Energy and choose an opponent.
+Attack: That opponent gains a Badly Poisoned and puts it into play.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-039,"TSR-036, TSR-037","{""TSR-036"",""TSR-037""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dratini.webp,Dratini,4,1,"+2 Energy
+Evolve 6: Put this under your Trainer. Gain Dragonair from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-040,"TSR-073, TSR-030","{""TSR-073"",""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Drowzee.webp,Drowzee,4,1,"+1 Energy and choose an opponent.
+Attack: That opponent gains a Confusion.
+Evolve 5: Put this under your Trainer. Gain a Hypno from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[TSR],,
+TSR-041,"TSR-032, TSR-044, TSR-043","{""TSR-032"",""TSR-044"",""TSR-043""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dusclops.webp,Dusclops,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Curse.
+Evolve 6: Put this under your Trainer. Gain Dusknoir from the Evolution Stack.",,,Evolution Stack,Pokemon,Attack|Evolve,Evolved,__none__,[TSR],,
+TSR-042,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dusk%20Ball.webp,Dusk Ball,6,2,"Look at the top three cards of the Main Deck. Gain a Pokemon among those cards, then put the rest back in any order.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-043,"TSR-032, TSR-044, TSR-041","{""TSR-032"",""TSR-044"",""TSR-041""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Dusknoir.webp,Dusknoir,7,2,"+4 Energy
+Attack: Each opponent gains a Curse.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-044,"TSR-041, TSR-043","{""TSR-041"",""TSR-043""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Duskull.webp,Duskull,4,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Dusclops from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-045,"TSR-049, TSR-063, TSR-078, TSR-123","{""TSR-049"",""TSR-063"",""TSR-078"",""TSR-123""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Eevee.webp,Eevee,3,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Espeon, Glaceon, Leafeon, or Umbreon from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-046,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Electroweb.webp,Electroweb,5,1,"+3 Energy and choose an opponent.
+Attack: That opponent flips their Trainer and Unique Move face-down until the end of their next turn.",,,Main Deck,Move,Attack,,__none__,[TSR],,
+TSR-047,"TSR-092, TSR-095","{""TSR-092"",""TSR-095""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Empoleon.webp,Empoleon,7,2,"+3 Energy and choose an opponent.
+Attack: Look at that opponent's hand. That opponent discards a card of your choosing. Each other opponent discards a random card.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-048,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Energy%20Removal.webp,Energy Removal,0,0,,,,Setup,Starter,,,__none__,[TSR],,
+TSR-049,TSR-045,"{""TSR-045""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Espeon.webp,Espeon,5,1,"+2 Energy
+You may shuffle your discard pile into your deck. Look at the top four cards of your deck. You may discard any number of them, then put the rest back in any order.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-050,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Explorer%20Kit.webp,Explorer Kit,2,1,"Choose one of the following:
+ • Draw a card.
+ • Look at the top two cards of your deck. You may discard any nubmer of them, then put the rest back in any order.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-051,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Fen%20Badge.webp,Fen Badge,9,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-052,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Forest%20Badge.webp,Forest Badge,8,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-053,"TSR-007, TSR-030, TSR-105","{""TSR-007"",""TSR-030"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Full%20Restore.webp,Full Restore,5,1,"+2 Energy
+Destroy a Badly Poisoned, Confusion, or Sleep you control in play or in your discard pile.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-054,"TSR-007, TSR-030, TSR-032, TSR-105, TSR-059, TSR-057","{""TSR-007"",""TSR-030"",""TSR-032"",""TSR-105"",""TSR-059"",""TSR-057""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Gabite.webp,Gabite,5,1,"+2 Energy
+You may destroy a Status Condition you control in play or in your discard pile.
+Evolve 6: Put this under your Trainer. Gain Garchomp from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[TSR],,
+TSR-055,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Galactic%20Boss%20Cyrus!.webp,Galactic Boss Cyrus!,,,"Encounter Attack: Each player discards their hand, shuffles their discard pile into their deck, then draws one card less than the number of cards they discarded this way.","This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Team Galactic,[TSR],,
+TSR-056,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Galactic%20Grunt.webp,Galactic Grunt!,1,1,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Galactic,[TSR],,
+TSR-057,"TSR-059, TSR-054, TSR-007, TSR-030, TSR-032, TSR-105","{""TSR-059"",""TSR-054"",""TSR-007"",""TSR-030"",""TSR-032"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Garchomp.webp,Garchomp,7,2,"+4 Energy
+You may destroy a Status Condition you control in play or in your discard pile. If you do, draw a card.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-058,TSR-102,"{""TSR-102""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Gastrodon.webp,Gastrodon,6,2,"+2 Energy
+If this is discarded by a card effect, put this into your hand.
+Defense: You may discard this to avoid an Attack.",,,Evolution Stack,Pokemon,Defense,Evolved,__none__,[TSR],,
+TSR-059,"TSR-054, TSR-057","{""TSR-054"",""TSR-057""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Gible.webp,Gible,4,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Gabite from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-060,TSR-030,"{""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Girafarig.webp,Girafarig,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Confusion.",,,Main Deck,Pokemon,Attack,,__none__,[TSR],,
+TSR-061,"TSR-062, TSR-066","{""TSR-062"",""TSR-066""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Giratina-Origin.webp,Giratina-Origin,7,2,"+4 Energy
+At the start of your turn, if this is in your discard pile, you may play it. If you do, shuffle this into your deck at the end of your turn.",,,Evolution Stack,Pokemon,,Legendary,__none__,[TSR],,
+TSR-062,"TSR-061, TSR-066","{""TSR-061"",""TSR-066""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Giratina.webp,Giratina,7,2,"Ongoing: During your turn, you may discard this from play. When this is discarded from play, gain +3 Energy and each opponent discards a card.",,,Main Deck,Pokemon,Ongoing,Legendary,__none__,[TSR],,
+TSR-063,TSR-045,"{""TSR-045""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Glaceon.webp,Glaceon,5,1,"+2 Energy
+Attack: Each opponent can't draw cards until the end of their next turn.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-064,"TSR-007, TSR-065","{""TSR-007"",""TSR-065""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Gligar.webp,Gligar,3,1,"Choose an opponent.
+Attack: That opponent gains a Badly Poisoned.
+Evolve 4: Put this under your Trainer. Gain Gliscor from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[TSR],,
+TSR-065,"TSR-007, TSR-064","{""TSR-007"",""TSR-064""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Gliscor.webp,Gliscor,5,1,"+2 Energy
+Attack: Each opponent gains a Badly Poisoned.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-066,"TSR-062, TSR-061","{""TSR-062"",""TSR-061""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Griseous%20Orb.webp,Griseous Orb,4,1,"Ongoing: While Giratina is in your hand, you may put this and Giratina under your Trainer. If you do, gain Giratina-Origin and put it into your hand.","When you gain this, put this into play.",blue,Main Deck,Item,Ongoing,,__none__,[TSR],,
+TSR-067,"TSR-122, TSR-121","{""TSR-122"",""TSR-121""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Grotle.webp,Grotle,5,1,"+2 Energy
+Draw two cards, then discard two cards.
+Evolve 6: Put this under your Trainer. Gain Torterra from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[TSR],,
+TSR-068,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Happiny.webp,Happiny,2,1,"Ongoing: At the start of your turn, you may discard this from play. If you do, put a card from your discard pile under your Trainer.",,,Main Deck,Pokemon,Ongoing,,__none__,[TSR],,
+TSR-069,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Heal%20Ball.webp,Heal Ball,2,1,"Gain a Pokemon with cost 3 or less that is in the Route. If you do, gain +2 Energy.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-070,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Heatran.webp,Heatran,6,2,"+2 Energy
+You may destroy a card in your hand.
+Defense: You may discard this to avoid an Attack. If you do, draw a card, then you may destroy a card in your hand.",,,Main Deck,Pokemon,Defense,Legendary,__none__,[TSR],,
+TSR-071,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/HM05%20Defog.webp,HM05 Defog,3,1,"+2 Energy
+Look at the top two cards of your deck. You may discard any number of them, then put the rest back in any order.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-072,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/HM08%20Rock%20Climb.webp,HM08 Rock Climb,3,1,"+2 Energy
+At the start of your turn, if this is in your discard pile, you may put this on top of your deck.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-073,"TSR-040, TSR-030","{""TSR-040"",""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Hypno.webp,Hypno,5,1,"+2 Energy
+Attack: Each opponent gains a Confusion.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-074,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Icicle%20Badge.webp,Icicle Badge,10,6,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-075,"TSR-019, TSR-086","{""TSR-019"",""TSR-086""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Infernape.webp,Infernape,7,2,"+3 Energy
+You may destroy a card in your hand or discard pile.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-076,"TSR-126, TSR-105","{""TSR-126"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Jigglypuff.webp,Jigglypuff,4,1,"+1 Energy and choose an opponent.
+Attack: That opponent gains a Sleep.
+Evolve 5: Put this under your Trainer. Gain Wigglytuff from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[TSR],,
+TSR-077,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Lava%20Plume.webp,Lava Plume,5,1,"+3 Energy
+Destroy a non-Status Condition in your discard pile.
+Attack: Each opponent must destroy a non-Status Condition in their discard pile.",,,Main Deck,Move,Attack,,__none__,[TSR],,
+TSR-078,TSR-045,"{""TSR-045""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Leafeon.webp,Leafeon,5,1,"+2 Energy
+Draw two cards, then discard a card.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-079,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Life%20Orb.webp,Life Orb,6,2,"+5 Energy
+Draw one less card at the end of your turn.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-080,"TSR-025, TSR-026, TSR-027, TSR-028, TSR-055, TSR-056","{""TSR-025"",""TSR-026"",""TSR-027"",""TSR-028"",""TSR-055"",""TSR-056""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Looker.webp,Looker,,,"You may avoid all Encounter Attacks.
+Once during each of your turns, if an Encounter with the Team Galactic Symbol is in the Route, gain +3 Energy.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-081,TSR-099,"{""TSR-099""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Lucario.webp,Lucario,6,2,"+3 Energy and choose an opponent.
+Attack: Look at the top four cards of that opponent's deck. Put any number of them on top of their deck in any order, then that opponent discards the rest.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-082,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Manaphy.webp,Manaphy,8,3,"+2 Energy
+Choose a Pokemon in any player's discard pile. Copy the effects of that Pokemon until the end of your turn. This can't Evolve or Learn.",,,Mythical Pokemon Stack,Pokemon,,Mythical,__none__,[TSR],,
+TSR-083,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Mesprit.webp,Mesprit,6,2,"+2 Energy
+Discard your hand, then draw cards equal to the number of cards discarded this way.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-084,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Mime%20Jr.webp,Mime Jr.,2,1,Ongoing: Defense: You may discard this from play to avoid an Attack.,,,Main Deck,Pokemon,Ongoing|Defense,,__none__,[TSR],,
+TSR-085,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Mine%20Badge.webp,Mine Badge,10,6,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-086,"TSR-019, TSR-075","{""TSR-019"",""TSR-075""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Monferno.webp,Monferno,5,1,"+2 Energy
+You may destroy a card in your hand.
+Evolve 6: Put this under your Trainer. Gain Infernape from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[TSR],,
+TSR-087,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Munchlax.webp,Munchlax,2,1,"Ongoing: At the start of your turn, you may discard this from play. If you do, put a card from your hand under your Trainer.",,,Main Deck,Pokemon,,,__none__,[TSR],,
+TSR-088,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Palkia.webp,Palkia,7,2,"+4 Energy
+You may put a card from your discard pile under your Trainer.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-089,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Paul.webp,Paul,,,"Once during each of your turns, you may destroy a card in the Route. If you do, add the top card of the Main Deck to the Route.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-090,TSR-030,"{""TSR-030""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Persim%20Berry.webp,Persim Berry,4,1,"+2 Energy
+Destroy a Confusion you control in play or in your discard pile.",,,Main Deck,Item,,,__none__,[TSR],,
+TSR-091,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Phione.webp,Phione,3,1,"Draw a card.
+Put a Phione from your discard pile into your hand.",,,Main Deck,Pokemon,,,__none__,[TSR],,
+TSR-092,"TSR-095, TSR-047","{""TSR-095"",""TSR-047""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Piplup.webp,Piplup,3,1,"Attack: Each opponent discards a card.
+Evolve 4: Put this under your Trainer. Gain Prinplup from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[TSR],,
+TSR-093,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Pokemon%20Hunter%20J.webp,Pokemon Hunter J,,,"At the start of each of your turns, you may put a Pokemon from your hand or discard pile under this. If you do, gain +2 Energy.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-094,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Potion.webp,Potion,3,1,+2 Energy,,,Potion Stack,Item,,,__none__,[TSR],,
+TSR-095,"TSR-092, TSR-047","{""TSR-092"",""TSR-047""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Prinplup.webp,Prinplup,5,1,"+2 Energy and choose an opponent.
+Attack: Look at that opponent's hand. That opponent discards a card of your choosing.
+Evolve 6: Put this under your Trainer. Gain Empoleon from the Evolution Stack.",,,Evolution Stack,Pokemon,Attack|Evolve,Evolved,__none__,[TSR],,
+TSR-096,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Professor%20Rowan.webp,Professor Rowan,,,"During each player's turn, when any player Evolves a Pokemon, you may put a card with cost two or less from your discard pile into your hand.",,,Setup,Trainer,,,__none__,[TSR],,
+TSR-097,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Regigigas.webp,Regigigas,8,3,"Gain +Energy equal to half the cost of the top card of the Challenge Stack, rounded up.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-098,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Relic%20Badge.webp,Relic Badge,9,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[TSR],,
+TSR-099,TSR-081,"{""TSR-081""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Riolu.webp,Riolu,2,1,"Ongoing: During your turn, you may discard this from play. If you do, gain +2 Energy. Evolve 4: Put this under your Trainer. Gain Lucario from the Evolution Stack.",,,Main Deck,Pokemon,Ongoing|Evolve,,__none__,[TSR],,
+TSR-100,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Rock%20Wrecker.webp,Rock Wrecker,5,1,"+4 Energy
+Ongoing: This can only be discarded from play by its own effect. The next time you shuffle your discard pile into your deck, discard this from play.",,,Main Deck,Move,Ongoing,,__none__,[TSR],,
+TSR-101,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Shaymin.webp,Shaymin,8,3,"Choose one of the following:
+ • If this is the first card you have played this turn, draw until you have six cards in your hand.
+ • Discard two cards. If you do, draw three cards.",,,Mythical Pokemon Stack,Pokemon,,Mythical,__none__,[TSR],,
+TSR-102,TSR-058,"{""TSR-058""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Shellos.webp,Shellos,3,1,"+1 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw a card.
+Evolve 5: Put this under your Trainer. Gain Gastrodon from the Evolution Stack.",,,Main Deck,Pokemon,Defense|Evolve,,__none__,[TSR],,
+TSR-103,"TSR-007, TSR-038","{""TSR-007"",""TSR-038""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Skorupi.webp,Skorupi,4,1,"+1 Energy
+You may put up to two Badly Poisoned from the Destroyed Pile into the Status Condition Stack.
+Evolve 6: Put this under your Trainer. Gain Drapion from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-104,TSR-105,"{""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Sleep%20Powder.webp,Sleep Powder,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Sleep.",,,Main Deck,Move,Attack,,__none__,[TSR],,
+TSR-105,"TSR-004, TSR-012, TSR-015, TSR-053, TSR-054, TSR-033, TSR-076, TSR-104, TSR-126, TSR-114","{""TSR-004"",""TSR-012"",""TSR-015"",""TSR-053"",""TSR-054"",""TSR-033"",""TSR-076"",""TSR-104"",""TSR-126"",""TSR-114""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Sleep.webp,Sleep,0,-1,"Ongoing: At the start of your turn, discard a Pokemon. When another Status Condition enters play under your control, destroy this. At the end of your turn, discards this.","When this enters your hand, put this into play.",red,Poison/Status Condition Stack,Status Condition,Ongoing,,__none__,[TSR],,
+TSR-106,TSR-032,"{""TSR-032""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Spiritomb.webp,Spiritomb,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Curse.",,,Main Deck,Pokemon,Attack,,__none__,[TSR],,
+TSR-107,"TSR-109, TSR-108","{""TSR-109"",""TSR-108""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Staraptor.webp,Staraptor,7,2,"+3 Energy
+Attack: Each opponent discards all non-Status Conditions in front of their Trainer. Draw a card for each opponent that discards at least one card this way.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-108,"TSR-109, TSR-107","{""TSR-109"",""TSR-107""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Staravia.webp,Staravia,5,1,"Draw a card and choose an opponent.
+That opponent discards all non-Status Conditions in front of their Trainer.
+Evolve 6: Put this under your Trainer. Gain Staraptor from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[TSR],,
+TSR-109,"TSR-108, TSR-107","{""TSR-108"",""TSR-107""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Starly.webp,Starly,3,1,"Draw a card and choose an opponent.
+Attack: That opponent discards all non-Status Conditions in front of their Trainer.
+Evolve 5: Put this under your Trainer. Gain Staravia from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[TSR],,
+TSR-110,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Tackle.webp,Tackle,0,0,+1 Energy,,,Setup,Starter,,,__none__,[TSR],,
+TSR-111,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM23%20Iron%20Tail.webp,TM23 Iron Tail,5,1,"+2 Energy and choose an opponent.
+That opponent reveals their hand and discards all Defense cards.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-112,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM28%20Dig.webp,TM28 Dig,4,1,"+2 Energy
+At the end of your turn, put this on the bottom of your deck.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-113,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM34%20Shock%20Wave.webp,TM34 Shock Wave,5,1,"+2 Energy
+Each opponent puts a non-Pokemon Starter from their hand or discard pile on top of their deck. If they can't, they discard a card instead.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-114,"TSR-007, TSR-030, TSR-032, TSR-105","{""TSR-007"",""TSR-030"",""TSR-032"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM42%20Facade.webp,TM42 Facade,6,2,"If you control a Status Condition in play, gain +5 Energy. Otherwise, gain +3 Energy.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-115,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM57%20Charge%20Beam.webp,TM57 Charge Beam,5,1,"Put this in front of your Trainer. At the start of your turn, discards this from play and gain +3 Energy.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-116,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM57%20Charge%20Beam.webp,TM58 Endure,5,1,"+2 Energy
+Defense: You may put this in front of your Trainer to avoid an Attack. If you do, put this from in front of your Trainer into your hand at the start of your turn.",,,Main Deck,TM / HM,Defense,,__none__,[TSR],,
+TSR-117,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM59%20Dragon%20Pulse.webp,TM59 Dragon Pulse,6,2,+4 Energy,,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-118,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM66%20Payback.webp,TM66 Payback,5,1,"+2 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw a card, then the opponent who controls the source of that Attack discards a card.",,,Main Deck,TM / HM,Defense,,__none__,[TSR],,
+TSR-119,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM73%20Thunder%20Wave.webp,TM73 Thunder Wave,5,1,"+2 Energy
+Each opponent discards all non-Status Conditions in front of their Trainer.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-120,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/TM81%20X-Scissor.webp,TM81 X-Scissor,4,1,"+2 Energy
+You may destroy up to two cards in the Route. If you do, add the top card of the Main Deck to the Route for each card destroyed this way.",,,Main Deck,TM / HM,,,__none__,[TSR],,
+TSR-121,"TSR-122, TSR-067","{""TSR-122"",""TSR-067""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Torterra.webp,Torterra,7,2,"+3 Energy
+Draw three cards, then discard three cards.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-122,"TSR-067, TSR-121","{""TSR-067"",""TSR-121""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Turtwig.webp,Turtwig,3,1,"Draw a card.
+Evolve 4: Put this under your Trainer. Gain Grotle from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[TSR],,
+TSR-123,TSR-045,"{""TSR-045""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Umbreon.webp,Umbreon,5,1,"+2 Energy
+You may put a card from your hand or discard pile under your Trainer.",,,Evolution Stack,Pokemon,,Evolved,__none__,[TSR],,
+TSR-124,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Uxie.webp,Uxie,6,2,"+1 Energy
+Search your deck for a card with cost 7 or less and put it into your hand.",,,Main Deck,Pokemon,,Legendary,__none__,[TSR],,
+TSR-125,"TSR-024, TSR-007","{""TSR-024"",""TSR-007""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Vespiquen.webp,Vespiquen,6,2,"+3 Energy
+Attack: Each opponent gains a Badly Poisoned.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,
+TSR-126,"TSR-076, TSR-105","{""TSR-076"",""TSR-105""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/TSR/Wigglytuff.webp,Wigglytuff,5,1,"+2 Energy
+Attack: Each opponent gains a Sleep.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[TSR],,

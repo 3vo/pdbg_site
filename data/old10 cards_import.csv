@@ -1,0 +1,258 @@
+card_id,related_ids_raw,related,image_url,name,cost,xp,effect,highlight_effect,highlight_color,card_location,primary_types,keywords,subtypes,symbols,set,image_variants,rules
+KAQ-001,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Admin%20Aliana.webp,Admin Aliana!,3,3,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Flare,[KAQ],,
+KAQ-002,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Admin%20Bryony.webp,Admin Bryony!,3,3,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Flare,[KAQ],,
+KAQ-003,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Admin%20Celosia.webp,Admin Celosia!,3,3,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Flare,[KAQ],,
+KAQ-004,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Admin%20Mable.webp,Admin Mable!,3,3,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,,,Team Flare,[KAQ],,
+KAQ-005,"KAQ-047, KAQ-029","{""KAQ-047"",""KAQ-029""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Aegislash.webp,Aegislash,9,3,"+4 Energy
+Attack: Each opponent discards a card.
+Defense: You may reveal this to avoid an Attack.",,,Evolution Stack,Pokemon,Attack|Defense,Evolved,__none__,[KAQ],,
+KAQ-006,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Alain.webp,Alain,,,"The first Mega Evolved Pokemon you buy or gain this game costs two less. At the end of the game, if you have four or more Mega Evolved Pokemon, gain 2 XP.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-007,KAQ-009,"{""KAQ-009""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Amaura.webp,Amaura,3,1,"+1 Energy
+Evolve 6: Put this under your Trainer. Gain Aurorus from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-008,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Ash.webp,Ash,,,"Once during each of your turns, you may pay 4 Energy. If you do, put a Pokemon with cost 7 or less from your discard pile into your hand.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-009,KAQ-007,"{""KAQ-007""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Aurorus.webp,Aurorus,6,2,"+2 Energy and choose an opponent.
+Attack: This Attack can't be avoided. Look at that opponent's hand. That opponent discards an Attack card of your choosing.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-010,KAQ-011,"{""KAQ-011""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Avalugg.webp,Avalugg,6,2,"+2 Energy
+Attack: Each opponent can't play more than four cards during their next turn.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-011,KAQ-010,"{""KAQ-010""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Bergmite.webp,Bergmite,3,1,"+1 Energy and choose an opponent.
+Attack: That opponent can't play more than four cards during their next turn.
+Evolve 4: Put this under your Trainer. Gain Avalugg from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-012,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Bonnie.webp,Bonnie,,,"At the start of each of your turns, you may put a Pokemon from your hand under this. If you do, gain +3 Energy.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-013,"KAQ-035, KAQ-026","{""KAQ-035"",""KAQ-026""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Braixen.webp,Braixen,5,1,"+2 Energy
+You may destroy a card in your hand.
+Evolve 6: Put this under your Trainer. Gain Delphox from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[KAQ],,
+KAQ-014,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Bug%20Badge.webp,Bug Badge,7,4,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-015,KAQ-028,"{""KAQ-028""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Bunnelby.webp,Bunnelby,3,1,"+1 Energy
+At the end of your turn, put this on the bottom of your deck.
+Evolve 4: Put this under your Trainer. Gain Diggersby from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-016,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Carbink.webp,Carbink,3,3,,"When you gain this, put this under your Trainer.",,Main Deck,Pokemon,,,__none__,[KAQ],,
+KAQ-017,"KAQ-027, KAQ-048","{""KAQ-027"",""KAQ-048""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Cherish%20Ball.webp,Cherish Ball!,,,"Encounter Attack: If the top card of the Mythical Pokemon Stack is face-down, flip it face-up.","This can't be bought or gained. At the end of the turn, destroy this.",,Main Deck,Encounter,Encounter Attack,,Poke Ball,[KAQ],,
+KAQ-018,"KAQ-019, KAQ-100","{""KAQ-019"",""KAQ-100""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Chesnaught.webp,Chesnaught,7,2,"+3 Energy
+Draw a card.
+Defense: You may discard this to avoid an Attack. If you do, draw three cards.",,,Evolution Stack,Pokemon,Defense,Evolved,__none__,[KAQ],,
+KAQ-019,"KAQ-100, KAQ-018","{""KAQ-100"",""KAQ-018""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Chespin.webp,Chespin,3,1,"Defense: You may discard this to avoid an Attack. If you do, draw a card.
+Evolve 4: Put this under your Trainer. Gain Quilladin from the Evolution Stack.",,,Main Deck,Pokemon,Defense|Evolve,,__none__,[KAQ],,
+KAQ-020,KAQ-021,"{""KAQ-021""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Clauncher.webp,Clauncher,5,1,"+1 Energy
+Attack: Each opponent discards a card.
+Evolve 5: Put this under your Trainer. Gain Clawitzer from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-021,KAQ-020,"{""KAQ-020""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Clawitzer.webp,Clawitzer,6,2,"+2 Energy
+Attack: Each opponent discards a random card.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-022,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Clembot.webp,Clembot!,,,"Encounter Attack: If there are five or more cards in the Challenge Stack, discard a card. Otherwise, draw a card.","This can't be bought or gained. At the end of the turn, destroy this.",,Main Deck,Encounter,Encounter Attack,,__none__,[KAQ],,
+KAQ-023,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Clemont.webp,Clemont,,,"Once during each of your turns, if you have played two or more different Items, draw a card.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-024,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Cliff%20Badge.webp,Cliff Badge,8,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-025,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Dedenne.webp,Dedenne,3,1,"+1 Energy and choose an opponent.
+You may put a Dedenne from your discard pile into your hand.
+Attack: That opponent puts a non-Pokemon Starter from their discard pile on top of their deck.",,,Main Deck,Pokemon,Attack,,__none__,[KAQ],,
+KAQ-026,"KAQ-035, KAQ-013","{""KAQ-035"",""KAQ-013""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Delphox.webp,Delphox,7,2,"+4 Energy
+Look at the top five cards of your deck. You may destroy one of those cards, then put the rest on top of your deck in any order.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-027,KAQ-017,"{""KAQ-017""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Diancie.webp,Diancie,8,3,"Defense: You may put this from your hand or discard pile into play to avoid an Attack.
+Ongoing: Defense: You may put this on the bottom of your deck to avoid an Attack.",,,Mythical Pokemon Stack,Pokemon,Defense|Ongoing,Mythical,__none__,[KAQ],,
+KAQ-028,KAQ-015,"{""KAQ-015""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Diggersby.webp,Diggersby,5,1,"+1 Energy
+You may discard up to the top five cards of your deck.
+Put a card with cost 4 or less from your discard pile into your hand.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-029,"KAQ-047, KAQ-005","{""KAQ-047"",""KAQ-005""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Doublade.webp,Duoblade,6,2,"+3 Energy
+Attack: Each opponent discards a card.
+Evolve 8: Put this under your Trainer. Gain Aegislash from the Evolution Stack.",,,Evolution Stack,Pokemon,Attack|Evolve,Evolved,__none__,[KAQ],,
+KAQ-030,"KAQ-105, KAQ-096","{""KAQ-105"",""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Dragalge.webp,Dragalge,6,2,"+2 Energy
+Attack: Each opponent gains a Poison.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-031,KAQ-108,"{""KAQ-108""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Eevee.webp,Eevee,3,1,"+1 Energy
+Evolve 3: Put this under your Trainer. Gain Sylveon from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-032,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Energy%20Removal.webp,Energy Removal,0,0,,,,Setup,Starter,,,__none__,[KAQ],,
+KAQ-033,KAQ-084,"{""KAQ-084""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Espurr.webp,Espurr,3,1,"Attack: Each player discards their hand and draws a card for each card they discarded this way.
+Evolve 5: Put this under your Trainer. Gain Meowstic from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-034,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Fairy%20Badge.webp,Fairy Badge,10,6,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-035,"KAQ-013, KAQ-026","{""KAQ-013"",""KAQ-026""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Fennekin.webp,Fennekin,3,1,"You may destroy a card in your hand.
+Evolve 4: Put this under your Trainer. Gain Braxian from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-036,"KAQ-037, KAQ-110","{""KAQ-037"",""KAQ-110""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Fletchinder.webp,Fletchinder,5,1,"Draw two cards.
+Evolve 6: Put this under your Trainer. Gain Talonflame from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[KAQ],,
+KAQ-037,"KAQ-036, KAQ-110","{""KAQ-036"",""KAQ-110""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Fletchling.webp,Fletchling,2,1,"Draw a card.
+Evolve 4: Put this under your Trainer. Gain Fletchinder from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-038,"KAQ-039, KAQ-043","{""KAQ-039"",""KAQ-043""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Froakie.webp,Froakie,3,1,"+1 Energy
+Defense: You may discard this to avoid an Attack.
+Evolve 4: Put this under your Trainer. Gain Frogadier from the Evolution Stack.",,,Main Deck,Pokemon,Defense|Evolve,,__none__,[KAQ],,
+KAQ-039,"KAQ-038, KAQ-043","{""KAQ-038"",""KAQ-043""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Frogadier.webp,Frogadier,5,1,"+1 Energy
+Draw a card and choose an opponent.
+Attack: That opponent discards a card.
+Evolve 6: Put this under your Trainer. Gain Greninja from the Evolution Stack.",,,Evolution Stack,Pokemon,Attack|Evolve,Evolved,__none__,[KAQ],,
+KAQ-040,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Furfrou.webp,Furfrou,5,1,"+1 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw a card.
+Ongoing: Defense: You may discard this to avoid an Attack.",,,Main Deck,Pokemon,Defense|Ongoing,,__none__,[KAQ],,
+KAQ-041,"KAQ-042, KAQ-106","{""KAQ-042"",""KAQ-106""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Goodra.webp,Goodra,7,2,"+2 Energy
+At the end of your turn, put another card you control in play into your hand. Draw one less card at the end of your turn.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-042,"KAQ-106, KAQ-041","{""KAQ-106"",""KAQ-041""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Goomy.webp,Goomy,4,1,"+1 Energy
+Evolve 4: Put this under your Trainer. Gain Sliggoo from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-043,"KAQ-038, KAQ-039","{""KAQ-038"",""KAQ-039""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Greninja.webp,Greninja,7,2,"+4 Energy and choose an opponent.
+Attack: This Attack can't be avoided. That opponent discards a card.
+Choose an opponent.
+Attack: This Attack can't be avoided. That opponent discards a card.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-044,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Hawlucha.webp,Hawlucha,4,1,"+2 Energy and choose an opponent.
+Attack: This Attack can't be avoided. That opponent discards a card.",,,Main Deck,Pokemon,Attack,,__none__,[KAQ],,
+KAQ-045,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Heal%20Powder.webp,Heal Powder,3,1,"Choose one of the following:
+ • Destroy a Poison in your hand or discard pile.
+ • Draw a card.",,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-046,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Holo%20Caster.webp,Holo Caster,2,1,"+1 Energy
+Gain an additional +1 Energy for each other Holo Caster in play or in any player's discard pile.",,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-047,"KAQ-029, KAQ-005","{""KAQ-029"",""KAQ-005""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Honedge.webp,Honedge,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent discards a card.
+Evolve 6: Put this under your Trainer. Gain Duoblade from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-048,KAQ-017,"{""KAQ-017""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Hoopa.webp,Hoopa,8,3,"+3 Energy and choose one of the following:
+ • Choose an opponent. That opponent discards all cards in front of their Trainer and can't play Defense cards until the end of their next turn.
+ • Choose an opponent. That opponent can't avoid any Attacks until the end of their next turn.",,,Mythical Pokemon Stack,Pokemon,,Mythical,__none__,[KAQ],,
+KAQ-049,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Hyper%20Potion.webp,Hyper Potion,6,2,+4 Energy,,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-050,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Iceberg%20Badge.webp,Iceberg Badge,12,7,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-051,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Key%20Stone.webp,Key Stone,6,0,"If this is the first card you have played this turn, put this under your Trainer, gain a Mega Evolved Pokemon with cost 10 or less from the Mega Evolution Line, then immediately end your turn.",,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-052,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Klefki.webp,Klefki,3,1,"Ongoing: Once during each of your turns, you may choose one of the following:
+ • Put a card form your hand with cost 1 or more under this.
+ • Play a card that is under this.",,,Main Deck,Pokemon,Ongoing,,__none__,[KAQ],,
+KAQ-053,KAQ-099,"{""KAQ-099""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Litleo.webp,Litleo,3,1,"If this is the first card you have played this turn, you may discard your hand. If you do, Evolve t his without paying its cost.
+Evolve 4: Put this under your Trainer. Gain Pyroar from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-054,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Lysandre.webp,Lysandre!,,,Encounter Attack: This Attack can't be avoided. Each player puts a card with cost 1 or more from their hand or discard pile under their Trainer.,"This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Team Flare,[KAQ],,
+KAQ-055,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Abomasnow.webp,Mega Abomasnow,10,3,"+3 Energy
+Attack: This Attack can't be avoided. Each opponent can't play more than three cards during their next turn.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-056,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Aerodactyl.webp,Mega Aerodactyl,7,2,"+3 Energy
+Attack: Each opponent discards all cards in front of their Trainer and all Ongoing cards in their hand.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-057,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Aggron.webp,Mega Aggron,9,3,"+4 Energy
+Ongoing: You may ignore the effects of all Attacks. At the start of your turn, discard this from play.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Ongoing,Mega,__none__,[KAQ],,
+KAQ-058,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Alakazam.webp,Mega Alakazam,10,3,"+2 Energy
+You may switch your discard pile with your deck, then if you do, shuffle your deck. Put a card from your discard pile into your hand.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-059,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Ampharos.webp,Mega Ampharos,10,3,"+3 Energy
+Attack: This Attack can't be avoided. Each opponent discards a card, then puts two non-Pokemon Starters from their discard pile on top of their deck.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-060,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Audino.webp,Mega Audino,7,2,You may search your deck and/or discard pile for any card and put it into your hand.,This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-061,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Banette.webp,Mega Banette,8,3,"+4 Energy
+If this is discarded from your hand by the effect of an opponent's card or Trainer, that opponent discards three cards.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-062,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Beedrill.webp,Mega Beedrill,9,3,"+4 Energy
+Attack: This Attack can't be avoided. Each opponent gains a Poison and puts it under their Trainer.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-063,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Blastoise.webp,Mega Blastoise,12,3,"+3 Energy
+Attack: This Attack can't be avoided. Each player discards two random cards.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-064,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Camerupt.webp,Mega Camerupt,8,3,"+3 Energy
+You may discard the top two cards of each player's deck. For each card with cost 1 or more discarded this way, gain +1 Energy.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-065,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Charizard.webp,Mega Charizard,12,3,"+3 Energy
+Destroy up to two cards in your hand and/or discard pile, then gain +1 Energy for each card destroyed this way.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-066,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Gallade.webp,Mega Gallade,9,3,"+3 Energy and choose an opponent.
+Attack: This Attack can't be avoided. That opponent discards two cards.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-067,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Garchomp.webp,Mega Garchomp,12,3,"+2 Energy
+Destroy up to two cards in your hand and/or discard pile, then draw a card for each card destroyed this way.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-068,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Gengar.webp,Mega Gengar,8,3,"+3 Energy and choose an opponent.
+Attack: That opponent discards all Pokemon in their hand and in front of their Trainer. If they discarded at least one card this way, put a Pokemon from their discard pile into their hand.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-069,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Gyarados.webp,Mega Gyarados,14,3,"+4 Energy
+You may destroy up to three cards in your hand, discard pile, or under your Trainer.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-070,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Heracross.webp,Mega Heracross,9,3,"+3 Energy
+You may destroy a card in your hand or discard pile",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-071,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Houndoom.webp,Mega Houndoom,10,3,"+3 Energy and choose an opponent.
+Attack: Look at that opponent's hand. You may put a card from that opponent's hand under their Trainer.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-072,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Kangaskhan.webp,Mega Kangaskhan,7,2,"+3 Energy
+Copy the Attacks of a card you control in play or of a card in your discard pile.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-073,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Lopunny.webp,Mega Lopunny,8,3,"+3 Energy and choose an opponent.
+Attack: Discard up to three cards. That opponent discards a card for each card you discarded this way.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-074,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Lucario.webp,Mega Lucario,9,3,"+3 Energy
+Look at the top four cards of your deck. You may discard any number of them, then put the rest back in any order. Look at the top four cards of an opponent's deck. You may discard any number of them, then put the rest back in any order.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-075,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Mewtwo.webp,Mega Mewtwo,12,3,"+4 Energy and choose an opponent.
+Attack: This Attack can't be avoided. That opponent reveals their hand and discards a card with the highest cost.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-076,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Pidgeot.webp,Mega Pidgeot,9,3,"+2 Energy
+Draw two cards.
+You may put any number of cards from the Route on the bottom of the Main Deck, then refill the Route.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-077,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Pinsir.webp,Mega Pinsir,9,3,"You may destroy a card in your hand. Destroy all cards in the Route, then refill the Route.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-078,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Scizor.webp,Mega Scizor,9,3,"+4 Energy
+Look at the top four cards of your deck. You may destroy one, then put the rest back in any order.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-079,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Sharpedo.webp,Mega Sharpedo,9,3,"+2 Energy
+Draw a card. Draw an additional card at the end of your turn.
+Attack: Each opponent discards a card.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-080,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Slowbro.webp,Mega Slowbro,8,3,"Put this in front of your Trainer. At the start of your turn, discard this from play, gain +4 Energy, and draw an additional card at the end of your turn.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,,Mega,__none__,[KAQ],,
+KAQ-081,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Steelix.webp,Mega Steelix,8,3,"+3 Energy
+Attack: This Attack can't be avoided. Each opponent reveals their hand and discards a Defense card.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Attack,Mega,__none__,[KAQ],,
+KAQ-082,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Tyranitar.webp,Mega Tyranitar,10,3,"+3 Energy
+Defense: You may reveal this to avoid an Attack.
+Ongoing: Opponents can't draw cards during their turn. Defense: You may discard this from play to avoid an Attack.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Defense|Ongoing,Mega,__none__,[KAQ],,
+KAQ-083,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Mega%20Venusaur.webp,Mega Venusaur,12,3,"+3 Energy
+Draw two cards.
+Defense: You may put this in front of your Trainer to avoid an Attack. If you do, play this at the start of your turn.",This can't be played if you control a Mega Evolved Pokemon.,red,Mega Evolution Stack,Pokemon,Defense,Mega,__none__,[KAQ],,
+KAQ-084,KAQ-033,"{""KAQ-033""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Meowstic.webp,Meowstic,6,2,"+1 Energy
+Attack: Each player discards their hand, then draws a card for each card discarded this way. Gain +1 Energy for every two cards you discarded this way.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-085,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Metal%20Coat.webp,Metal Coat,5,1,"If you have played a Pokemon this turn, gain +2 Energy.
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.",,,Main Deck,Item,Defense,,__none__,[KAQ],,
+KAQ-086,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Muscle%20Band.webp,Muscle Band,4,1,"Ongoing: When you play an Attack card, discard this from play and gain +2 Energy.",,,Main Deck,Item,Ongoing,,__none__,[KAQ],,
+KAQ-087,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Nest%20Ball.webp,Nest Ball,2,1,"Choose one of the following:
+ • Gain a Pokemon from the Route with cost 4 or less.
+ • The first Pokemon you buy this turn costs two less.",,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-088,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Night%20March.webp,Night March,4,1,"+1 Energy and choose an opponent.
+Gain +1 Energy for each Night March in your discard pile.
+Attack: That opponent discards a card, then an additional card for each Night March in your discard pile.",,,Main Deck,Move,Attack,,__none__,[KAQ],,
+KAQ-089,KAQ-090,"{""KAQ-090""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Noibat.webp,Noibat,4,1,"Attack: Reveal the top two cards of each opponent's deck. Discard all cards with cost 1 or more revealed this way.
+Evolve 4: Put this under your Trainer. Gain Noivern from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-090,KAQ-089,"{""KAQ-089""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Noivern.webp,Noivern,7,2,"+2 Energy
+Attack: Each opponent shuffles their discard pile into their deck, reveals the top four cards of their deck, then discards each card with cost 1 or more revealed this way.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-091,KAQ-092,"{""KAQ-092""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Pancham.webp,Pancham,4,1,"+2 Energy
+Evolve 6: Put this under your Trainer. Gain Pangoro from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-092,KAQ-091,"{""KAQ-091""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Pangoro.webp,Pangoro,6,2,"+4 Energy
+If this is the first card you have played this turn, Attack: Each opponent discards two cards. For each opponent that discards a card with cost 2 or more this way, discard a card.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-093,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Phantom%20Force.webp,Phantom Force,5,1,"Put this in front of your Trainer. At the start of your turn, discard this from play and gain +3 Energy.",,,Main Deck,Move,,,__none__,[KAQ],,
+KAQ-094,KAQ-123,"{""KAQ-123""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Phantump.webp,Phantump,2,1,"+1 Energy
+Evolve 6: Put this under your Trainer. Gain Trevenant from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-095,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Plant%20Badge.webp,Plant Badge,9,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-096,"KAQ-030, KAQ-045, KAQ-062, KAQ-105, KAQ-113,KAQ-115,KAQ-116,KAQ-131","{""KAQ-030"",""KAQ-045"",""KAQ-062"",""KAQ-105"",""KAQ-113"",""KAQ-115"",""KAQ-116"",""KAQ-131""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Poison.webp,Poison,0,-1,,,,Poison/Status Condition Stack,,,,__none__,[KAQ],,
+KAQ-097,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Potion.webp,Potion,3,1,+2 Energy,,,Potion Stack,Item,,,__none__,[KAQ],,
+KAQ-098,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Psychic%20Badge.webp,Psychic Badge,10,6,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-099,KAQ-053,"{""KAQ-053""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Pyroar.webp,Pyroar,5,1,"+2 Energy
+You may destroy a card in your hand or discard pile.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-100,"KAQ-019, KAQ-018","{""KAQ-019"",""KAQ-018""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Quilladin.webp,Quilladin,5,1,"+2 Energy
+Defense: You may discard this to avoid an Attack. If you do, draw two cards.
+Evolve 6: Put this under your Trainer. Gain Chesnaught from the Evolution Stack.",,,Evolution Stack,Pokemon,Defense|Evolve,Evolved,__none__,[KAQ],,
+KAQ-101,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Roller%20Skates.webp,Roller Skates,3,1,"Discard a card. If you do, draw two cards.",,,Main Deck,Item,,,__none__,[KAQ],,
+KAQ-102,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Rumble%20Badge.webp,Rumble Badge,8,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-103,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Serena.webp,Serena,,,"At the start of each of your turns, you may discard an Item. If you do, you may put a Pokemon with cost 5 or less from your discard pile into your hand.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-104,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Shauna.webp,Shauna,,,"Once during each of your turns, you may discard a card and pay 1 Energy. If you do, draw a card.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-105,"KAQ-030, KAQ-096","{""KAQ-030"",""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Skrelp.webp,Skrelp,4,1,"Choose an opponent.
+Attack: That opponent gains a Poison.
+Evolve 4: Put this under your Trainer. Gain Dragalge from the Evolution Stack.",,,Main Deck,Pokemon,Attack|Evolve,,__none__,[KAQ],,
+KAQ-106,"KAQ-042, KAQ-041","{""KAQ-042"",""KAQ-041""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Sliggoo.webp,Sliggoo,5,1,"At the end of your turn, put another card you control in play with cost 6 or less into your hand. Draw one less card at the end of your turn.
+Evolve 5: Put this under your Trainer. Gain Goodra from the Evolution Stack.",,,Evolution Stack,Pokemon,Evolve,Evolved,__none__,[KAQ],,
+KAQ-107,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Stone%20Plate.webp,Stone Plate,3,1,"If you have played a Pokemon this turn, gain +2 Energy.
+Defense: You may discard this to avoid an Attack. If you do, draw a card.",,,Main Deck,Item,Defense,,__none__,[KAQ],,
+KAQ-108,KAQ-031,"{""KAQ-031""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Sylveon.webp,Sylveon,5,1,"+2 Energy
+Ongoing: You may avoid all Attacks. At the start of your turn, discard this from play.",,,Evolution Stack,Pokemon,Ongoing,Evolved,__none__,[KAQ],,
+KAQ-109,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Tackle.webp,Tackle,0,0,+1 Energy,,,Setup,Starter,,,__none__,[KAQ],,
+KAQ-110,"KAQ-037, KAQ-036","{""KAQ-037"",""KAQ-036""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Talonflame.webp,Talonflame,7,2,"Draw two cards.
+You may destroy a card in your hand.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-111,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Team%20Flare%20Grunts.webp,Team Flare Grunts!,2,2,,"When you gain this, put this under your Trainer.",blue,Main Deck,Encounter,Encounter Attack,,Team Flare,[KAQ],,
+KAQ-112,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Tierno.webp,Tierno,,,Defense: You may discard a Pokemon from your hand to avoid an Attack.,,,Setup,Trainer,Defense,,__none__,[KAQ],,
+KAQ-113,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM09%20Venoshock.webp,TM09 Venoshock,5,1,"+2 Energy and choose an opponent.
+Attack: That opponent gains a Poison. If that opponent has more than one Poison in their discard pile, gain +1 Energy.",,,Main Deck,TM / HM,Attack,,__none__,[KAQ],,
+KAQ-114,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM17%20Protect.webp,TM17 Protect,4,1,"Draw a card.
+Defense: You may reveal this to avoid an Attack. If you do, reveal the top card of the Main Deck, then if that card is cost 5 or more, putt his under your Trainer. Put the card revealed this way on the bottom of the Main Deck.",,,Main Deck,TM / HM,Defense,,__none__,[KAQ],,
+KAQ-115,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM20%20Safeguard.webp,TM20 Safeguard,3,1,"You may destroy a Poison in your hand, discard pile, or under your Trainer.
+Ongoing: If you gain a Poison during any turn, discard this from play and destroy that Poison.",,,Main Deck,TM / HM,Ongoing,,__none__,[KAQ],,
+KAQ-116,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM34%20Sludge%20Wave.webp,TM34 Sludge Wave,6,2,"+2 Energy
+Attack: Each opponent gains a Poison.",,,Main Deck,TM / HM,Attack,,__none__,[KAQ],,
+KAQ-117,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM56%20Fling.webp,TM56 Fling,5,1,"Choose an opponent.
+Attack: Put a card from your hand or discard pile into that opponent's discard pile.",,,Main Deck,TM / HM,Attack,,__none__,[KAQ],,
+KAQ-118,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM59%20Incinerate.webp,TM59 Incinerate,5,1,"+1 Energy
+Destroy a card in your hand or discard pile.",,,Main Deck,TM / HM,,,__none__,[KAQ],,
+KAQ-119,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM68%20Giga%20Impact.webp,TM68 Giga Impact,6,2,"+7 Energy
+You do not draw a new hand at the end of your turn.",,,Main Deck,TM / HM,,,__none__,[KAQ],,
+KAQ-120,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM72%20Volt%20Switch.webp,TM72 Volt Switch,5,1,"Draw a card.
+You may discard a Pokemon. If you do, put a Pokemon with cost 8 or less from your discard pile into your hand.",,,Main Deck,TM / HM,,,__none__,[KAQ],,
+KAQ-121,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM98%20Power-Up%20Punch.webp,TM98 Power-Up Punch,5,1,You may discard up to three cards. Gain +2 Energy for each card discarded this way.,,,Main Deck,TM / HM,,,__none__,[KAQ],,
+KAQ-122,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/TM99%20Dazzling%20Gleam.webp,TM99 Dazzling Gleam,5,1,"+2 Energy
+Put all cards from the Route on the bottom of the Main Deck, then refill the Route.
+Attack: Each opponent discards all cards in front of their Trainer.",,,Main Deck,TM / HM,,,__none__,[KAQ],,
+KAQ-123,KAQ-094,"{""KAQ-094""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Trevenant.webp,Trevenant,7,2,"+4 Energy and choose an opponent.
+Attack: That opponent discards all Item cards.",,,Evolution Stack,Pokemon,Attack,Evolved,__none__,[KAQ],,
+KAQ-124,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Trevor.webp,Trevor,,,"At the end of the game, if you have twelve or more differently named Pokemon, gain 5 XP.",,,Setup,Trainer,,,__none__,[KAQ],,
+KAQ-125,KAQ-126,"{""KAQ-126""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Tyrantrum.webp,Tyrantrum,7,2,"+4 Energy
+Destroy a card in your discard pile.",,,Evolution Stack,Pokemon,,Evolved,__none__,[KAQ],,
+KAQ-126,KAQ-125,"{""KAQ-125""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Tyrunt.webp,Tyrunt,5,1,"+2 Energy
+If this is discarded from your hand by an opponent's card effect, that opponent discards a card.
+Evolve 6: Put this under your Trainer. Gain Tyrantrum from the Evolution Stack.",,,Main Deck,Pokemon,Evolve,,__none__,[KAQ],,
+KAQ-127,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Volcanion.webp,Volcanion,8,3,"+2 Energy
+You may destroy a card in your hand or discard pile.
+Attack: Each opponent discards a random card.",,,Mythical Pokemon Stack,Pokemon,Attack,Mythical,__none__,[KAQ],,
+KAQ-128,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Voltage%20Badge.webp,Voltage Badge,9,5,,"When you gain this, put this under your Trainer.",blue,Challenge Stack,Challenge,,,__none__,[KAQ],,
+KAQ-129,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/X%20Accuracy.webp,X Accuracy,4,1,"Look at the top four cards of your deck. You may discard any number of them, then put the rest back in any order.",,,Main Deck,Item,,,__none__,[KAQ],https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/X%20Accuracy%20-%20Blue.webp,
+KAQ-130,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Xerneas.webp,Xerneas,7,2,"Draw a card.
+Draw two additional cards at the end of your turn.",,,Main Deck,Pokemon,,Legendary,__none__,[KAQ],,
+KAQ-131,KAQ-096,"{""KAQ-096""}",https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Xerosic.webp,Xerosic!,,,"Encounter Attack: Shuffle three Poison and the top card of the Main Deck together. Gain one of them ranodmly, then return the rest.","This can't be bought or gained. At the end of the turn, destroy this.",yellow,Main Deck,Encounter,Encounter Attack,,Team Flare,[KAQ],,
+KAQ-132,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Yveltal.webp,Yveltal,7,2,"+3 Energy and choose an opponent.
+Attack: That opponent discards two cards. Draw a card.",,,Main Deck,Pokemon,Attack,Legendary,__none__,[KAQ],,
+KAQ-133,,{},https://epukuennycpgajwtmcty.supabase.co/storage/v1/object/public/cards/KAQ/Zygarde.webp,Zygarde,8,3,"+4 Energy
+Each opponent discards all cards in front of their Trainer.
+Ongoing: Opponent's can't destroy cards during their turn. At the start of your turn, discard this from play.",,,Main Deck,Pokemon,Ongoing,Legendary,__none__,[KAQ],,
