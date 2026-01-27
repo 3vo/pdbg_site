@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { fetchCardById, fetchCardsByCardIds } from '@/lib/cardQueries'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 import BackToResultsButton from '@/components/BackToResultsButton'
 import FadeIn from '@/components/FadeIn'
 import CardImageGallery from '@/components/CardImageGallery'
@@ -84,7 +85,11 @@ export default async function CardDetailPage({ params, searchParams }) {
       )}
 
       <div className="mt-4 grid md:grid-cols-2 gap-8 space-y-1">
-        <CardImageGallery imageUrl={card.image_url} variants={card.image_variants} alt={card.name} />
+        <CardImageGallery
+          imageUrl={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
+          variants={card.image_variants}
+          alt={card.name}
+        />
 
         <div className="space-y-5">
           <h1 className="text-2xl font-bold">{card.name}</h1>
@@ -211,7 +216,12 @@ export default async function CardDetailPage({ params, searchParams }) {
                     className="group relative flex flex-col rounded-md border border-zinc-800 bg-zinc-900 p-2 hover:border-blue-500 transition"
                   >
                     {/* Card image */}
-                    <img src={rc.image_url} alt={rc.name} className="w-full h-auto rounded" />
+                    <img
+                      src={rc.image_path ? cardImageUrlFromPath(rc.image_path) : rc.image_url}
+                      alt={rc.name}
+                      className="w-full h-auto rounded"
+                    />
+
 
                     {/* Hover name tooltip */}
                     <div
