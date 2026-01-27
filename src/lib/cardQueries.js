@@ -120,7 +120,7 @@ export async function fetchCardsByCardIds(cardIds = []) {
 
   const { data, error } = await supabase
     .from('cards_flat')
-    .select('card_id,name,image_url,wcs_tier')
+    .select('card_id,name,image_url,image_path,wcs_tier')
     .in('card_id', ids)
 
   if (error) throw error
