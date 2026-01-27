@@ -126,9 +126,16 @@ export default function CardImage({
         : null
 
   // Force the image to be block-level (no baseline gap) in BOTH cases
+  
+  const imgSrc = card.image_path
+  ? `${(process.env.NEXT_PUBLIC_CARD_ASSETS_HOST || '').replace(/\/+$/, '')}/${encodeURI(
+      String(card.image_path).replace(/^\/+/, '')
+    )}`
+  : card.image_url
+
   const ImageNode = (
     <img
-      src={card.image_url}
+      src={imgSrc}
       alt={displayAlt}
       loading="lazy"
       className={[
