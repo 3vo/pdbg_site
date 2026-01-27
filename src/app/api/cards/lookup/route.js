@@ -18,11 +18,16 @@ export async function GET(req) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const r2Url = data.image_path ? cardImageUrlFromPath(data.image_path) : ''
-  const resolvedImageUrl = r2Url || data.image_url || ''
+  const resolvedImageUrl = data.image_path
+    ? cardImageUrlFromPath(data.image_path)
+    : data.image_url || ''
 
   return NextResponse.json({
-    ...data,
+    card_id: data.card_id,
+    name: data.name,
+    set: data.set ?? null,
+    wcs_tier: data.wcs_tier ?? null,
     image_url: resolvedImageUrl,
+    image_path: data.image_path ?? null,
   })
 }
