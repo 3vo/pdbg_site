@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
 export async function POST(req) {
   let payload = null
@@ -10,14 +11,9 @@ export async function POST(req) {
   }
 
   const rawIds = Array.isArray(payload?.ids) ? payload.ids : []
-  const ids = rawIds
-    .map(v => String(v || '').trim())
-    .filter(Boolean)
+  const ids = rawIds.map(v => String(v || '').trim()).filter(Boolean)
 
-  // Keep this reasonable (articles shouldn’t need more than this)
-  if (ids.length === 0) {
-    return NextResponse.json({ cards: [] }, { status: 200 })
-  }
+  if (ids.length === 0) return NextResponse.json({ cards: [] }, { status: 200 })
   if (ids.length > 100) {
     return NextResponse.json({ error: 'Too many ids (max 100)' }, { status: 400 })
   }
@@ -29,16 +25,21 @@ export async function POST(req) {
     .select('card_id, name, set, image_url, image_path, wcs_tier')
     .in('card_id', ids)
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const res = NextResponse.json(
-    { cards: data || [] },
-    { status: 200 }
+  const cards = (data || []).map(c => {
+    const r2Url = c.image_path ? cardImageUrlFromPath(c.image_path) : ''
+    return {
+      ...c,
+      image_url: r2Url || c.image_url || '',
+    }
+  })
+
+  const res = NextResponse.json({ cards }, { status: 200 })
+
+  res.headers.set(
+    'Cache-Control',
+    'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
   )
-
-  // Cache at the edge/browser (tune as you like)
-  res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400')
   return res
 }
