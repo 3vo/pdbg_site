@@ -1,19 +1,46 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
-export default function CardImageGallery({ imageUrl, variants = [], alt = 'Card image' }) {
+function normalizeToUrl(maybeUrlOrPath) {
+  const raw = (maybeUrlOrPath ?? '').toString().trim()
+  if (!raw) return ''
+
+  // If it's already a full URL, keep it.
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  // Otherwise treat as an R2 path like "AIU/Alexa.webp"
+  return cardImageUrlFromPath(raw)
+}
+
+export default function CardImageGallery({
+  imageUrl, // legacy full URL
+  imagePath, // NEW: R2 path like "AIU/Alexa.webp"
+  variants = [], // can be URLs OR paths
+  alt = 'Card image',
+}) {
   const images = useMemo(() => {
-    const list = [imageUrl, ...(Array.isArray(variants) ? variants : [])]
-      .map(v => (v ?? '').toString().trim())
+    const base = imagePath ? normalizeToUrl(imagePath) : normalizeToUrl(imageUrl)
+
+    const list = [base, ...(Array.isArray(variants) ? variants : [])]
+      .map(normalizeToUrl)
       .filter(Boolean)
 
     // de-dupe while preserving order
     const seen = new Set()
     return list.filter(u => (seen.has(u) ? false : (seen.add(u), true)))
-  }, [imageUrl, variants])
+  }, [imageUrl, imagePath, variants])
 
-  const [active, setActive] = useState(images[0] || imageUrl)
+  const [active, setActive] = useState(images[0] || '')
+
+  // Keep active image valid if images list changes (filters/route changes)
+  useMemo(() => {
+    if (!active || !images.includes(active)) {
+      setActive(images[0] || '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images.join('|')])
 
   if (!images.length) return null
 
@@ -37,6 +64,7 @@ export default function CardImageGallery({ imageUrl, variants = [], alt = 'Card 
                     selected ? 'border-blue-500' : 'border-zinc-800 hover:border-zinc-600',
                   ].join(' ')}
                   title={selected ? 'Selected' : `View variant ${idx + 1}`}
+                  type="button"
                 >
                   <img src={url} alt={`Variant ${idx + 1}`} className="w-full h-auto rounded" />
                 </button>
