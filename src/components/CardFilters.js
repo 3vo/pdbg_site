@@ -190,6 +190,7 @@ export default function CardFilters() {
     'Ultra Beast',
     'Mega',
     'ACE SPEC',
+    'Weather',
   ]
 
   const LOCATIONS = [
@@ -529,7 +530,7 @@ export default function CardFilters() {
     })
   }
 
-  // ✅ Clear helpers
+  // Clear helpers
   function clearPrimaryType() {
     updateParam('primary_type', '')
   }
@@ -791,7 +792,7 @@ export default function CardFilters() {
           onChange={e => updateParam('effect_phrase', e.target.value)}
         />
 
-        {/* ✅ NEW: highlight_effect scope toggles (mutually exclusive) */}
+        {/* NEW: highlight_effect scope toggles (mutually exclusive) */}
         <div className="mt-2 space-y-2">
           <label className="flex items-center gap-2 text-sm">
             <input
