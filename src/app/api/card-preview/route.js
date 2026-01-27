@@ -21,15 +21,13 @@ export async function GET(request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const resolvedImageUrl = data.image_path
-    ? cardImageUrlFromPath(data.image_path)
-    : data.image_url || ''
+  const r2Url = data.image_path ? cardImageUrlFromPath(data.image_path) : ''
+  const resolvedImageUrl = r2Url || data.image_url || ''
 
   return NextResponse.json({
     card_id: data.card_id,
     name: data.name,
     image_url: resolvedImageUrl,
-    // Optional: handy for debugging/transition period
     image_path: data.image_path ?? null,
   })
 }
