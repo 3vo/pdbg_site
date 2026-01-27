@@ -21,7 +21,7 @@ export async function GET(_req, ctx) {
 
   const { data, error } = await supabase
     .from('cards')
-    .select('card_id, name, image_url, set, wcs_tier')
+    .select('card_id, name, image_url, image_path, set, wcs_tier')
     .eq('card_id', cardId)
     .maybeSingle()
 
@@ -38,6 +38,7 @@ export async function GET(_req, ctx) {
       card_id: data.card_id,
       name: data.name,
       image_url: data.image_url,
+      image_path: data.image_path,
       set: data.set,
       wcs_tier: data.wcs_tier,
     },
