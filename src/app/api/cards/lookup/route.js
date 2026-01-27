@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url)
@@ -10,12 +11,18 @@ export async function GET(req) {
 
   const { data, error } = await supabase
     .from('cards_flat')
-    .select('card_id, name, image_url, image_path, wcs_tier')
+    .select('card_id, name, image_url, image_path, wcs_tier, set')
     .eq('card_id', cardId)
     .maybeSingle()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  return NextResponse.json(data)
+  const r2Url = data.image_path ? cardImageUrlFromPath(data.image_path) : ''
+  const resolvedImageUrl = r2Url || data.image_url || ''
+
+  return NextResponse.json({
+    ...data,
+    image_url: resolvedImageUrl,
+  })
 }
