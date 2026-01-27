@@ -3,6 +3,7 @@
 import SiteBanner from '@/components/SiteBanner'
 import CardFilters from '@/components/CardFilters'
 import { fetchFilteredCards } from '@/lib/cardQueries'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -702,7 +703,11 @@ export default function CardsPage() {
               ))}
 
               {/* Sentinel (inside the scroll container) */}
-              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+              <img
+                src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
+                alt={card.name}
+                className="w-full h-auto rounded"
+              />
 
               {/* Extra spacer so the last row never sits flush against the bottom edge */}
               <div className="col-span-full h-10" aria-hidden="true" />
