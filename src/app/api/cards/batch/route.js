@@ -13,7 +13,9 @@ export async function POST(req) {
   const rawIds = Array.isArray(payload?.ids) ? payload.ids : []
   const ids = rawIds.map(v => String(v || '').trim()).filter(Boolean)
 
-  if (ids.length === 0) return NextResponse.json({ cards: [] }, { status: 200 })
+  if (ids.length === 0) {
+    return NextResponse.json({ cards: [] }, { status: 200 })
+  }
   if (ids.length > 100) {
     return NextResponse.json({ error: 'Too many ids (max 100)' }, { status: 400 })
   }
@@ -25,13 +27,22 @@ export async function POST(req) {
     .select('card_id, name, set, image_url, image_path, wcs_tier')
     .in('card_id', ids)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   const cards = (data || []).map(c => {
-    const r2Url = c.image_path ? cardImageUrlFromPath(c.image_path) : ''
+    const resolvedImageUrl = c.image_path
+      ? cardImageUrlFromPath(c.image_path)
+      : c.image_url || ''
+
     return {
-      ...c,
-      image_url: r2Url || c.image_url || '',
+      card_id: c.card_id,
+      name: c.name,
+      set: c.set,
+      wcs_tier: c.wcs_tier ?? null,
+      image_url: resolvedImageUrl,
+      image_path: c.image_path ?? null,
     }
   })
 
