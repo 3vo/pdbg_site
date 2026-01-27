@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
 export default function ArticleCardMention({ id, children }) {
   const cardId = String(id || '').trim()
@@ -24,6 +25,12 @@ export default function ArticleCardMention({ id, children }) {
 
   const label = children || card?.name || cardId
 
+  const imgSrc = useMemo(() => {
+    if (!card) return ''
+    if (card.image_path) return cardImageUrlFromPath(card.image_path)
+    return card.image_url || ''
+  }, [card])
+
   return (
     <span
       className="relative inline-block"
@@ -37,7 +44,7 @@ export default function ArticleCardMention({ id, children }) {
         {label}
       </Link>
 
-      {open && card?.image_url && (
+      {open && imgSrc && (
         <div
           className="
             absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2
@@ -46,15 +53,9 @@ export default function ArticleCardMention({ id, children }) {
             shadow-xl
           "
         >
-          <img
-            src={card.image_url}
-            alt={card.name || cardId}
-            className="w-full h-auto rounded"
-          />
-          <div className="mt-2 text-xs text-zinc-200 font-semibold truncate">
-            {card.name}
-          </div>
-          <div className="text-[10px] text-zinc-400 truncate">{card.card_id}</div>
+          <img src={imgSrc} alt={card?.name || cardId} className="w-full h-auto rounded" />
+          <div className="mt-2 text-xs text-zinc-200 font-semibold truncate">{card?.name}</div>
+          <div className="text-[10px] text-zinc-400 truncate">{card?.card_id}</div>
         </div>
       )}
     </span>
