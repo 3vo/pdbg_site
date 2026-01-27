@@ -17,7 +17,6 @@ export default async function CardDetailPage({ params, searchParams }) {
   try {
     cardId = decodeURIComponent(cardId)
   } catch {
-    // If it’s somehow malformed, fall back to the raw value.
     cardId = String(rawCardId)
   }
 
@@ -35,9 +34,7 @@ export default async function CardDetailPage({ params, searchParams }) {
     typeof card.highlight_effect === 'string' && card.highlight_effect.trim().length > 0
 
   const hasEffect = typeof card.effect === 'string' && card.effect.trim().length > 0
-
   const hasRules = typeof card.rules === 'string' && card.rules.trim().length > 0
-
   const hasWcsTier = card.wcs_tier != null
 
   const highlightBorderClassMap = {
@@ -86,8 +83,9 @@ export default async function CardDetailPage({ params, searchParams }) {
 
       <div className="mt-4 grid md:grid-cols-2 gap-8 space-y-1">
         <CardImageGallery
-          imageUrl={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
-          variants={card.image_variants}
+          imagePath={card.image_path}     // ✅ preferred
+          imageUrl={card.image_url}       // ✅ fallback (legacy)
+          variants={card.image_variants}  // ✅ can be URLs or paths now
           alt={card.name}
         />
 
@@ -143,58 +141,52 @@ export default async function CardDetailPage({ params, searchParams }) {
             )}
           </div>
 
-          {/* Effect label (show once) */}
           {(hasHighlightEffect || hasEffect) && (
             <div className="pt-2">
               <div className="font-semibold">Effect:</div>
             </div>
           )}
 
-          {/* Highlight Effect */}
           {hasHighlightEffect && (
             <div className="space-y-2">
               <div className={`border-l-4 ${highlightBorderClass} pl-3 py-1`}>
                 <div className="whitespace-pre-line text-zinc-200">{card.highlight_effect}</div>
               </div>
 
-              {/* Normal effect shown under highlight when both exist */}
               {hasEffect && <div className="whitespace-pre-line text-zinc-200">{card.effect}</div>}
             </div>
           )}
 
-          {/* Effect only (when no highlight effect) */}
           {!hasHighlightEffect && hasEffect && (
             <div className="whitespace-pre-line text-zinc-200">{card.effect}</div>
           )}
 
-          {/* WCS Tier (prominent tile) */}
           {hasWcsTier && (
             <div className="mt-8">
               <div
                 className="
-               inline-flex items-center gap-4
-               rounded-xl border border-blue-500/40
-               bg-zinc-900
-               px-4 py-3
-               shadow-lg shadow-black/30
-             "
+                  inline-flex items-center gap-4
+                  rounded-xl border border-blue-500/40
+                  bg-zinc-900
+                  px-4 py-3
+                  shadow-lg shadow-black/30
+                "
               >
-                {/* Label */}
                 <div className="min-w-0">
                   <div className="text-xl uppercase">WCS Tier :</div>
                 </div>
-                {/* Big tier number (yellow with blue border) */}
+
                 <div
                   className="
-                flex items-center justify-center
-                h-14 w-14
-                rounded-xl
-                text-yellow-400
-                font-black
-                text-4xl
-                border-4 border-blue-500
-                drop-shadow-[0_4px_0.4px_rgba(0,0,255,1)]
-               "
+                    flex items-center justify-center
+                    h-14 w-14
+                    rounded-xl
+                    text-yellow-400
+                    font-black
+                    text-4xl
+                    border-4 border-blue-500
+                    drop-shadow-[0_4px_0.4px_rgba(0,0,255,1)]
+                  "
                 >
                   {card.wcs_tier}
                 </div>
@@ -202,7 +194,6 @@ export default async function CardDetailPage({ params, searchParams }) {
             </div>
           )}
 
-          {/* Related Cards Gallery */}
           {relatedCards.length > 0 && (
             <div className="mt-10">
               <div className="text-lg font-semibold mb-3">Related Cards</div>
@@ -215,15 +206,12 @@ export default async function CardDetailPage({ params, searchParams }) {
                     scroll={false}
                     className="group relative flex flex-col rounded-md border border-zinc-800 bg-zinc-900 p-2 hover:border-blue-500 transition"
                   >
-                    {/* Card image */}
                     <img
                       src={rc.image_path ? cardImageUrlFromPath(rc.image_path) : rc.image_url}
                       alt={rc.name}
                       className="w-full h-auto rounded"
                     />
 
-
-                    {/* Hover name tooltip */}
                     <div
                       className="
                         pointer-events-none
@@ -247,7 +235,6 @@ export default async function CardDetailPage({ params, searchParams }) {
             </div>
           )}
 
-          {/* FAQ / Rules Clarifications */}
           {hasRules && (
             <div className="mt-10">
               <div className="text-lg font-semibold mb-3">Rules Clarifications</div>
