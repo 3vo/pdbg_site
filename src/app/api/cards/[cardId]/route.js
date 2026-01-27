@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
 // GET /api/cards/PDB-001
 export async function GET(_req, ctx) {
@@ -33,12 +34,18 @@ export async function GET(_req, ctx) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
+  const resolvedImageUrl = data.image_path
+    ? cardImageUrlFromPath(data.image_path)
+    : data.image_url || ''
+
   return NextResponse.json(
     {
       card_id: data.card_id,
       name: data.name,
-      image_url: data.image_url,
-      image_path: data.image_path,
+      // Back-compat: keep "image_url" but return the resolved URL
+      image_url: resolvedImageUrl,
+      // Keep both fields available during migration
+      image_path: data.image_path ?? null,
       set: data.set,
       wcs_tier: data.wcs_tier,
     },
