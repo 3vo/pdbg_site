@@ -10,7 +10,7 @@ export async function GET(req) {
 
   const { data, error } = await supabase
     .from('cards_flat')
-    .select('card_id, name, image_url, wcs_tier')
+    .select('card_id, name, image_url, image_path, wcs_tier')
     .eq('card_id', cardId)
     .maybeSingle()
 
