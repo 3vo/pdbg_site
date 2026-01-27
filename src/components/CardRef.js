@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { cardCache, subscribeCardCache } from '@/lib/cardRefCache'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n))
@@ -29,7 +30,13 @@ export default function CardRef({ id, from }) {
     return `${base}${sep}from=${encodeURIComponent(from)}`
   }, [cardId, from])
 
-  // ✅ Keep CardRef state in sync with the shared cache (batch prefetch will trigger this)
+  const imgSrc = useMemo(() => {
+    if (!card) return ''
+    if (card.image_path) return cardImageUrlFromPath(card.image_path)
+    return card.image_url || ''
+  }, [card])
+
+  // Keep CardRef state in sync with the shared cache (batch prefetch will trigger this)
   useEffect(() => {
     if (!cardId) return
 
@@ -98,9 +105,9 @@ export default function CardRef({ id, from }) {
       router.prefetch(href)
     } catch {}
 
-    if (card?.image_url) {
+    if (imgSrc) {
       const img = new Image()
-      img.src = card.image_url
+      img.src = imgSrc
     }
   }
 
@@ -129,10 +136,10 @@ export default function CardRef({ id, from }) {
   }, [open])
 
   useEffect(() => {
-    if (!card?.image_url) return
+    if (!imgSrc) return
     const img = new Image()
-    img.src = card.image_url
-  }, [card?.image_url])
+    img.src = imgSrc
+  }, [imgSrc])
 
   const tooltip =
     open && typeof document !== 'undefined'
@@ -153,12 +160,14 @@ export default function CardRef({ id, from }) {
             ) : (
               <div className="space-y-2">
                 <div className="px-1">
-                  <div className="text-sm font-semibold text-zinc-100 truncate">{card.name}  {card.set}</div>
+                  <div className="text-sm font-semibold text-zinc-100 truncate">
+                    {card.name} {card.set}
+                  </div>
                 </div>
 
                 <div className="rounded-md border border-zinc-800 bg-black overflow-hidden">
                   <img
-                    src={card.image_url}
+                    src={imgSrc}
                     alt={card.name}
                     className="w-full h-auto block"
                     loading="lazy"
