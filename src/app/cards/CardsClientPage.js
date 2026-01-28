@@ -3,7 +3,6 @@
 import SiteBanner from '@/components/SiteBanner'
 import CardFilters from '@/components/CardFilters'
 import { fetchFilteredCards } from '@/lib/cardQueries'
-import { cardImageUrlFromPath } from '@/lib/cardAssets'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -36,6 +35,10 @@ function getCumulativeLimit(page) {
   return total
 }
 
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n))
+}
+
 export default function CardsPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -62,6 +65,68 @@ export default function CardsPage() {
       localStorage.setItem('cards:filtersOpen', filtersOpen ? '1' : '0')
     } catch {}
   }, [filtersOpen])
+
+  // -------------------------
+  // View (URL + localStorage)
+  // -------------------------
+  const VIEW_OPTIONS = useMemo(
+    () => [
+      { value: 'full', label: 'Full' },
+      { value: 'thumb', label: 'Thumbnail' },
+      { value: 'text', label: 'Text' },
+    ],
+    []
+  )
+
+  const urlViewRaw = searchParams.get('view')
+  const urlView =
+    urlViewRaw === 'full' || urlViewRaw === 'thumb' || urlViewRaw === 'text' ? urlViewRaw : null
+
+  const [view, setView] = useState(urlView || 'full')
+
+  // On mount / when URL changes (back/forward), prefer URL.
+  // Otherwise fall back to localStorage, else default.
+  useEffect(() => {
+    if (urlView) {
+      setView(urlView)
+      try {
+        localStorage.setItem('cards:view', urlView)
+      } catch {}
+      return
+    }
+
+    try {
+      const saved = localStorage.getItem('cards:view')
+      if (saved === 'full' || saved === 'thumb' || saved === 'text') {
+        setView(saved)
+      } else {
+        setView('full')
+      }
+    } catch {
+      setView('full')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlViewRaw])
+
+  function setViewMode(next) {
+    const nextView = next === 'thumb' || next === 'text' || next === 'full' ? next : 'full'
+
+    // Persist to localStorage
+    try {
+      localStorage.setItem('cards:view', nextView)
+    } catch {}
+
+    // Persist to URL (shareable)
+    const params = new URLSearchParams(searchParams.toString())
+    if (nextView === 'full') {
+      params.delete('view') // keep URLs clean for default
+    } else {
+      params.set('view', nextView)
+    }
+    params.delete('page')
+    const qs = params.toString()
+    router.push(qs ? `/cards?${qs}` : '/cards')
+  }
 
   const observerRef = useRef(null) // sentinel div
   const gridRef = useRef(null)
@@ -253,6 +318,7 @@ export default function CardsPage() {
       if (key === 'page') continue
       if (key === 'from') continue
       if (key === 'sort_by' || key === 'sort_dir') continue
+      if (key === 'view') continue // don't show view as a filter chip
 
       if (key === 'sets') {
         raw
@@ -335,16 +401,18 @@ export default function CardsPage() {
     const current = new URLSearchParams(searchParams.toString())
     const sortBy = current.get('sort_by')
     const sortDir = current.get('sort_dir')
+    const view = current.get('view')
 
     const next = new URLSearchParams()
     if (sortBy) next.set('sort_by', sortBy)
     if (sortDir) next.set('sort_dir', sortDir)
+    if (view) next.set('view', view)
 
     const qs = next.toString()
     router.push(qs ? `/cards?${qs}` : '/cards')
   }
 
-  // Reset when filters change
+  // Reset when filters change (including view)
   useEffect(() => {
     setPage(1)
     setCards([])
@@ -483,6 +551,83 @@ export default function CardsPage() {
     return () => observer.disconnect()
   }, [cards.length, total, loading, hasTotal, totalKnown])
 
+  // -------------------------
+  // View rendering helpers
+  // -------------------------
+  const highlightBorderClassMap = useMemo(
+    () => ({
+      blue: 'border-blue-500',
+      yellow: 'border-yellow-500',
+      red: 'border-red-500',
+    }),
+    []
+  )
+
+  const gridClassName = useMemo(() => {
+    if (view === 'text') {
+      return [
+        'mt-4',
+        'flex-1 overflow-y-auto',
+        'pt-1 px-4 md:px-5',
+        'pdbg-scrollbar pb-16',
+        'space-y-3',
+      ].join(' ')
+    }
+
+    if (view === 'thumb') {
+      return [
+        'mt-4',
+        'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
+        'gap-2',
+        'flex-1 overflow-y-auto',
+        'pt-1 px-4 md:px-5',
+        'items-start content-start',
+        'pdbg-scrollbar pb-16',
+      ].join(' ')
+    }
+
+    // full (default)
+    return [
+      'mt-4',
+      'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
+      'gap-4',
+      'flex-1 overflow-y-auto',
+      'pt-1 px-4 md:px-5',
+      'items-start content-start',
+      'pdbg-scrollbar pb-16',
+    ].join(' ')
+  }, [view])
+
+  const cardLinkClassName = useMemo(() => {
+    if (view === 'thumb') {
+      return 'block self-start bg-zinc-900 rounded-lg p-1 transition hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-blue-500'
+    }
+    if (view === 'text') {
+      return [
+        'block',
+        'rounded-lg border border-zinc-800 bg-zinc-900',
+        'p-3',
+        'transition',
+        'hover:border-blue-500 hover:bg-zinc-900/80',
+        'hover:shadow-lg hover:shadow-black/20',
+        'focus:outline-none focus:ring-2 focus:ring-blue-500',
+      ].join(' ')
+    }
+    return 'block self-start bg-zinc-900 rounded-lg p-2 transition hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-blue-500'
+  }, [view])
+
+  const imageClassName = useMemo(() => {
+    if (view === 'thumb') return 'w-full h-auto rounded'
+    return 'w-full h-auto rounded'
+  }, [view])
+
+  function cardHref(cardId) {
+    const safeId = encodeURIComponent(String(cardId))
+    return currentQueryString
+      ? `/cards/${safeId}?from=${encodeURIComponent(currentQueryString)}`
+      : `/cards/${safeId}`
+  }
+
   return (
     <div
       className={`flex flex-col md:grid md:h-screen md:overflow-hidden ${
@@ -556,7 +701,7 @@ export default function CardsPage() {
         </button>
       )}
 
-      {/* RIGHT: Content */} 
+      {/* RIGHT: Content */}
       <div className="md:col-start-2 md:row-start-1 md:h-screen md:overflow-hidden md:min-w-0 flex flex-col">
         <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6">
           <SiteBanner />
@@ -623,6 +768,23 @@ export default function CardsPage() {
                     </button>
                   </div>
 
+                  {/* View toggle (between Clear sort and Show Filters) */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-zinc-300">View</label>
+                    <select
+                      className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                      value={view}
+                      onChange={e => setViewMode(e.target.value)}
+                      title="View mode"
+                    >
+                      {VIEW_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <button
                     onClick={() => setFiltersOpen(o => !o)}
                     className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
@@ -667,59 +829,130 @@ export default function CardsPage() {
               )}
             </div>
 
-            <main
-              ref={gridRef}
-              className="
-                mt-4
-                grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5
-                gap-4
-                flex-1 overflow-y-auto
-                pt-1 px-4 md:px-5
-                items-start content-start
-                pdbg-scrollbar
-                pb-16
-              "
-              style={{ scrollPaddingBottom: 64 }}
-            >
-              {cards.map(card => (
-                <Link
-                  scroll={false}
-                  key={card.card_id}
-                  data-card-id={card.card_id}
-                  href={
-                    currentQueryString
-                      ? `/cards/${encodeURIComponent(card.card_id)}?from=${encodeURIComponent(
-                          currentQueryString
-                        )}`
-                      : `/cards/${encodeURIComponent(card.card_id)}`
-                  }
-                  className="block self-start bg-zinc-900 rounded-lg p-2 transition hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-blue-500"
-                >
-                  {/* Use image_path when present, fallback to image_url */}
-                  <img
-                    src={
-                      card.image_path
-                        ? cardImageUrlFromPath(card.image_path)
-                        : card.image_url
-                    }
-                    alt={card.name}
-                    className="w-full h-auto rounded"
-                  />
-                </Link>
-              ))}
+            <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
+              {view !== 'text' &&
+                cards.map(card => (
+                  <Link
+                    scroll={false}
+                    key={card.card_id}
+                    data-card-id={card.card_id}
+                    href={cardHref(card.card_id)}
+                    className={cardLinkClassName}
+                  >
+                    <img src={card.image_url} alt={card.name} className={imageClassName} />
+                  </Link>
+                ))}
 
-              {/* Sentinel (do NOT reference `card` here) */}
-              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+              {view === 'text' &&
+                cards.map(card => {
+                  const hasHighlightEffect =
+                    typeof card.highlight_effect === 'string' && card.highlight_effect.trim().length > 0
+                  const hasEffect = typeof card.effect === 'string' && card.effect.trim().length > 0
+
+                  const highlightBorderClass =
+                    highlightBorderClassMap[card.highlight_color] ?? 'border-zinc-500'
+
+                  const primaryTypes = Array.isArray(card.primary_types)
+                    ? card.primary_types.filter(Boolean)
+                    : []
+                  const subtypes = Array.isArray(card.subtypes) ? card.subtypes.filter(Boolean) : []
+
+                  const showEffectSection = hasHighlightEffect || hasEffect
+
+                  return (
+                    <Link
+                      scroll={false}
+                      key={card.card_id}
+                      data-card-id={card.card_id}
+                      href={cardHref(card.card_id)}
+                      className={cardLinkClassName}
+                    >
+                      <div className="flex flex-col gap-2">
+                        {/* Header */}
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="text-base font-semibold text-zinc-100 truncate">
+                              {card.name}
+                            </div>
+                            <div className="text-xs text-zinc-400">{card.set}</div>
+                          </div>
+
+                          <div className="flex items-center gap-3 text-xs text-zinc-300">
+                            {card.cost != null && (
+                              <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                <span className="text-zinc-400">Cost</span> {card.cost}
+                              </span>
+                            )}
+                            {card.xp_display != null && (
+                              <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                <span className="text-zinc-400">XP</span> {card.xp_display}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Pills */}
+                        {(primaryTypes.length > 0 || subtypes.length > 0) && (
+                          <div className="flex flex-wrap gap-2">
+                            {primaryTypes.map(pt => (
+                              <span
+                                key={`pt:${card.card_id}:${pt}`}
+                                className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                              >
+                                {pt}
+                              </span>
+                            ))}
+                            {subtypes.map(st => (
+                              <span
+                                key={`st:${card.card_id}:${st}`}
+                                className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                              >
+                                {st}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Effect section (detail-page logic) */}
+                        {showEffectSection && (
+                          <div className="pt-1 space-y-2">
+                            <div className="font-semibold text-sm text-zinc-200">Effect:</div>
+
+                            {hasHighlightEffect && (
+                              <div className={`border-l-4 ${highlightBorderClass} pl-3 py-1`}>
+                                <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                  {card.highlight_effect}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Normal effect shown under highlight when both exist */}
+                            {hasEffect && (
+                              <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                {card.effect}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  )
+                })}
+
+              {/* Sentinel */}
+              <div ref={observerRef} className={view === 'text' ? 'h-px' : 'col-span-full h-px'} aria-hidden="true" />
 
               {/* Extra spacer so the last row never sits flush against the bottom edge */}
-              <div className="col-span-full h-10" aria-hidden="true" />
+              <div className={view === 'text' ? 'h-10' : 'col-span-full h-10'} aria-hidden="true" />
 
               {shouldShowLoadingRow && (
-                <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
+                <div className={view === 'text' ? 'text-center py-4 text-zinc-400' : 'col-span-full text-center py-4 text-zinc-400'}>
+                  Loading…
+                </div>
               )}
 
               {totalKnown && total === 0 && !loading && (
-                <div className="col-span-full text-center py-8 text-zinc-400">
+                <div className={view === 'text' ? 'text-center py-8 text-zinc-400' : 'col-span-full text-center py-8 text-zinc-400'}>
                   No cards match these filters.
                 </div>
               )}
