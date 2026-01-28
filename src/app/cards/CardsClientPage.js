@@ -3,6 +3,7 @@
 import SiteBanner from '@/components/SiteBanner'
 import CardFilters from '@/components/CardFilters'
 import { fetchFilteredCards } from '@/lib/cardQueries'
+import { cardImageUrlFromPath } from '@/lib/cardAssets'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -839,7 +840,7 @@ export default function CardsPage() {
                     href={cardHref(card.card_id)}
                     className={cardLinkClassName}
                   >
-                    <img src={card.image_url} alt={card.name} className={imageClassName} />
+                    <img src={card.image_path ? cardImageUrlFromPath(card.image_path) : : card.image_url} alt={card.name} className={imageClassName} />
                   </Link>
                 ))}
 
