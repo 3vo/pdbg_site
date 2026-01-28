@@ -840,7 +840,7 @@ export default function CardsPage() {
                     href={cardHref(card.card_id)}
                     className={cardLinkClassName}
                   >
-                    <img src={card.image_path ? cardImageUrlFromPath(card.image_path) : : card.image_url} alt={card.name} className={imageClassName} />
+                    <img src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url} alt={card.name} className={imageClassName} />
                   </Link>
                 ))}
 
