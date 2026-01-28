@@ -22,7 +22,7 @@ export async function GET(_req, ctx) {
 
   const { data, error } = await supabase
     .from('cards')
-    .select('card_id, name, image_url, image_path, set, wcs_tier')
+    .select('card_id, name, image_path, set, wcs_tier')
     .eq('card_id', cardId)
     .maybeSingle()
 
@@ -34,9 +34,7 @@ export async function GET(_req, ctx) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const resolvedImageUrl = data.image_path
-    ? cardImageUrlFromPath(data.image_path)
-    : data.image_url || ''
+  const resolvedImageUrl = data.image_path ? cardImageUrlFromPath(data.image_path) : ''
 
   return NextResponse.json(
     {
