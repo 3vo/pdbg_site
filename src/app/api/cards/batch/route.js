@@ -24,7 +24,7 @@ export async function POST(req) {
 
   const { data, error } = await supabase
     .from('cards')
-    .select('card_id, name, set, image_url, image_path, wcs_tier')
+    .select('card_id, name, set, image_path, wcs_tier')
     .in('card_id', ids)
 
   if (error) {
@@ -32,9 +32,7 @@ export async function POST(req) {
   }
 
   const cards = (data || []).map(c => {
-    const resolvedImageUrl = c.image_path
-      ? cardImageUrlFromPath(c.image_path)
-      : c.image_url || ''
+    const resolvedImageUrl = c.image_path ? cardImageUrlFromPath(c.image_path) : ''
 
     return {
       card_id: c.card_id,
