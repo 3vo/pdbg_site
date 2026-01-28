@@ -132,6 +132,13 @@ export default function CardsPage() {
   const observerRef = useRef(null) // sentinel div
   const gridRef = useRef(null)
 
+  const [isMdUp, setIsMdUp] = useState(true)
+
+  // Prevent runaway paging when the sentinel stays intersecting (common on mobile)
+  const pagingRef = useRef(false)
+  const loadingRef = useRef(false)
+
+
   // Handle should align with top of the results card
   const resultsTopRef = useRef(null)
   const [handleTopPx, setHandleTopPx] = useState(null)
@@ -143,7 +150,15 @@ export default function CardsPage() {
   const didRestoreScrollRef = useRef(false)
 
   const queryString = useMemo(() => searchParams.toString(), [searchParams])
-  const restoreKey = useMemo(() => `cardsGridRestore:${queryString}`, [queryString])
+
+  const restoreKey = useMemo(() => {
+    const p = new URLSearchParams(searchParams.toString())
+    p.delete('page')
+    p.delete('from')
+    p.delete('view') // <-- key change: don't let view break restore
+    return `cardsGridRestore:${p.toString()}`
+  }, [searchParams])
+
 
   // Convert URLSearchParams -> plain object
   const paramsObj = useMemo(() => {
@@ -167,10 +182,16 @@ export default function CardsPage() {
   const shouldShowLoadingRow = loading && !(totalKnown && total === 0)
 
   function scrollGridToTop() {
+    if (!isMdUp) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     const el = gridRef.current
     if (!el) return
     el.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
 
   // -------------------------
   // Sorting (URL-driven)
@@ -234,7 +255,9 @@ export default function CardsPage() {
 
     try {
       let lastVisibleId = null
-      const containerRect = el.getBoundingClientRect()
+
+      // Figure out what's visible
+      const containerRect = isMdUp ? el.getBoundingClientRect() : { top: 0, bottom: window.innerHeight }
       const items = Array.from(el.querySelectorAll('[data-card-id]'))
 
       for (let i = items.length - 1; i >= 0; i--) {
@@ -247,16 +270,29 @@ export default function CardsPage() {
         }
       }
 
+      const scrollTop = isMdUp ? el.scrollTop : window.scrollY
+
       sessionStorage.setItem(
         restoreKey,
         JSON.stringify({
-          scrollTop: el.scrollTop,
+          scrollTop,
           count: cards.length,
           lastVisibleId,
         })
       )
     } catch {}
   }
+
+
+  // --- Media Query
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(min-width: 768px)') // Tailwind md
+    const apply = () => setIsMdUp(mq.matches)
+    apply()
+    mq.addEventListener?.('change', apply)
+    return () => mq.removeEventListener?.('change', apply)
+  }, [])
 
   // --- Save scroll position + loaded count + last visible card id while user scrolls ---
   useEffect(() => {
@@ -269,7 +305,8 @@ export default function CardsPage() {
       if (suppressPersistRef.current) return
       try {
         let lastVisibleId = null
-        const containerRect = el.getBoundingClientRect()
+
+        const containerRect = isMdUp ? el.getBoundingClientRect() : { top: 0, bottom: window.innerHeight }
         const items = Array.from(el.querySelectorAll('[data-card-id]'))
 
         for (let i = items.length - 1; i >= 0; i--) {
@@ -282,10 +319,12 @@ export default function CardsPage() {
           }
         }
 
+        const scrollTop = isMdUp ? el.scrollTop : window.scrollY
+
         sessionStorage.setItem(
           restoreKey,
           JSON.stringify({
-            scrollTop: el.scrollTop,
+            scrollTop,
             count: cards.length,
             lastVisibleId,
           })
@@ -301,12 +340,17 @@ export default function CardsPage() {
       })
     }
 
-    el.addEventListener('scroll', onScroll, { passive: true })
+    const target = isMdUp ? el : window
+    target.addEventListener('scroll', onScroll, { passive: true })
+    if (!isMdUp) window.addEventListener('resize', onScroll)
+
     return () => {
-      el.removeEventListener('scroll', onScroll)
+      target.removeEventListener('scroll', onScroll)
+      if (!isMdUp) window.removeEventListener('resize', onScroll)
       if (raf) window.cancelAnimationFrame(raf)
     }
-  }, [restoreKey, cards.length])
+  }, [restoreKey, cards.length, isMdUp])
+
 
   function buildChips(sp) {
     const chips = []
@@ -427,6 +471,7 @@ export default function CardsPage() {
 
     async function loadCards() {
       setLoading(true)
+      loadingRef.current = true
 
       try {
         const pending = pendingRestoreRef.current
@@ -442,17 +487,19 @@ export default function CardsPage() {
 
         setCards(data || [])
         setTotal(typeof count === 'number' ? count : 0)
-        setTotalKnown(true) // even if count is 0, we now know it
+        setTotalKnown(true)
       } catch (err) {
         console.error(err)
         if (!cancelled) {
-          // even on error, stop infinite spinner loops
           setTotal(0)
           setTotalKnown(true)
         }
+      } finally {
+        // Always reset guards (even on cancel/error)
+        if (!cancelled) setLoading(false)
+        loadingRef.current = false
+        pagingRef.current = false
       }
-
-      if (!cancelled) setLoading(false)
     }
 
     loadCards()
@@ -467,33 +514,43 @@ export default function CardsPage() {
     const pending = pendingRestoreRef.current
     if (!el || !pending) return
     if (didRestoreScrollRef.current) return
-
+  
     didRestoreScrollRef.current = true
     pendingRestoreRef.current = null
-
+  
     window.requestAnimationFrame(() => {
       if (pending.lastVisibleId) {
         const safe =
           typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
             ? CSS.escape(pending.lastVisibleId)
             : pending.lastVisibleId.replace(/"/g, '\\"')
-
+  
         const node = el.querySelector(`[data-card-id="${safe}"]`)
         if (node) {
-          const top = node.offsetTop
-          el.scrollTo({ top, behavior: 'auto' })
+          if (isMdUp) {
+            // Desktop: scroll the container to the item's offset
+            el.scrollTo({ top: node.offsetTop, behavior: 'auto' })
+          } else {
+            // Mobile: scroll the window to the item’s document position
+            const y = window.scrollY + node.getBoundingClientRect().top - 12
+            window.scrollTo({ top: y, behavior: 'auto' })
+          }
         } else {
-          el.scrollTop = pending.scrollTop
+          if (isMdUp) el.scrollTop = pending.scrollTop
+          else window.scrollTo({ top: pending.scrollTop, behavior: 'auto' })
         }
       } else {
-        el.scrollTop = pending.scrollTop
+        // No lastVisibleId — fall back to raw scrollTop restore
+        if (isMdUp) el.scrollTop = pending.scrollTop
+        else window.scrollTo({ top: pending.scrollTop, behavior: 'auto' })
       }
-
+  
       suppressPersistRef.current = false
       restoringRef.current = false
       persistNow()
     })
-  }, [cards.length])
+  }, [cards.length, isMdUp])
+
 
   // Measure results card top for fixed filter handle alignment
   useLayoutEffect(() => {
@@ -528,29 +585,37 @@ export default function CardsPage() {
   useEffect(() => {
     const rootEl = gridRef.current
     const targetEl = observerRef.current
-    if (!rootEl || !targetEl) return
-
+    if (!targetEl) return
+    if (isMdUp && !rootEl) return
+  
     const observer = new IntersectionObserver(
       entries => {
         const hit = entries[0]?.isIntersecting
         if (!hit) return
-
-        if (loading) return
+  
+        if (loadingRef.current) return
+        if (pagingRef.current) return
         if (restoringRef.current) return
         if (totalKnown && cards.length >= total) return
-
+  
+        // IMPORTANT: prevent repeated fires while still intersecting
+        observer.unobserve(targetEl)
+  
+        pagingRef.current = true
         setPage(p => p + 1)
       },
       {
-        root: rootEl,
-        rootMargin: '600px 0px 600px 0px',
+        root: isMdUp ? rootEl : null,
+        // Consider slightly smaller margin on mobile so it doesn't "always intersect"
+        rootMargin: isMdUp ? '600px 0px 600px 0px' : '250px 0px 250px 0px',
         threshold: 0.01,
       }
     )
-
+  
     observer.observe(targetEl)
     return () => observer.disconnect()
-  }, [cards.length, total, loading, hasTotal, totalKnown])
+  }, [cards.length, total, totalKnown, isMdUp])
+
 
   // -------------------------
   // View rendering helpers
@@ -571,7 +636,7 @@ export default function CardsPage() {
       'grid',
       'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
       'gap-3',
-      'flex-1 overflow-y-auto',
+      'flex-1 md:overflow-y-auto',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
       'pdbg-scrollbar pb-16',
@@ -584,7 +649,7 @@ export default function CardsPage() {
         'mt-4',
         'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
         'gap-2',
-        'flex-1 overflow-y-auto',
+        'flex-1 md:overflow-y-auto',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
@@ -596,7 +661,7 @@ export default function CardsPage() {
       'mt-4',
       'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
       'gap-4',
-      'flex-1 overflow-y-auto',
+      'flex-1 md:overflow-y-auto',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
       'pdbg-scrollbar pb-16',
@@ -945,10 +1010,10 @@ export default function CardsPage() {
                 })}
 
               {/* Sentinel */}
-              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+              <div ref={observerRef} className="col-span-full h-6" aria-hidden="true" />
 
               {/* Extra spacer so the last row never sits flush against the bottom edge */}
-              <div className={view === 'text' ? 'h-10' : 'col-span-full h-10'} aria-hidden="true" />
+              <div className="col-span-full h-10" aria-hidden="true" />
 
               {shouldShowLoadingRow && (
                  <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
