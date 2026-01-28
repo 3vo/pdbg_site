@@ -565,15 +565,19 @@ export default function CardsPage() {
   )
 
   const gridClassName = useMemo(() => {
-    if (view === 'text') {
-      return [
-        'mt-4',
-        'flex-1 overflow-y-auto',
-        'pt-1 px-4 md:px-5',
-        'pdbg-scrollbar pb-16',
-        'space-y-3',
-      ].join(' ')
-    }
+  if (view === 'text') {
+    return [
+      'mt-4',
+      'grid',
+      'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
+      'gap-3',
+      'flex-1 overflow-y-auto',
+      'pt-1 px-4 md:px-5',
+      'items-start content-start',
+      'pdbg-scrollbar pb-16',
+    ].join(' ')
+  }
+
 
     if (view === 'thumb') {
       return [
@@ -941,19 +945,17 @@ export default function CardsPage() {
                 })}
 
               {/* Sentinel */}
-              <div ref={observerRef} className={view === 'text' ? 'h-px' : 'col-span-full h-px'} aria-hidden="true" />
+              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
 
               {/* Extra spacer so the last row never sits flush against the bottom edge */}
               <div className={view === 'text' ? 'h-10' : 'col-span-full h-10'} aria-hidden="true" />
 
               {shouldShowLoadingRow && (
-                <div className={view === 'text' ? 'text-center py-4 text-zinc-400' : 'col-span-full text-center py-4 text-zinc-400'}>
-                  Loading…
-                </div>
+                 <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
               )}
 
               {totalKnown && total === 0 && !loading && (
-                <div className={view === 'text' ? 'text-center py-8 text-zinc-400' : 'col-span-full text-center py-8 text-zinc-400'}>
+                <div className="col-span-full text-center py-8 text-zinc-400">
                   No cards match these filters.
                 </div>
               )}
