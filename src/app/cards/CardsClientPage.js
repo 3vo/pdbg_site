@@ -155,9 +155,19 @@ export default function CardsPage() {
     const p = new URLSearchParams(searchParams.toString())
     p.delete('page')
     p.delete('from')
-    p.delete('view') // <-- key change: don't let view break restore
-    return `cardsGridRestore:${p.toString()}`
+    p.delete('view')
+  
+    // Canonicalize param ordering (URLSearchParams preserves insertion order)
+    const entries = Array.from(p.entries())
+    entries.sort(([aKey, aVal], [bKey, bVal]) => {
+      if (aKey !== bKey) return aKey.localeCompare(bKey)
+      return String(aVal).localeCompare(String(bVal))
+    })
+  
+    const canonical = new URLSearchParams(entries).toString()
+    return `cardsGridRestore:${canonical}`
   }, [searchParams])
+
 
 
   // Convert URLSearchParams -> plain object
@@ -914,6 +924,7 @@ export default function CardsPage() {
                     data-card-id={card.card_id}
                     href={cardHref(card.card_id)}
                     className={cardLinkClassName}
+                    onPointerDown={persistBeforeNav}
                     onMouseDown={persistBeforeNav}
                     onTouchStart={persistBeforeNav}
                   >
@@ -944,6 +955,7 @@ export default function CardsPage() {
                       data-card-id={card.card_id}
                       href={cardHref(card.card_id)}
                       className={cardLinkClassName}
+                      onPointerDown={persistBeforeNav}
                       onMouseDown={persistBeforeNav}
                       onTouchStart={persistBeforeNav}
                     >
