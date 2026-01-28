@@ -6,13 +6,7 @@ import { useRouter } from 'next/navigation'
 function normalizeFallbackHref(raw) {
   const href = (raw ?? '/cards').toString().trim()
   if (!href) return '/cards'
-
-  // If it's already a path, use it as-is
-  // e.g. "/cards?x=1" or "/articles/my-post"
   if (href.startsWith('/')) return href
-
-  // Otherwise treat it like a /cards querystring
-  // e.g. "q=pikachu&cost_min=2"
   return `/cards?${href}`
 }
 
@@ -22,20 +16,29 @@ export default function BackToResultsButton({ fallbackHref = '/cards' }) {
   const [hasHistory, setHasHistory] = useState(false)
 
   const targetHref = useMemo(() => normalizeFallbackHref(fallbackHref), [fallbackHref])
-
   const isArticleBack = useMemo(() => targetHref.startsWith('/articles/'), [targetHref])
 
   useEffect(() => {
-    setHasHistory(window.history.length > 1)
+    // history length heuristic; also guard for SSR
+    try {
+      setHasHistory(window.history.length > 1)
+    } catch {
+      setHasHistory(false)
+    }
   }, [])
 
   function handleClick() {
     if (leaving) return
     setLeaving(true)
 
-    window.setTimeout(() => {
-      router.push(targetHref)
-    }, 150)
+    // Prefer browser history when it exists — preserves scroll/state best.
+    if (hasHistory) {
+      router.back()
+      return
+    }
+
+    // Fallback when opened in a new tab / direct entry
+    router.push(targetHref)
   }
 
   const disabled = leaving
