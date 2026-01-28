@@ -248,6 +248,12 @@ export default function CardsPage() {
       restoringRef.current = false
     }
   }, [restoreKey])
+  
+  function persistBeforeNav() {
+    // don’t mutate restore during the actual restore pass
+    if (restoringRef.current) return
+    persistNow()
+  }
 
   function persistNow() {
     const el = gridRef.current
@@ -908,6 +914,8 @@ export default function CardsPage() {
                     data-card-id={card.card_id}
                     href={cardHref(card.card_id)}
                     className={cardLinkClassName}
+                    onMouseDown={persistBeforeNav}
+                    onTouchStart={persistBeforeNav}
                   >
                     <img src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url} alt={card.name} className={imageClassName} />
                   </Link>
@@ -936,6 +944,8 @@ export default function CardsPage() {
                       data-card-id={card.card_id}
                       href={cardHref(card.card_id)}
                       className={cardLinkClassName}
+                      onMouseDown={persistBeforeNav}
+                      onTouchStart={persistBeforeNav}
                     >
                       <div className="flex flex-col gap-2">
                         {/* Header */}
