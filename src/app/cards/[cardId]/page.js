@@ -207,7 +207,7 @@ export default async function CardDetailPage({ params, searchParams }) {
                     className="group relative flex flex-col rounded-md border border-zinc-800 bg-zinc-900 p-2 hover:border-blue-500 transition"
                   >
                     <img
-                      src={rc.image_path ? cardImageUrlFromPath(rc.image_path) : rc.image_url}
+                      src={rc.image_path ? cardImageUrlFromPath(rc.image_path) : ''}
                       alt={rc.name}
                       className="w-full h-auto rounded"
                     />
