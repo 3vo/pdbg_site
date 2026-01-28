@@ -11,16 +11,14 @@ export async function GET(req) {
 
   const { data, error } = await supabase
     .from('cards_flat')
-    .select('card_id, name, image_url, image_path, wcs_tier, set')
+    .select('card_id, name, image_path, wcs_tier, set')
     .eq('card_id', cardId)
     .maybeSingle()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const resolvedImageUrl = data.image_path
-    ? cardImageUrlFromPath(data.image_path)
-    : data.image_url || ''
+  const resolvedImageUrl = data.image_path ? cardImageUrlFromPath(data.image_path) : ''
 
   return NextResponse.json({
     card_id: data.card_id,
