@@ -1106,10 +1106,11 @@ export default function CardsPage() {
                         src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
                         alt={card.name}
                         className={imageClassName}
+                        title={`WCS Tier ${card.wcs_tier}`}
                       />
               
                       {showWcsTier && (
-                        <div className="mt-1 text-center text-[11px] text-zinc-400">
+                        <div className="mt-2 text-center text-[14px] text-zinc-400">
                           WCS Tier {card.wcs_tier}
                         </div>
                       )}
