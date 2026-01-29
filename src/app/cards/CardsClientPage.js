@@ -829,14 +829,15 @@ export default function CardsPage() {
             <SiteBanner />
 
             <div ref={resultsTopRef} className="mt-4 flex flex-col min-h-0">
-                           {/* Sticky controls */}
+              {/* Sticky controls */}
               <div
                 ref={controlsRef}
                 className="sticky top-0 z-20 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur p-3 shadow-lg"
               >
-                {/* Top row: counts + mobile collapse toggle */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="text-sm text-zinc-200">
+                {/* Header row: counts left, controls right (desktop), mobile collapse button */}
+                <div className="flex items-center justify-between gap-3">
+                  {/* Left: counts */}
+                  <div className="min-w-0 text-sm text-zinc-200">
                     <div>
                       Showing <span className="font-semibold">{shownCount}</span>
                       {hasTotal && (
@@ -855,23 +856,97 @@ export default function CardsPage() {
                     )}
                   </div>
 
-                  {/* Mobile-only: collapse/expand sticky controls */}
-                  <button
-                    type="button"
-                    onClick={() => setMobileControlsCollapsed(v => !v)}
-                    className="md:hidden shrink-0 rounded bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
-                    title={mobileControlsCollapsed ? 'Show controls' : 'Hide controls'}
-                    aria-expanded={!mobileControlsCollapsed}
-                  >
-                    {mobileControlsCollapsed ? 'Show' : 'Hide'}
-                  </button>
+                  {/* Right: controls (desktop) + collapse toggle (mobile) */}
+                  <div className="flex items-center justify-end gap-2">
+                    {/* Mobile-only: collapse/expand sticky controls */}
+                    <button
+                      type="button"
+                      onClick={() => setMobileControlsCollapsed(v => !v)}
+                      className="md:hidden shrink-0 rounded bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                      title={mobileControlsCollapsed ? 'Show controls' : 'Hide controls'}
+                      aria-expanded={!mobileControlsCollapsed}
+                    >
+                      {mobileControlsCollapsed ? 'Show' : 'Hide'}
+                    </button>
+
+                    {/* Desktop-only controls inline with counts */}
+                    <div className="hidden md:flex items-center justify-end gap-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-300">Sort</label>
+
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={sortBy}
+                          onChange={e => setSort(e.target.value, sortDir)}
+                          title="Sort by"
+                        >
+                          <option value="">Default</option>
+                          <option value="name">Name</option>
+                          <option value="cost">Cost</option>
+                          <option value="xp">XP</option>
+                        </select>
+
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={sortDir}
+                          onChange={e => setSort(sortBy, e.target.value)}
+                          disabled={!hasSort}
+                          title="Sort direction"
+                        >
+                          <option value="asc">Asc</option>
+                          <option value="desc">Desc</option>
+                        </select>
+
+                        <button
+                          onClick={clearSort}
+                          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-zinc-800"
+                          disabled={!hasSort}
+                          title={!hasSort ? 'No sort applied' : 'Clear Sort'}
+                        >
+                          Clear sort
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-300">View</label>
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={view}
+                          onChange={e => setViewMode(e.target.value)}
+                          title="View mode"
+                        >
+                          {VIEW_OPTIONS.map(o => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        onClick={() => setFiltersOpen(o => !o)}
+                        className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                        title={filtersOpen ? 'Hide filters panel' : 'Show filters panel'}
+                      >
+                        {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+                      </button>
+
+                      <button
+                        onClick={scrollGridToTop}
+                        className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                        title="Scroll to the top of the results"
+                      >
+                        Scroll to Top
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Everything below collapses on mobile */}
-                {!mobileControlsCollapsed && (
-                  <>
-                    <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex flex-wrap gap-2 self-start sm:self-auto items-center">
+                {/* Mobile-only expanded controls + chips (collapsible) */}
+                <div className="md:hidden">
+                  {!mobileControlsCollapsed && (
+                    <>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
                         <div className="flex items-center gap-2">
                           <label className="text-xs text-zinc-300">Sort</label>
 
@@ -908,7 +983,6 @@ export default function CardsPage() {
                           </button>
                         </div>
 
-                        {/* View toggle */}
                         <div className="flex items-center gap-2">
                           <label className="text-xs text-zinc-300">View</label>
                           <select
@@ -941,35 +1015,62 @@ export default function CardsPage() {
                           Scroll to Top
                         </button>
                       </div>
-                    </div>
 
-                    {chips.length > 0 && (
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <button
-                          onClick={clearAllFilters}
-                          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
-                          title="Clear all filters"
-                        >
-                          Clear Filters
-                        </button>
-
-                        {chips.map((chip, idx) => (
+                      {chips.length > 0 && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
                           <button
-                            key={`${chip.key}:${chip.value}:${idx}`}
-                            onClick={() => removeChip(chip)}
-                            className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
-                            title="Remove this filter"
+                            onClick={clearAllFilters}
+                            className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                            title="Clear all filters"
                           >
-                            <span className="text-zinc-300">{chip.label}:</span>
-                            <span className="font-medium">{chip.value}</span>
-                            <span className="text-zinc-300">×</span>
+                            Clear Filters
                           </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
+
+                          {chips.map((chip, idx) => (
+                            <button
+                              key={`${chip.key}:${chip.value}:${idx}`}
+                              onClick={() => removeChip(chip)}
+                              className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                              title="Remove this filter"
+                            >
+                              <span className="text-zinc-300">{chip.label}:</span>
+                              <span className="font-medium">{chip.value}</span>
+                              <span className="text-zinc-300">×</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Desktop chips (always visible) */}
+                {chips.length > 0 && (
+                  <div className="hidden md:flex mt-3 flex-wrap items-center gap-2">
+                    <button
+                      onClick={clearAllFilters}
+                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                      title="Clear all filters"
+                    >
+                      Clear Filters
+                    </button>
+
+                    {chips.map((chip, idx) => (
+                      <button
+                        key={`${chip.key}:${chip.value}:${idx}`}
+                        onClick={() => removeChip(chip)}
+                        className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                        title="Remove this filter"
+                      >
+                        <span className="text-zinc-300">{chip.label}:</span>
+                        <span className="font-medium">{chip.value}</span>
+                        <span className="text-zinc-300">×</span>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
+
 
               {/* Grid (not scrollable) */}
               <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
