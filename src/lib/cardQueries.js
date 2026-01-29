@@ -80,6 +80,8 @@ function toPgArrayLiteral(items) {
   return `{${escaped.join(',')}}`
 }
 
+const EMPTY_PG_ARRAY = '{}' // Postgres empty array literal
+
 export async function fetchCardById(cardId) {
   const { data, error } = await supabase
     .from('cards_flat')
@@ -112,19 +114,18 @@ export async function fetchCardsByCardIds(cardIds = []) {
  *  - fetchFilteredCards(params, page, pageSize)
  * New signature:
  *  - fetchFilteredCards(params, { offset, limit })
- *
- * IMPORTANT:
- *  - In the browser, this function calls /api/cards (cached) to reduce PostgREST egress.
- *  - On the server, it queries Supabase directly.
  */
 export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize = 24) {
-  // ============================================================
-  // CLIENT PATH: call our cached API route instead of PostgREST
-  // ============================================================
+  // If we're in the browser, hit our cached API route instead of PostgREST directly.
   if (typeof window !== 'undefined') {
+    const opts =
+      typeof pageOrOpts === 'object' && pageOrOpts
+        ? { offset: pageOrOpts.offset ?? 0, limit: pageOrOpts.limit ?? pageSize }
+        : { offset: (Number(pageOrOpts || 1) - 1) * pageSize, limit: pageSize }
+
     const qs = new URLSearchParams()
 
-    // Copy params into querystring
+    // push params into querystring
     for (const [k, v] of Object.entries(params || {})) {
       if (v == null) continue
       const s = String(v)
@@ -132,38 +133,20 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
       qs.set(k, s)
     }
 
-    // Normalize pagination into offset/limit
-    let offset = 0
-    let limit = pageSize
-
-    if (typeof pageOrOpts === 'object' && pageOrOpts) {
-      offset = Number(pageOrOpts.offset ?? 0)
-      limit = Number(pageOrOpts.limit ?? pageSize)
-    } else {
-      const page = Number(pageOrOpts || 1)
-      offset = (page - 1) * pageSize
-      limit = pageSize
-    }
-
-    qs.set('offset', String(Number.isFinite(offset) ? Math.max(0, offset) : 0))
-    qs.set('limit', String(Number.isFinite(limit) ? Math.max(1, limit) : Math.max(1, pageSize)))
+    qs.set('offset', String(Math.max(0, Number(opts.offset) || 0)))
+    qs.set('limit', String(Math.max(1, Number(opts.limit) || pageSize)))
 
     const res = await fetch(`/api/cards?${qs.toString()}`)
-    if (!res.ok) {
-      const body = await res.text().catch(() => '')
-      throw new Error(`Cards API failed: ${res.status} ${res.statusText}${body ? ` — ${body}` : ''}`)
-    }
+    if (!res.ok) throw new Error(`Cards API failed: ${res.status}`)
 
     const json = await res.json()
+    // normalize shape
     return {
       data: Array.isArray(json?.data) ? json.data : [],
       count: typeof json?.count === 'number' ? json.count : 0,
     }
   }
 
-  // ============================================================
-  // SERVER PATH: query Supabase directly (original behavior)
-  // ============================================================
   const {
     set,
     sets,
@@ -240,15 +223,14 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   }
 
   // ============================================================
-  // Primary Types (text[] column)
+  // Primary Types (text[] column; empty array means "None")
   //
-  // INCLUDE:
-  //  - mode=and => must include ALL selected
-  //  - mode=or  => must include ANY selected
+  // Special sentinel from UI:
+  //  - "__none__" means: primary_types = '{}'  (empty array)
   //
-  // EXCLUDE:
-  //  - mode=or  => exclude if it matches ANY excluded type
-  //  - mode=and => exclude only if it matches ALL excluded types
+  // NOTE:
+  //  Supabase `.or()` does NOT URL-encode values inside the string.
+  //  PostgREST requires `{}` literals to be URL-encoded, so we encode them.
   // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
@@ -288,18 +270,47 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueInc = [...new Set(incList)].filter(Boolean)
   const uniqueExc = [...new Set(excList)].filter(Boolean)
 
+  const incHasNone = uniqueInc.includes('__none__')
+  const excHasNone = uniqueExc.includes('__none__')
+
+  const incTypes = uniqueInc.filter(t => t !== '__none__')
+  const excTypes = uniqueExc.filter(t => t !== '__none__')
+
+  const emptyEnc = encodeURIComponent(EMPTY_PG_ARRAY)
+
   // INCLUDE
-  if (uniqueInc.length > 0) {
-    if (incMode === 'or') query = query.overlaps('primary_types', uniqueInc)
-    else query = query.contains('primary_types', uniqueInc)
+  if (incHasNone && incTypes.length === 0) {
+    // Only "None" selected => empty array (and tolerate null just in case)
+    query = query.or(`primary_types.eq.${emptyEnc},primary_types.is.null`)
+  } else if (incHasNone && incTypes.length > 0) {
+    // "None" + other types: treat as OR (AND with empty array is impossible).
+    const lit = toPgArrayLiteral(incTypes)
+    const litEnc = encodeURIComponent(lit)
+    query = query.or(
+      `primary_types.eq.${emptyEnc},primary_types.is.null,primary_types.ov.${litEnc}`
+    )
+  } else if (incTypes.length > 0) {
+    if (incMode === 'or') {
+      query = query.overlaps('primary_types', incTypes)
+    } else {
+      query = query.contains('primary_types', incTypes)
+    }
   }
 
   // EXCLUDE
-  if (uniqueExc.length > 0) {
-    const lit = toPgArrayLiteral(uniqueExc)
+  if (excHasNone) {
+    // Exclude empty arrays (and also exclude nulls for robustness)
+    query = query.not('primary_types', 'eq', EMPTY_PG_ARRAY)
+    query = query.not('primary_types', 'is', null)
+  }
+
+  if (excTypes.length > 0) {
+    const lit = toPgArrayLiteral(excTypes)
     if (excMode === 'or') {
+      // Exclude if overlaps ANY excluded type
       query = query.not('primary_types', 'ov', lit)
     } else {
+      // Exclude only if contains ALL excluded types
       query = query.not('primary_types', 'cs', lit)
     }
   }
@@ -399,8 +410,9 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   // ============================================================
   // Keywords (text[] column)
   //
-  // Include semantics: AND across included keywords (must have each)
-  // Exclude semantics: must not have each excluded keyword
+  // keywords_inc: CSV (AND semantics)
+  // keywords_exc: CSV (must NOT contain)
+  // legacy: keywords behaves like keywords_inc
   // ============================================================
   const kwIncList = []
   if (keywords) {
@@ -430,10 +442,12 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueKwInc = [...new Set(kwIncList)].filter(Boolean)
   const uniqueKwExc = [...new Set(kwExcList)].filter(Boolean)
 
+  // Include: AND behavior (each must be present)
   for (const k of uniqueKwInc) {
     query = query.contains('keywords', [k])
   }
 
+  // Exclude: must not contain that keyword
   for (const k of uniqueKwExc) {
     query = query.not('keywords', 'cs', toPgArrayLiteral([k]))
   }
