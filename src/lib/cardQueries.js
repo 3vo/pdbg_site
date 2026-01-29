@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { unstable_cache } from 'next/cache'
 
 function applyTextFilters(query, field, include, exclude, phrase) {
   if (include) {
@@ -82,7 +83,56 @@ function toPgArrayLiteral(items) {
 
 const EMPTY_PG_ARRAY = '{}' // Postgres empty array literal
 
+// ============================================================
+// ✅ Server Data Cache helpers (Step 2)
+//
+// Cards basically never change, so we can cache “forever”.
+// If you ever need to bust caches, bump the namespace keys.
+// ============================================================
+const CARD_BY_ID_REVALIDATE = 31536000 // 1 year
+const CARDS_BY_IDS_REVALIDATE = 31536000 // 1 year
+
+const cachedFetchCardById = unstable_cache(
+  async cardId => {
+    const { data, error } = await supabase
+      .from('cards_flat')
+      .select('*')
+      .eq('card_id', String(cardId))
+
+    if (error) throw error
+    return data?.[0] ?? null
+  },
+  ['cards-flat-by-id-v1'],
+  { revalidate: CARD_BY_ID_REVALIDATE }
+)
+
+const cachedFetchCardsByCardIds = unstable_cache(
+  async idsKey => {
+    // idsKey is a stable string key; parse back to ids
+    const ids = idsKey.split('|').filter(Boolean)
+    if (ids.length === 0) return []
+
+    const { data, error } = await supabase
+      .from('cards_flat')
+      .select('card_id,name,image_path,wcs_tier')
+      .in('card_id', ids)
+
+    if (error) throw error
+
+    const byId = new Map((data || []).map(r => [r.card_id, r]))
+    return ids.map(id => byId.get(id)).filter(Boolean)
+  },
+  ['cards-flat-by-ids-v1'],
+  { revalidate: CARDS_BY_IDS_REVALIDATE }
+)
+
 export async function fetchCardById(cardId) {
+  // Server: use Data Cache
+  if (typeof window === 'undefined') {
+    return await cachedFetchCardById(String(cardId))
+  }
+
+  // Client: direct (rare in your current usage, but keep safe)
   const { data, error } = await supabase
     .from('cards_flat')
     .select('*')
@@ -96,6 +146,13 @@ export async function fetchCardsByCardIds(cardIds = []) {
   const ids = Array.isArray(cardIds) ? cardIds.map(String).filter(Boolean) : []
   if (ids.length === 0) return []
 
+  // Server: use Data Cache (stable key preserves order)
+  if (typeof window === 'undefined') {
+    const idsKey = ids.join('|')
+    return await cachedFetchCardsByCardIds(idsKey)
+  }
+
+  // Client: direct
   const { data, error } = await supabase
     .from('cards_flat')
     .select('card_id,name,image_path,wcs_tier')
@@ -227,14 +284,6 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   //
   // Special sentinel from UI:
   //  - "__none__" means: primary_types = '{}'  (empty array)
-  //
-  // INCLUDE:
-  //  - mode=and => must include ALL selected
-  //  - mode=or  => must include ANY selected
-  //
-  // EXCLUDE:
-  //  - mode=or  => exclude if it matches ANY excluded type
-  //  - mode=and => exclude only if it matches ALL excluded types
   // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
@@ -280,27 +329,19 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const incTypes = uniqueInc.filter(t => t !== '__none__')
   const excTypes = uniqueExc.filter(t => t !== '__none__')
 
-  const emptyEnc = encodeURIComponent(EMPTY_PG_ARRAY)
-
   // INCLUDE
   if (incHasNone && incTypes.length === 0) {
     // Only "None" selected => empty array (and tolerate null just in case)
-    //query = query.or(`primary_types.eq.${emptyEnc},primary_types.is.null`)
     query = query.or(`primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null`)
   } else if (incHasNone && incTypes.length > 0) {
     // "None" + other types: treat as OR (AND with empty array is impossible).
     const lit = toPgArrayLiteral(incTypes)
-    //const litEnc = encodeURIComponent(lit)
     query = query.or(
       `primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null,primary_types.ov.${lit}`
-      //`primary_types.eq.${emptyEnc},primary_types.is.null,primary_types.ov.${litEnc}`
     )
   } else if (incTypes.length > 0) {
-    if (incMode === 'or') {
-      query = query.overlaps('primary_types', incTypes)
-    } else {
-      query = query.contains('primary_types', incTypes)
-    }
+    if (incMode === 'or') query = query.overlaps('primary_types', incTypes)
+    else query = query.contains('primary_types', incTypes)
   }
 
   // EXCLUDE
@@ -312,13 +353,8 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
 
   if (excTypes.length > 0) {
     const lit = toPgArrayLiteral(excTypes)
-    if (excMode === 'or') {
-      // Exclude if overlaps ANY excluded type
-      query = query.not('primary_types', 'ov', lit)
-    } else {
-      // Exclude only if contains ALL excluded types
-      query = query.not('primary_types', 'cs', lit)
-    }
+    if (excMode === 'or') query = query.not('primary_types', 'ov', lit)
+    else query = query.not('primary_types', 'cs', lit)
   }
 
   // Location filter
@@ -413,13 +449,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     if (term) query = query.or(`name.ilike.%${term}%,effect.ilike.%${term}%`)
   }
 
-  // ============================================================
-  // Keywords (text[] column)
-  //
-  // keywords_inc: CSV (AND semantics)
-  // keywords_exc: CSV (must NOT contain)
-  // legacy: keywords behaves like keywords_inc
-  // ============================================================
+  // Keywords
   const kwIncList = []
   if (keywords) {
     kwIncList.push(
@@ -448,12 +478,10 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueKwInc = [...new Set(kwIncList)].filter(Boolean)
   const uniqueKwExc = [...new Set(kwExcList)].filter(Boolean)
 
-  // Include: AND behavior (each must be present)
   for (const k of uniqueKwInc) {
     query = query.contains('keywords', [k])
   }
 
-  // Exclude: must not contain that keyword
   for (const k of uniqueKwExc) {
     query = query.not('keywords', 'cs', toPgArrayLiteral([k]))
   }
@@ -505,7 +533,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     query = query.order('card_id', { ascending: true })
   }
 
-  // Pagination: support both signatures
+  // Pagination
   let from = 0
   let to = 0
 
