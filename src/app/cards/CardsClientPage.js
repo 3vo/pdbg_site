@@ -1032,7 +1032,7 @@ export default function CardsPage() {
                 })}
 
               {/* Sentinel */}
-              <div ref={observerRef} className="col-span-full h-6" aria-hidden="true" />
+              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
 
               {/* Extra spacer so the last row never sits flush against the bottom edge */}
               <div className="col-span-full h-10" aria-hidden="true" />
