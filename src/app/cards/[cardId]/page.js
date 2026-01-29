@@ -7,8 +7,8 @@ import FadeIn from '@/components/FadeIn'
 import CardImageGallery from '@/components/CardImageGallery'
 
 export default async function CardDetailPage({ params, searchParams }) {
-  const { cardId: rawCardId } = await params
-  const sp = await searchParams
+  const { cardId: rawCardId } = params
+  const sp = searchParams
 
   if (!rawCardId) notFound()
 
