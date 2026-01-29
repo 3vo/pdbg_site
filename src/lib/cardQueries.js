@@ -106,8 +106,16 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const {
     set,
     sets,
+
+    // legacy (compat)
     primary_type,
     primary_types,
+
+    // NEW
+    primary_types_inc,
+    primary_types_exc,
+    primary_types_inc_mode,
+    primary_types_exc_mode,
 
     cost_min,
     cost_max,
@@ -130,7 +138,13 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     sort_by,
     sort_dir,
 
+    // legacy (compat)
     keywords,
+
+    // NEW
+    keywords_inc,
+    keywords_exc,
+
     subtypes,
     symbols,
     q,
@@ -143,6 +157,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     effect_phrase,
     effect_scope,
   } = params
+
 
   let query = supabase.from('cards_flat').select('*', { count: 'exact' })
 
@@ -164,17 +179,81 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     query = query.lte('wcs_tier', Number(wcs_tier_max))
   }
 
-  // Primary Types
-  const typeList = []
-  if (primary_type) typeList.push(primary_type)
+  // Primary Types (text[] column)
+  // NEW params:
+  //  - primary_types_inc: CSV
+  //  - primary_types_exc: CSV
+  //  - primary_types_inc_mode: 'and'|'or' (default: 'and')
+  //  - primary_types_exc_mode: 'and'|'or' (default: 'or')
+  //
+  // Back-compat:
+  //  - primary_type / primary_types behave like INCLUDE + AND
+  const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
+  const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
+
+  const incList = []
+  const excList = []
+
+  // legacy include -> incList
+  if (primary_type) incList.push(String(primary_type).trim())
   if (primary_types) {
-    typeList.push(...String(primary_types).split(',').map(s => s.trim()).filter(Boolean))
+    incList.push(
+      ...String(primary_types)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    )
   }
 
-  const uniqueTypes = [...new Set(typeList)]
-  if (uniqueTypes.length > 0) {
-    query = query.contains('primary_types', uniqueTypes)
+  // new include/exclude -> incList/excList
+  if (primary_types_inc) {
+    incList.push(
+      ...String(primary_types_inc)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    )
   }
+
+  if (primary_types_exc) {
+    excList.push(
+      ...String(primary_types_exc)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    )
+  }
+
+  const uniqueInc = [...new Set(incList)].filter(Boolean)
+  const uniqueExc = [...new Set(excList)].filter(Boolean)
+
+  // INCLUDE semantics
+  //  - AND => must contain all selected types (array contains)
+  //  - OR  => must contain any selected type (array overlaps)
+  if (uniqueInc.length > 0) {
+    if (incMode === 'or') {
+      query = query.overlaps('primary_types', uniqueInc)
+    } else {
+      query = query.contains('primary_types', uniqueInc)
+    }
+  }
+
+  // EXCLUDE semantics
+  //  - OR  => exclude if overlaps ANY excluded type
+  //  - AND => exclude only if it contains ALL excluded types
+  if (uniqueExc.length > 0) {
+    if (excMode === 'or') {
+      query = query.not('primary_types', 'ov', uniqueExc)
+    } else {
+      query = query.not('primary_types', 'cs', uniqueExc)
+    }
+  }
+
+
+ // const uniqueTypes = [...new Set(typeList)]
+ // if (uniqueTypes.length > 0) {
+ //   query = query.contains('primary_types', uniqueTypes)
+ // }
 
   // Location filter
   if (card_location) {
@@ -237,10 +316,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     const maxOk = xpMaxNum !== null && Number.isFinite(xpMaxNum) ? xpMaxNum : null
 
     const parts = [`xp_is_variable.eq.false`, `xp_value.gte.${minOk}`]
-    if (maxOk !== null) parts.push(`xp_value.lte.${maxOk}`
-
-    )
-
+    if (maxOk !== null) parts.push(`xp_value.lte.${maxOk}`)
     const numericAnd = `and(${parts.join(',')})`
 
     const shouldIncludeNull = xpIncludeNull && xpRangeIncludesZero
@@ -271,16 +347,51 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     if (term) query = query.or(`name.ilike.%${term}%,effect.ilike.%${term}%`)
   }
 
-  // Array filters
+  // Keywords (text[] column)
+  // NEW params:
+  //  - keywords_inc: CSV (AND semantics: each included keyword must be present)
+  //  - keywords_exc: CSV (excluded keywords must NOT be present)
+  // Back-compat:
+  //  - keywords behaves like keywords_inc
+  const kwIncList = []
   if (keywords) {
-    String(keywords)
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-      .forEach(k => {
-        query = query.contains('keywords', [k])
-      })
+    kwIncList.push(
+      ...String(keywords)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    )
   }
+  if (keywords_inc) {
+    kwIncList.push(
+      ...String(keywords_inc)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    )
+  }
+
+  const kwExcList = keywords_exc
+    ? String(keywords_exc)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+    : []
+
+  const uniqueKwInc = [...new Set(kwIncList)].filter(Boolean)
+  const uniqueKwExc = [...new Set(kwExcList)].filter(Boolean)
+
+  // Include: AND behavior (each must be contained)
+  for (const k of uniqueKwInc) {
+    query = query.contains('keywords', [k])
+  }
+
+  // Exclude: must not contain that keyword
+  for (const k of uniqueKwExc) {
+    query = query.not('keywords', 'cs', [k])
+  }
+
+
 
   if (subtypes) {
     String(subtypes)
