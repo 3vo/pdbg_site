@@ -190,18 +190,22 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   }
 
   // ============================================================
-  // Primary Types (text[] column)
+  // Primary Types (text[] column; may be NULL)
+  //
+  // Special sentinel from UI:
+  //  - "__none__" means: primary_types IS NULL
   //
   // INCLUDE:
-  //  - mode=and => must include ALL selected
-  //  - mode=or  => must include ANY selected
+  //  - mode=and => must include ALL selected (array @> list)
+  //  - mode=or  => must include ANY selected (array && list)
   //
-  // EXCLUDE (IMPORTANT):
-  //  - mode=or  => exclude if it matches ANY excluded type
-  //  - mode=and => exclude only if it matches ALL excluded types
+  // EXCLUDE:
+  //  - mode=or  => exclude if it matches ANY excluded type (NOT (array && list))
+  //  - mode=and => exclude only if it matches ALL excluded types (NOT (array @> list))
   //
-  // This makes:
-  //  inc=Starter, exc=Pokemon (excMode=or) => Starter AND NOT Pokemon
+  // Null handling:
+  //  - include "__none__" => allow NULLs (or require NULL if it's the only include)
+  //  - exclude "__none__" => filter out NULLs
   // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
@@ -241,15 +245,37 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueInc = [...new Set(incList)].filter(Boolean)
   const uniqueExc = [...new Set(excList)].filter(Boolean)
 
+  const incHasNone = uniqueInc.includes('__none__')
+  const excHasNone = uniqueExc.includes('__none__')
+
+  const incTypes = uniqueInc.filter(t => t !== '__none__')
+  const excTypes = uniqueExc.filter(t => t !== '__none__')
+
   // INCLUDE
-  if (uniqueInc.length > 0) {
-    if (incMode === 'or') query = query.overlaps('primary_types', uniqueInc)
-    else query = query.contains('primary_types', uniqueInc)
+  if (incHasNone && incTypes.length === 0) {
+    // Only "None" selected => primary_types IS NULL
+    query = query.is('primary_types', null)
+  } else if (incHasNone && incTypes.length > 0) {
+    // "None" + other types:
+    // Always treat as OR (otherwise AND would yield no rows).
+    const lit = toPgArrayLiteral(incTypes)
+    query = query.or(`primary_types.is.null,primary_types.ov.${lit}`)
+  } else if (incTypes.length > 0) {
+    if (incMode === 'or') {
+      query = query.overlaps('primary_types', incTypes)
+    } else {
+      query = query.contains('primary_types', incTypes)
+    }
   }
 
   // EXCLUDE
-  if (uniqueExc.length > 0) {
-    const lit = toPgArrayLiteral(uniqueExc)
+  if (excHasNone) {
+    // Exclude NULLs outright (regardless of mode; "AND" with others would be impossible anyway).
+    query = query.not('primary_types', 'is', null)
+  }
+
+  if (excTypes.length > 0) {
+    const lit = toPgArrayLiteral(excTypes)
     if (excMode === 'or') {
       // Exclude if overlaps ANY excluded type
       query = query.not('primary_types', 'ov', lit)
@@ -354,17 +380,9 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   // ============================================================
   // Keywords (text[] column)
   //
-  // Want:
-  //  - include Attack
-  //  - exclude Evolve
-  //
-  // keywords_inc=Attack
-  // keywords_exc=Evolve
-  //
-  // Include semantics: AND across included keywords (must have each)
-  // Exclude semantics: must not have each excluded keyword
-  //
-  // IMPORTANT: for exclude we must pass a Postgres array literal to .not()
+  // keywords_inc: CSV (AND semantics)
+  // keywords_exc: CSV (must NOT contain)
+  // legacy: keywords behaves like keywords_inc
   // ============================================================
   const kwIncList = []
   if (keywords) {
@@ -394,7 +412,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueKwInc = [...new Set(kwIncList)].filter(Boolean)
   const uniqueKwExc = [...new Set(kwExcList)].filter(Boolean)
 
-  // Include: AND behavior (each must be contained)
+  // Include: AND behavior (each must be present)
   for (const k of uniqueKwInc) {
     query = query.contains('keywords', [k])
   }
