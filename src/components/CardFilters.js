@@ -52,7 +52,7 @@ export default function CardFilters() {
   const [setsOpen, setSetsOpen] = useState(false)
   const setsRef = useRef(null)
 
-  // NEW: Primary Types dropdown state + outside click
+  // Primary Types dropdown state + outside click
   const [typesOpen, setTypesOpen] = useState(false)
   const typesRef = useRef(null)
 
@@ -182,16 +182,18 @@ export default function CardFilters() {
     { code: '[WCS]', name: 'World Championships' },
   ]
 
-  const TYPES = [
-    'Pokemon',
-    'Move',
-    'Item',
-    'Trainer',
-    'Challenge',
-    'Encounter',
-    'Starter',
-    'Status Condition',
-    'TM / HM',
+  // NOTE: "__none__" is a sentinel meaning: primary_types IS NULL (per your request).
+  const TYPE_OPTIONS = [
+    { value: 'Pokemon', label: 'Pokemon' },
+    { value: 'Move', label: 'Move' },
+    { value: 'Item', label: 'Item' },
+    { value: 'Trainer', label: 'Trainer' },
+    { value: 'Challenge', label: 'Challenge' },
+    { value: 'Encounter', label: 'Encounter' },
+    { value: 'Starter', label: 'Starter' },
+    { value: 'Status Condition', label: 'Status Condition' },
+    { value: 'TM / HM', label: 'TM / HM' },
+    { value: '__none__', label: 'None' },
   ]
 
   const KEYWORDS = [
@@ -251,8 +253,8 @@ export default function CardFilters() {
   const selectedSetsCount = getMulti('sets').length
 
   // ============================================================
-  // NEW: Primary Types include/exclude + mode
-  // Params (proposed):
+  // Primary Types include/exclude + mode
+  // Params:
   //  - primary_types_inc: CSV
   //  - primary_types_exc: CSV
   //  - primary_types_inc_mode: 'and'|'or' (default 'and')
@@ -260,33 +262,35 @@ export default function CardFilters() {
   // ============================================================
   const typesInc = getMulti('primary_types_inc')
   const typesExc = getMulti('primary_types_exc')
-  const typesIncMode = (searchParams.get('primary_types_inc_mode') || 'and').toLowerCase() === 'or' ? 'or' : 'and'
-  const typesExcMode = (searchParams.get('primary_types_exc_mode') || 'or').toLowerCase() === 'and' ? 'and' : 'or'
+  const typesIncMode =
+    (searchParams.get('primary_types_inc_mode') || 'and').toLowerCase() === 'or' ? 'or' : 'and'
+  const typesExcMode =
+    (searchParams.get('primary_types_exc_mode') || 'or').toLowerCase() === 'and' ? 'and' : 'or'
 
   const typesSelectedCount = typesInc.length + typesExc.length
 
-  function toggleTypeInSection(sectionKey, type) {
+  function toggleTypeInSection(sectionKey, typeValue) {
     updateParams(params => {
-      const key = sectionKey
-      const cur = csvToList(params.get(key))
-      const next = cur.includes(type) ? cur.filter(t => t !== type) : [...cur, type]
-      if (next.length === 0) params.delete(key)
-      else params.set(key, listToCsv(next))
+      const cur = csvToList(params.get(sectionKey))
+      const next = cur.includes(typeValue) ? cur.filter(t => t !== typeValue) : [...cur, typeValue]
+      if (next.length === 0) params.delete(sectionKey)
+      else params.set(sectionKey, listToCsv(next))
     })
   }
 
   function setTypeMode(modeKey, nextMode) {
     updateParams(params => {
       const m = nextMode === 'or' ? 'or' : 'and'
-      // If mode is default and there are no selections, keep URL clean by deleting.
-      // (We’ll still treat it as default in code.)
       const hasAny =
-        csvToList(params.get('primary_types_inc')).length > 0 || csvToList(params.get('primary_types_exc')).length > 0
-      if (!hasAny && ((modeKey === 'primary_types_inc_mode' && m === 'and') || (modeKey === 'primary_types_exc_mode' && m === 'or'))) {
-        params.delete(modeKey)
-      } else {
-        params.set(modeKey, m)
-      }
+        csvToList(params.get('primary_types_inc')).length > 0 ||
+        csvToList(params.get('primary_types_exc')).length > 0
+
+      const isDefault =
+        (modeKey === 'primary_types_inc_mode' && m === 'and') ||
+        (modeKey === 'primary_types_exc_mode' && m === 'or')
+
+      if (!hasAny && isDefault) params.delete(modeKey)
+      else params.set(modeKey, m)
     })
   }
 
@@ -296,15 +300,15 @@ export default function CardFilters() {
       params.delete('primary_types_exc')
       params.delete('primary_types_inc_mode')
       params.delete('primary_types_exc_mode')
-      // Also clear legacy key if present so it doesn’t fight the new UI
+      // legacy cleanup
       params.delete('primary_type')
       params.delete('primary_types')
     })
   }
 
   // ============================================================
-  // NEW: Keywords tristate include/exclude
-  // Params (proposed):
+  // Keywords tristate include/exclude
+  // Params:
   //  - keywords_inc: CSV
   //  - keywords_exc: CSV
   // ============================================================
@@ -344,7 +348,7 @@ export default function CardFilters() {
       if (nextExc.length) params.set('keywords_exc', listToCsv(nextExc))
       else params.delete('keywords_exc')
 
-      // If you still have legacy 'keywords' hanging around from old UI, remove it
+      // legacy cleanup
       params.delete('keywords')
     })
   }
@@ -808,7 +812,7 @@ export default function CardFilters() {
         <div className="mt-1 text-xs text-zinc-400">Select one or more sets</div>
       </div>
 
-      {/* NEW: Primary Type (Include/Exclude + AND/OR modes) */}
+      {/* Primary Type (Include/Exclude + AND/OR modes) */}
       <div className="mb-4" ref={typesRef}>
         <div className="flex items-center justify-between mb-1">
           <label className="block text-sm font-medium">Primary Type</label>
@@ -830,9 +834,7 @@ export default function CardFilters() {
           aria-expanded={typesOpen}
         >
           <span className="pr-2">
-            {typesSelectedCount === 0
-              ? 'Any'
-              : `${typesInc.length} include / ${typesExc.length} exclude`}
+            {typesSelectedCount === 0 ? 'Any' : `${typesInc.length} include / ${typesExc.length} exclude`}
           </span>
 
           <span className="text-zinc-500">{typesOpen ? '▲' : '▼'}</span>
@@ -848,7 +850,9 @@ export default function CardFilters() {
                 <span className="text-[11px] text-zinc-500">Mode</span>
                 <button
                   type="button"
-                  onClick={() => setTypeMode('primary_types_inc_mode', typesIncMode === 'and' ? 'or' : 'and')}
+                  onClick={() =>
+                    setTypeMode('primary_types_inc_mode', typesIncMode === 'and' ? 'or' : 'and')
+                  }
                   className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-black hover:bg-zinc-50"
                   title="Toggle include mode"
                 >
@@ -859,17 +863,17 @@ export default function CardFilters() {
 
             <div className="mt-2 max-h-40 overflow-y-auto pr-1 pb-2">
               <div className="space-y-2">
-                {TYPES.map(t => {
-                  const checked = typesInc.includes(t)
+                {TYPE_OPTIONS.map(opt => {
+                  const checked = typesInc.includes(opt.value)
                   return (
-                    <label key={`inc:${t}`} className="flex items-start gap-2 text-sm text-black">
+                    <label key={`inc:${opt.value}`} className="flex items-start gap-2 text-sm text-black">
                       <input
                         type="checkbox"
                         className="mt-1"
                         checked={checked}
-                        onChange={() => toggleTypeInSection('primary_types_inc', t)}
+                        onChange={() => toggleTypeInSection('primary_types_inc', opt.value)}
                       />
-                      <span className="leading-snug">{t}</span>
+                      <span className="leading-snug">{opt.label}</span>
                     </label>
                   )
                 })}
@@ -886,7 +890,9 @@ export default function CardFilters() {
                 <span className="text-[11px] text-zinc-500">Mode</span>
                 <button
                   type="button"
-                  onClick={() => setTypeMode('primary_types_exc_mode', typesExcMode === 'and' ? 'or' : 'and')}
+                  onClick={() =>
+                    setTypeMode('primary_types_exc_mode', typesExcMode === 'and' ? 'or' : 'and')
+                  }
                   className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-black hover:bg-zinc-50"
                   title="Toggle exclude mode"
                 >
@@ -897,17 +903,17 @@ export default function CardFilters() {
 
             <div className="mt-2 max-h-40 overflow-y-auto pr-1 pb-2">
               <div className="space-y-2">
-                {TYPES.map(t => {
-                  const checked = typesExc.includes(t)
+                {TYPE_OPTIONS.map(opt => {
+                  const checked = typesExc.includes(opt.value)
                   return (
-                    <label key={`exc:${t}`} className="flex items-start gap-2 text-sm text-black">
+                    <label key={`exc:${opt.value}`} className="flex items-start gap-2 text-sm text-black">
                       <input
                         type="checkbox"
                         className="mt-1"
                         checked={checked}
-                        onChange={() => toggleTypeInSection('primary_types_exc', t)}
+                        onChange={() => toggleTypeInSection('primary_types_exc', opt.value)}
                       />
-                      <span className="leading-snug">{t}</span>
+                      <span className="leading-snug">{opt.label}</span>
                     </label>
                   )
                 })}
@@ -934,9 +940,7 @@ export default function CardFilters() {
           </div>
         )}
 
-        <div className="mt-1 text-xs text-zinc-400">
-          Include + exclude types with AND/OR mode
-        </div>
+        <div className="mt-1 text-xs text-zinc-400">Include + exclude types with AND/OR mode</div>
       </div>
 
       {/* Sub-types (collapsible) */}
@@ -1006,9 +1010,7 @@ export default function CardFilters() {
               onChange={e => toggleIncludeHighlightedText(e.target.checked)}
               disabled={onlyHighlightedText}
             />
-            <span className={onlyHighlightedText ? 'text-zinc-400' : ''}>
-              Include Highlighted Text
-            </span>
+            <span className={onlyHighlightedText ? 'text-zinc-400' : ''}>Include Highlighted Text</span>
           </label>
 
           <label className="flex items-center gap-2 text-sm">
@@ -1040,9 +1042,7 @@ export default function CardFilters() {
           isOpen={keywordsOpen}
           onToggle={() => setKeywordsOpen(o => !o)}
           subtitle={
-            !keywordsOpen
-              ? `${kwInc.length + kwExc.length + (multipleAttacks ? 1 : 0)} selected`
-              : null
+            !keywordsOpen ? `${kwInc.length + kwExc.length + (multipleAttacks ? 1 : 0)} selected` : null
           }
           rightSlot={
             <button
@@ -1057,92 +1057,98 @@ export default function CardFilters() {
         />
 
         {keywordsOpen && (
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {KEYWORDS.map(k => {
-              // preserve your special layout around Defense
-              if (k === 'Defense') {
-                const attackState = getKeywordState('Attack')
-                const defenseState = getKeywordState('Defense')
+          <div className="mt-2">
+            <div className="grid grid-cols-2 gap-2">
+              {KEYWORDS.map(k => {
+                // preserve your special layout around Defense (but WITHOUT Multiple Attacks now)
+                if (k === 'Defense') {
+                  const attackState = getKeywordState('Attack')
+                  const defenseState = getKeywordState('Defense')
+
+                  return (
+                    <div key="__kw_block_defense" className="contents">
+                      <button
+                        type="button"
+                        onClick={() => cycleKeyword('Attack')}
+                        className={[
+                          'text-left text-sm rounded px-2 py-1 border',
+                          attackState === 'inc'
+                            ? 'bg-green-100 border-green-400 text-black'
+                            : attackState === 'exc'
+                              ? 'bg-red-100 border-red-400 text-black'
+                              : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                        ].join(' ')}
+                        title="Click to cycle: include → exclude → neutral"
+                      >
+                        Attack
+                        <span className="ml-2 text-xs text-zinc-600">
+                          {attackState === 'inc' ? '(+)' : attackState === 'exc' ? '(-)' : ''}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => cycleKeyword('Defense')}
+                        className={[
+                          'text-left text-sm rounded px-2 py-1 border',
+                          defenseState === 'inc'
+                            ? 'bg-green-100 border-green-400 text-black'
+                            : defenseState === 'exc'
+                              ? 'bg-red-100 border-red-400 text-black'
+                              : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                        ].join(' ')}
+                        title="Click to cycle: include → exclude → neutral"
+                      >
+                        Defense
+                        <span className="ml-2 text-xs text-zinc-600">
+                          {defenseState === 'inc' ? '(+)' : defenseState === 'exc' ? '(-)' : ''}
+                        </span>
+                      </button>
+                    </div>
+                  )
+                }
+
+                // Attack handled above in the special block
+                if (k === 'Attack') return null
+
+                const state = getKeywordState(k)
 
                 return (
-                  <div key="__kw_block_defense" className="contents">
-                    <button
-                      type="button"
-                      onClick={() => cycleKeyword('Attack')}
-                      className={[
-                        'text-left text-sm rounded px-2 py-1 border',
-                        attackState === 'inc'
-                          ? 'bg-green-100 border-green-400 text-black'
-                          : attackState === 'exc'
-                            ? 'bg-red-100 border-red-400 text-black'
-                            : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
-                      ].join(' ')}
-                      title="Click to cycle: include → exclude → neutral"
-                    >
-                      Attack
-                      <span className="ml-2 text-xs text-zinc-600">
-                        {attackState === 'inc' ? '(+)' : attackState === 'exc' ? '(-)' : ''}
-                      </span>
-                    </button>
-
-                    <label className="text-sm flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={multipleAttacks}
-                        onChange={e => toggleMultipleAttacks(e.target.checked)}
-                      />
-                      <span>Multiple Attacks</span>
-                    </label>
-
-                    <button
-                      type="button"
-                      onClick={() => cycleKeyword('Defense')}
-                      className={[
-                        'text-left text-sm rounded px-2 py-1 border',
-                        defenseState === 'inc'
-                          ? 'bg-green-100 border-green-400 text-black'
-                          : defenseState === 'exc'
-                            ? 'bg-red-100 border-red-400 text-black'
-                            : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
-                      ].join(' ')}
-                      title="Click to cycle: include → exclude → neutral"
-                    >
-                      Defense
-                      <span className="ml-2 text-xs text-zinc-600">
-                        {defenseState === 'inc' ? '(+)' : defenseState === 'exc' ? '(-)' : ''}
-                      </span>
-                    </button>
-                  </div>
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => cycleKeyword(k)}
+                    className={[
+                      'text-left text-sm rounded px-2 py-1 border',
+                      state === 'inc'
+                        ? 'bg-green-100 border-green-400 text-black'
+                        : state === 'exc'
+                          ? 'bg-red-100 border-red-400 text-black'
+                          : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                    ].join(' ')}
+                    title="Click to cycle: include → exclude → neutral"
+                  >
+                    {k}
+                    <span className="ml-2 text-xs text-zinc-600">
+                      {state === 'inc' ? '(+)' : state === 'exc' ? '(-)' : ''}
+                    </span>
+                  </button>
                 )
-              }
+              })}
+            </div>
 
-              // Attack handled above in the special block
-              if (k === 'Attack') return null
-
-              const state = getKeywordState(k)
-
-              return (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => cycleKeyword(k)}
-                  className={[
-                    'text-left text-sm rounded px-2 py-1 border',
-                    state === 'inc'
-                      ? 'bg-green-100 border-green-400 text-black'
-                      : state === 'exc'
-                        ? 'bg-red-100 border-red-400 text-black'
-                        : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
-                  ].join(' ')}
-                  title="Click to cycle: include → exclude → neutral"
-                >
-                  {k}
-                  <span className="ml-2 text-xs text-zinc-600">
-                    {state === 'inc' ? '(+)' : state === 'exc' ? '(-)' : ''}
-                  </span>
-                </button>
-              )
-            })}
+            {/* Moved here per request */}
+            <div className="mt-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={multipleAttacks}
+                  onChange={e => toggleMultipleAttacks(e.target.checked)}
+                />
+                <span>Multiple Attacks</span>
+              </label>
+              <div className="mt-1 text-xs text-zinc-500">Filters cards where attack_count &gt; 1</div>
+            </div>
           </div>
         )}
       </div>
@@ -1237,9 +1243,7 @@ export default function CardFilters() {
             </div>
 
             {costRange[0] > 0 && (
-              <div className="mt-1 text-xs text-zinc-500">
-                Null costs are only available when minimum cost is 0
-              </div>
+              <div className="mt-1 text-xs text-zinc-500">Null costs are only available when minimum cost is 0</div>
             )}
           </>
         )}
@@ -1257,9 +1261,7 @@ export default function CardFilters() {
                 ? 'null-only'
                 : onlyXpVariable
                   ? 'variable-only (*)'
-                  : `${xpLo} – ${xpHi}${includeXpNull ? ' (incl null)' : ''}${
-                      includeXpVariable ? ' (incl *)' : ''
-                    }`
+                  : `${xpLo} – ${xpHi}${includeXpNull ? ' (incl null)' : ''}${includeXpVariable ? ' (incl *)' : ''}`
               : null
           }
           rightSlot={
@@ -1294,9 +1296,7 @@ export default function CardFilters() {
               )}
             </div>
 
-            <div
-              className={`px-2 ${onlyXpNull || onlyXpVariable ? 'opacity-40 pointer-events-none' : ''}`}
-            >
+            <div className={`px-2 ${onlyXpNull || onlyXpVariable ? 'opacity-40 pointer-events-none' : ''}`}>
               <Slider
                 range
                 min={XP_MIN_LIMIT}
@@ -1338,11 +1338,7 @@ export default function CardFilters() {
               </label>
 
               <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={onlyXpNull}
-                  onChange={e => toggleOnlyXpNull(e.target.checked)}
-                />
+                <input type="checkbox" checked={onlyXpNull} onChange={e => toggleOnlyXpNull(e.target.checked)} />
                 <span>Only Null XP</span>
               </label>
 
@@ -1386,9 +1382,7 @@ export default function CardFilters() {
             <button
               type="button"
               onClick={clearAdvanced}
-              className={`text-xs hover:text-zinc-200 ${
-                advancedActiveCount > 0 ? 'text-zinc-400' : 'text-zinc-600'
-              }`}
+              className={`text-xs hover:text-zinc-200 ${advancedActiveCount > 0 ? 'text-zinc-400' : 'text-zinc-600'}`}
               title="Clear advanced options"
               disabled={advancedActiveCount === 0}
             >
@@ -1406,9 +1400,7 @@ export default function CardFilters() {
                 <button
                   type="button"
                   onClick={resetWcsTierFilter}
-                  className={`text-xs hover:text-zinc-200 ${
-                    wcsTierEnabled ? 'text-zinc-400' : 'text-zinc-600'
-                  }`}
+                  className={`text-xs hover:text-zinc-200 ${wcsTierEnabled ? 'text-zinc-400' : 'text-zinc-600'}`}
                   title={wcsTierEnabled ? 'Reset WCS Tier filter' : 'Enable WCS Tier to use reset'}
                   disabled={!wcsTierEnabled}
                 >
@@ -1417,11 +1409,7 @@ export default function CardFilters() {
               </div>
 
               <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={wcsTierEnabled}
-                  onChange={e => setWcsTierEnabled(e.target.checked)}
-                />
+                <input type="checkbox" checked={wcsTierEnabled} onChange={e => setWcsTierEnabled(e.target.checked)} />
                 <span>Enable WCS Tier filter</span>
               </label>
 
@@ -1442,16 +1430,8 @@ export default function CardFilters() {
                     included
                     onChange={vals => {
                       if (!Array.isArray(vals) || vals.length !== 2) return
-                      const lo = clamp(
-                        Math.min(vals[0], vals[1]),
-                        WCS_TIER_MIN_LIMIT,
-                        WCS_TIER_MAX_LIMIT
-                      )
-                      const hi = clamp(
-                        Math.max(vals[0], vals[1]),
-                        WCS_TIER_MIN_LIMIT,
-                        WCS_TIER_MAX_LIMIT
-                      )
+                      const lo = clamp(Math.min(vals[0], vals[1]), WCS_TIER_MIN_LIMIT, WCS_TIER_MAX_LIMIT)
+                      const hi = clamp(Math.max(vals[0], vals[1]), WCS_TIER_MIN_LIMIT, WCS_TIER_MAX_LIMIT)
 
                       setWcsTierRange([lo, hi])
 
