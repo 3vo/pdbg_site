@@ -276,7 +276,7 @@ export default function CardsPage() {
       const containerRect = isMdUp ? el.getBoundingClientRect() : { top: 0, bottom: window.innerHeight }
       const items = Array.from(el.querySelectorAll('[data-card-id]'))
 
-      for (let i = items.length - 1; i >= 0; i--) {
+      for (let i = 0; i < items.length; i++) {
         const node = items[i]
         const r = node.getBoundingClientRect()
         const isVisible = r.bottom > containerRect.top && r.top < containerRect.bottom
