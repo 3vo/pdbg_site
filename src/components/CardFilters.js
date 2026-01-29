@@ -29,10 +29,20 @@ function CollapsibleHeader({ title, isOpen, onToggle, rightSlot, subtitle }) {
         {subtitle ? <div className="text-xs text-zinc-400 mt-1">{subtitle}</div> : null}
       </div>
 
-      {/* Right side actions (e.g., Reset/Clear) */}
       {rightSlot ? <div onClick={e => e.stopPropagation()}>{rightSlot}</div> : null}
     </div>
   )
+}
+
+function csvToList(raw) {
+  return String(raw || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+}
+
+function listToCsv(list) {
+  return Array.isArray(list) && list.length ? list.join(',') : ''
 }
 
 export default function CardFilters() {
@@ -42,12 +52,16 @@ export default function CardFilters() {
   const [setsOpen, setSetsOpen] = useState(false)
   const setsRef = useRef(null)
 
+  // NEW: Primary Types dropdown state + outside click
+  const [typesOpen, setTypesOpen] = useState(false)
+  const typesRef = useRef(null)
+
   // Collapsible sections
   const [subtypesOpen, setSubtypesOpen] = useState(false)
   const [keywordsOpen, setKeywordsOpen] = useState(false)
   const [costOpen, setCostOpen] = useState(false)
   const [xpOpen, setXpOpen] = useState(false)
-  const [advancedOpen, setAdvancedOpen] = useState(false) // ✅ NEW: Advanced section
+  const [advancedOpen, setAdvancedOpen] = useState(false)
 
   // ---- COST slider config ----
   const COST_MIN_LIMIT = 0
@@ -103,7 +117,6 @@ export default function CardFilters() {
     router.push(qs ? `/cards?${qs}` : '/cards')
   }
 
-  // IMPORTANT: update multiple params in one push (prevents slider “reset” bugs)
   function updateParams(mutator) {
     const params = new URLSearchParams(searchParams.toString())
     mutator(params)
@@ -138,6 +151,17 @@ export default function CardFilters() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [setsOpen])
+
+  // Auto-close types panel on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (typesOpen && typesRef.current && !typesRef.current.contains(event.target)) {
+        setTypesOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [typesOpen])
 
   const SET_OPTIONS = [
     { code: '[PDB]', name: 'Pokémon Deckbuilding Game' },
@@ -227,10 +251,106 @@ export default function CardFilters() {
   const selectedSetsCount = getMulti('sets').length
 
   // ============================================================
+  // NEW: Primary Types include/exclude + mode
+  // Params (proposed):
+  //  - primary_types_inc: CSV
+  //  - primary_types_exc: CSV
+  //  - primary_types_inc_mode: 'and'|'or' (default 'and')
+  //  - primary_types_exc_mode: 'and'|'or' (default 'or')
+  // ============================================================
+  const typesInc = getMulti('primary_types_inc')
+  const typesExc = getMulti('primary_types_exc')
+  const typesIncMode = (searchParams.get('primary_types_inc_mode') || 'and').toLowerCase() === 'or' ? 'or' : 'and'
+  const typesExcMode = (searchParams.get('primary_types_exc_mode') || 'or').toLowerCase() === 'and' ? 'and' : 'or'
+
+  const typesSelectedCount = typesInc.length + typesExc.length
+
+  function toggleTypeInSection(sectionKey, type) {
+    updateParams(params => {
+      const key = sectionKey
+      const cur = csvToList(params.get(key))
+      const next = cur.includes(type) ? cur.filter(t => t !== type) : [...cur, type]
+      if (next.length === 0) params.delete(key)
+      else params.set(key, listToCsv(next))
+    })
+  }
+
+  function setTypeMode(modeKey, nextMode) {
+    updateParams(params => {
+      const m = nextMode === 'or' ? 'or' : 'and'
+      // If mode is default and there are no selections, keep URL clean by deleting.
+      // (We’ll still treat it as default in code.)
+      const hasAny =
+        csvToList(params.get('primary_types_inc')).length > 0 || csvToList(params.get('primary_types_exc')).length > 0
+      if (!hasAny && ((modeKey === 'primary_types_inc_mode' && m === 'and') || (modeKey === 'primary_types_exc_mode' && m === 'or'))) {
+        params.delete(modeKey)
+      } else {
+        params.set(modeKey, m)
+      }
+    })
+  }
+
+  function clearPrimaryTypes() {
+    updateParams(params => {
+      params.delete('primary_types_inc')
+      params.delete('primary_types_exc')
+      params.delete('primary_types_inc_mode')
+      params.delete('primary_types_exc_mode')
+      // Also clear legacy key if present so it doesn’t fight the new UI
+      params.delete('primary_type')
+      params.delete('primary_types')
+    })
+  }
+
+  // ============================================================
+  // NEW: Keywords tristate include/exclude
+  // Params (proposed):
+  //  - keywords_inc: CSV
+  //  - keywords_exc: CSV
+  // ============================================================
+  const kwInc = getMulti('keywords_inc')
+  const kwExc = getMulti('keywords_exc')
+
+  function getKeywordState(k) {
+    if (kwInc.includes(k)) return 'inc'
+    if (kwExc.includes(k)) return 'exc'
+    return 'none'
+  }
+
+  function cycleKeyword(k) {
+    updateParams(params => {
+      const inc = csvToList(params.get('keywords_inc'))
+      const exc = csvToList(params.get('keywords_exc'))
+
+      const inInc = inc.includes(k)
+      const inExc = exc.includes(k)
+
+      // none -> inc -> exc -> none
+      let nextInc = inc
+      let nextExc = exc
+
+      if (!inInc && !inExc) {
+        nextInc = [...inc, k]
+      } else if (inInc) {
+        nextInc = inc.filter(x => x !== k)
+        nextExc = [...exc, k]
+      } else {
+        nextExc = exc.filter(x => x !== k)
+      }
+
+      if (nextInc.length) params.set('keywords_inc', listToCsv(nextInc))
+      else params.delete('keywords_inc')
+
+      if (nextExc.length) params.set('keywords_exc', listToCsv(nextExc))
+      else params.delete('keywords_exc')
+
+      // If you still have legacy 'keywords' hanging around from old UI, remove it
+      params.delete('keywords')
+    })
+  }
+
+  // ============================================================
   // WCS Tier: URL <-> local Range state (+ enabled toggle)
-  // Params:
-  //  - wcs_tier='true'
-  //  - wcs_tier_min, wcs_tier_max
   // ============================================================
   const wcsTierEnabled = searchParams.get('wcs_tier') === 'true'
 
@@ -250,7 +370,6 @@ export default function CardFilters() {
 
   const [wcsTierRange, setWcsTierRange] = useState([urlWcsMin, urlWcsMax])
 
-  // keep slider in sync if URL changes externally (back/forward)
   useEffect(() => {
     setWcsTierRange([urlWcsMin, urlWcsMax])
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,7 +386,6 @@ export default function CardFilters() {
       const loFinal = Math.min(loN, hiN)
       const hiFinal = Math.max(loN, hiN)
 
-      // When enabled, ALWAYS send min/max
       params.set('wcs_tier', 'true')
       params.set('wcs_tier_min', String(loFinal))
       params.set('wcs_tier_max', String(hiFinal))
@@ -276,10 +394,8 @@ export default function CardFilters() {
 
   function setWcsTierEnabled(nextEnabled) {
     if (nextEnabled) {
-      // Turn ON and push current slider values
       setWcsTierParams({ lo: wcsTierRange[0], hi: wcsTierRange[1] })
     } else {
-      // Turn OFF and clear all WCS tier params
       updateParams(params => {
         params.delete('wcs_tier')
         params.delete('wcs_tier_min')
@@ -290,10 +406,7 @@ export default function CardFilters() {
 
   function resetWcsTierFilter() {
     setWcsTierRange([WCS_TIER_MIN_LIMIT, WCS_TIER_MAX_LIMIT])
-
     if (!wcsTierEnabled) return
-
-    // When enabled, resetting should still push the current slider values
     setWcsTierParams({ lo: WCS_TIER_MIN_LIMIT, hi: WCS_TIER_MAX_LIMIT })
   }
 
@@ -531,18 +644,17 @@ export default function CardFilters() {
   }
 
   // Clear helpers
-  function clearPrimaryType() {
-    updateParam('primary_type', '')
-  }
-
   function clearSubtypes() {
     updateParam('subtypes', [])
   }
 
   function clearKeywords() {
     updateParams(params => {
-      params.delete('keywords')
+      params.delete('keywords_inc')
+      params.delete('keywords_exc')
       params.delete('attack_multi')
+      // legacy cleanup
+      params.delete('keywords')
     })
   }
 
@@ -555,7 +667,6 @@ export default function CardFilters() {
   }
 
   function clearAdvanced() {
-    // Clears WCS tier + location + symbols in one push
     updateParams(params => {
       params.delete('wcs_tier')
       params.delete('wcs_tier_min')
@@ -566,21 +677,14 @@ export default function CardFilters() {
   }
 
   // ============================================================
-  // Effect search mode (effect only vs include/only highlight)
-  // Params:
-  //  - effect_scope = 'all' | 'highlight'
-  // Default: effect only (param absent)
+  // Effect search mode
   // ============================================================
-  const effectScope = searchParams.get('effect_scope') || '' // '' | 'all' | 'highlight'
+  const effectScope = searchParams.get('effect_scope') || ''
   const includeHighlightedText = effectScope === 'all'
   const onlyHighlightedText = effectScope === 'highlight'
 
   function setEffectScope(nextScope) {
     updateParams(params => {
-      // Mutually exclusive:
-      // ''          => only cards.effect (default behavior)
-      // 'all'       => effect OR highlight_effect
-      // 'highlight' => highlight_effect only
       if (!nextScope) params.delete('effect_scope')
       else params.set('effect_scope', nextScope)
     })
@@ -596,7 +700,6 @@ export default function CardFilters() {
     else setEffectScope('')
   }
 
-  // Advanced “active” count for subtitle
   const advancedActiveCount =
     (wcsTierEnabled ? 1 : 0) +
     (Boolean(searchParams.get('card_location')) ? 1 : 0) +
@@ -705,32 +808,135 @@ export default function CardFilters() {
         <div className="mt-1 text-xs text-zinc-400">Select one or more sets</div>
       </div>
 
-      {/* Primary Type */}
-      <div className="mb-4">
+      {/* NEW: Primary Type (Include/Exclude + AND/OR modes) */}
+      <div className="mb-4" ref={typesRef}>
         <div className="flex items-center justify-between mb-1">
           <label className="block text-sm font-medium">Primary Type</label>
+
           <button
             type="button"
-            onClick={clearPrimaryType}
+            onClick={clearPrimaryTypes}
             className="text-xs text-zinc-400 hover:text-zinc-200"
-            title="Clear primary type"
+            title="Clear primary type selections"
           >
             Clear
           </button>
         </div>
 
-        <select
-          className="w-full border p-1 text-black"
-          value={searchParams.get('primary_type') || ''}
-          onChange={e => updateParam('primary_type', e.target.value)}
+        <button
+          type="button"
+          onClick={() => setTypesOpen(o => !o)}
+          className="w-full rounded border border-zinc-300 bg-white px-2 py-2 text-left text-sm text-black hover:bg-zinc-50 flex items-center justify-between"
+          aria-expanded={typesOpen}
         >
-          <option value="">Any</option>
-          {TYPES.map(t => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+          <span className="pr-2">
+            {typesSelectedCount === 0
+              ? 'Any'
+              : `${typesInc.length} include / ${typesExc.length} exclude`}
+          </span>
+
+          <span className="text-zinc-500">{typesOpen ? '▲' : '▼'}</span>
+        </button>
+
+        {typesOpen && (
+          <div className="mt-2 rounded border border-zinc-300 bg-white p-2">
+            {/* INCLUDE */}
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold text-zinc-700">INCLUDE</div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-500">Mode</span>
+                <button
+                  type="button"
+                  onClick={() => setTypeMode('primary_types_inc_mode', typesIncMode === 'and' ? 'or' : 'and')}
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-black hover:bg-zinc-50"
+                  title="Toggle include mode"
+                >
+                  {typesIncMode.toUpperCase()}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-2 max-h-40 overflow-y-auto pr-1 pb-2">
+              <div className="space-y-2">
+                {TYPES.map(t => {
+                  const checked = typesInc.includes(t)
+                  return (
+                    <label key={`inc:${t}`} className="flex items-start gap-2 text-sm text-black">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={checked}
+                        onChange={() => toggleTypeInSection('primary_types_inc', t)}
+                      />
+                      <span className="leading-snug">{t}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="my-3 border-t border-zinc-200" />
+
+            {/* EXCLUDE */}
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold text-zinc-700">EXCLUDE</div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-zinc-500">Mode</span>
+                <button
+                  type="button"
+                  onClick={() => setTypeMode('primary_types_exc_mode', typesExcMode === 'and' ? 'or' : 'and')}
+                  className="rounded border border-zinc-300 px-2 py-1 text-[11px] text-black hover:bg-zinc-50"
+                  title="Toggle exclude mode"
+                >
+                  {typesExcMode.toUpperCase()}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-2 max-h-40 overflow-y-auto pr-1 pb-2">
+              <div className="space-y-2">
+                {TYPES.map(t => {
+                  const checked = typesExc.includes(t)
+                  return (
+                    <label key={`exc:${t}`} className="flex items-start gap-2 text-sm text-black">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={checked}
+                        onChange={() => toggleTypeInSection('primary_types_exc', t)}
+                      />
+                      <span className="leading-snug">{t}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="mt-3 flex gap-2 border-t border-zinc-200 pt-3">
+              <button
+                type="button"
+                onClick={() => setTypesOpen(false)}
+                className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+              >
+                Done
+              </button>
+
+              <button
+                type="button"
+                onClick={clearPrimaryTypes}
+                className="rounded bg-zinc-200 px-2 py-1 text-xs text-black hover:bg-zinc-300"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-1 text-xs text-zinc-400">
+          Include + exclude types with AND/OR mode
+        </div>
       </div>
 
       {/* Sub-types (collapsible) */}
@@ -792,7 +998,6 @@ export default function CardFilters() {
           onChange={e => updateParam('effect_phrase', e.target.value)}
         />
 
-        {/* NEW: highlight_effect scope toggles (mutually exclusive) */}
         <div className="mt-2 space-y-2">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -828,7 +1033,7 @@ export default function CardFilters() {
         </div>
       </div>
 
-      {/* Keywords (collapsible) */}
+      {/* Keywords (collapsible) - tristate */}
       <div className="mb-4">
         <CollapsibleHeader
           title="Keywords"
@@ -836,7 +1041,7 @@ export default function CardFilters() {
           onToggle={() => setKeywordsOpen(o => !o)}
           subtitle={
             !keywordsOpen
-              ? `${getMulti('keywords').length + (multipleAttacks ? 1 : 0)} selected`
+              ? `${kwInc.length + kwExc.length + (multipleAttacks ? 1 : 0)} selected`
               : null
           }
           rightSlot={
@@ -854,50 +1059,88 @@ export default function CardFilters() {
         {keywordsOpen && (
           <div className="mt-2 grid grid-cols-2 gap-2">
             {KEYWORDS.map(k => {
+              // preserve your special layout around Defense
               if (k === 'Defense') {
+                const attackState = getKeywordState('Attack')
+                const defenseState = getKeywordState('Defense')
+
                 return (
                   <div key="__kw_block_defense" className="contents">
-                    <label className="text-sm">
-                      <input
-                        type="checkbox"
-                        checked={getMulti('keywords').includes('Attack')}
-                        onChange={() => toggleMulti('keywords', 'Attack')}
-                      />
-                      <span className="ml-2">Attack</span>
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => cycleKeyword('Attack')}
+                      className={[
+                        'text-left text-sm rounded px-2 py-1 border',
+                        attackState === 'inc'
+                          ? 'bg-green-100 border-green-400 text-black'
+                          : attackState === 'exc'
+                            ? 'bg-red-100 border-red-400 text-black'
+                            : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                      ].join(' ')}
+                      title="Click to cycle: include → exclude → neutral"
+                    >
+                      Attack
+                      <span className="ml-2 text-xs text-zinc-600">
+                        {attackState === 'inc' ? '(+)' : attackState === 'exc' ? '(-)' : ''}
+                      </span>
+                    </button>
 
-                    <label className="text-sm">
+                    <label className="text-sm flex items-center gap-2">
                       <input
                         type="checkbox"
                         checked={multipleAttacks}
                         onChange={e => toggleMultipleAttacks(e.target.checked)}
                       />
-                      <span className="ml-2">Multiple Attacks</span>
+                      <span>Multiple Attacks</span>
                     </label>
 
-                    <label className="text-sm">
-                      <input
-                        type="checkbox"
-                        checked={getMulti('keywords').includes('Defense')}
-                        onChange={() => toggleMulti('keywords', 'Defense')}
-                      />
-                      <span className="ml-2">Defense</span>
-                    </label>
+                    <button
+                      type="button"
+                      onClick={() => cycleKeyword('Defense')}
+                      className={[
+                        'text-left text-sm rounded px-2 py-1 border',
+                        defenseState === 'inc'
+                          ? 'bg-green-100 border-green-400 text-black'
+                          : defenseState === 'exc'
+                            ? 'bg-red-100 border-red-400 text-black'
+                            : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                      ].join(' ')}
+                      title="Click to cycle: include → exclude → neutral"
+                    >
+                      Defense
+                      <span className="ml-2 text-xs text-zinc-600">
+                        {defenseState === 'inc' ? '(+)' : defenseState === 'exc' ? '(-)' : ''}
+                      </span>
+                    </button>
                   </div>
                 )
               }
 
+              // Attack handled above in the special block
               if (k === 'Attack') return null
 
+              const state = getKeywordState(k)
+
               return (
-                <label key={k} className="text-sm">
-                  <input
-                    type="checkbox"
-                    checked={getMulti('keywords').includes(k)}
-                    onChange={() => toggleMulti('keywords', k)}
-                  />
-                  <span className="ml-2">{k}</span>
-                </label>
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => cycleKeyword(k)}
+                  className={[
+                    'text-left text-sm rounded px-2 py-1 border',
+                    state === 'inc'
+                      ? 'bg-green-100 border-green-400 text-black'
+                      : state === 'exc'
+                        ? 'bg-red-100 border-red-400 text-black'
+                        : 'bg-white border-zinc-300 text-black hover:bg-zinc-50',
+                  ].join(' ')}
+                  title="Click to cycle: include → exclude → neutral"
+                >
+                  {k}
+                  <span className="ml-2 text-xs text-zinc-600">
+                    {state === 'inc' ? '(+)' : state === 'exc' ? '(-)' : ''}
+                  </span>
+                </button>
               )
             })}
           </div>
@@ -1212,7 +1455,6 @@ export default function CardFilters() {
 
                       setWcsTierRange([lo, hi])
 
-                      // When enabled, update query while dragging
                       if (wcsTierEnabled) {
                         setWcsTierParams({ lo, hi })
                       }
