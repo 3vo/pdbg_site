@@ -18,28 +18,6 @@ function getPageSizeForPage(page) {
   return 144
 }
 
-/**
- * IMPORTANT:
- * Variable page sizes break "page-based offset pagination" (page * pageSize),
- * because the implied offsets change when pageSize changes.
- *
- * Fix: fetch using an ever-growing LIMIT from the beginning:
- * - page=1, limit = 24
- * - page=2, limit = 24+72
- * - page=3, limit = 24+72+72
- * - page=4, limit = 24+72+72+144
- * etc.
- */
-function getCumulativeLimit(page) {
-  let total = 0
-  for (let p = 1; p <= page; p++) total += getPageSizeForPage(p)
-  return total
-}
-
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n))
-}
-
 export default function CardsPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -48,7 +26,6 @@ export default function CardsPage() {
   const [total, setTotal] = useState(0)
   const [totalKnown, setTotalKnown] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
 
   // Collapsible Filters Panel (persisted)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -112,18 +89,14 @@ export default function CardsPage() {
   function setViewMode(next) {
     const nextView = next === 'thumb' || next === 'text' || next === 'full' ? next : 'full'
 
-    // Persist to localStorage
     try {
       localStorage.setItem('cards:view', nextView)
     } catch {}
 
-    // Persist to URL (shareable)
     const params = new URLSearchParams(searchParams.toString())
-    if (nextView === 'full') {
-      params.delete('view') // keep URLs clean for default
-    } else {
-      params.set('view', nextView)
-    }
+    if (nextView === 'full') params.delete('view')
+    else params.set('view', nextView)
+
     params.delete('page')
     const qs = params.toString()
     router.push(qs ? `/cards?${qs}` : '/cards')
@@ -132,12 +105,18 @@ export default function CardsPage() {
   const observerRef = useRef(null) // sentinel div
   const gridRef = useRef(null)
 
-  const [isMdUp, setIsMdUp] = useState(true)
-
-  // Prevent runaway paging when the sentinel stays intersecting (common on mobile)
+  // Prevent runaway paging / concurrent loads
   const pagingRef = useRef(false)
   const loadingRef = useRef(false)
 
+  // Track paging index (drives getPageSizeForPage)
+  const pageRef = useRef(1)
+
+  // Keep latest cards in a ref for async funcs
+  const cardsRef = useRef([])
+  useEffect(() => {
+    cardsRef.current = cards
+  }, [cards])
 
   // Handle should align with top of the results card
   const resultsTopRef = useRef(null)
@@ -146,7 +125,7 @@ export default function CardsPage() {
   // Persist/restore controls
   const suppressPersistRef = useRef(false)
   const restoringRef = useRef(false)
-  const pendingRestoreRef = useRef(null) // { scrollTop:number, count:number, lastVisibleId?:string|null }
+  const pendingRestoreRef = useRef(null) // { scrollTop:number, count:number, anchorId?:string|null, anchorOffset?:number }
   const didRestoreScrollRef = useRef(false)
 
   const queryString = useMemo(() => searchParams.toString(), [searchParams])
@@ -156,19 +135,16 @@ export default function CardsPage() {
     p.delete('page')
     p.delete('from')
     p.delete('view')
-  
-    // Canonicalize param ordering (URLSearchParams preserves insertion order)
+
     const entries = Array.from(p.entries())
     entries.sort(([aKey, aVal], [bKey, bVal]) => {
       if (aKey !== bKey) return aKey.localeCompare(bKey)
       return String(aVal).localeCompare(String(bVal))
     })
-  
+
     const canonical = new URLSearchParams(entries).toString()
     return `cardsGridRestore:${canonical}`
   }, [searchParams])
-
-
 
   // Convert URLSearchParams -> plain object
   const paramsObj = useMemo(() => {
@@ -179,29 +155,19 @@ export default function CardsPage() {
 
   const currentQueryString = queryString
   const shownCount = cards.length
-
-  // count is considered "available" even when it's 0, as long as we know it
   const hasTotal = totalKnown
-  const currentLimit = useMemo(() => getCumulativeLimit(page), [page])
 
-  const showProgress = hasTotal && total > currentLimit
+  const showProgress = hasTotal && shownCount < total
   const progressText =
     hasTotal && shownCount >= total ? 'All results loaded' : `Loaded ${shownCount} of ${total}`
 
-  // don’t show loading row if we already know there are 0 results
   const shouldShowLoadingRow = loading && !(totalKnown && total === 0)
 
   function scrollGridToTop() {
-    if (!isMdUp) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return
-    }
-
     const el = gridRef.current
     if (!el) return
     el.scrollTo({ top: 0, behavior: 'smooth' })
   }
-
 
   // -------------------------
   // Sorting (URL-driven)
@@ -258,9 +224,8 @@ export default function CardsPage() {
       restoringRef.current = false
     }
   }, [restoreKey])
-  
+
   function persistBeforeNav() {
-    // don’t mutate restore during the actual restore pass
     if (restoringRef.current) return
     persistNow()
   }
@@ -270,103 +235,58 @@ export default function CardsPage() {
     if (!el) return
 
     try {
-      let lastVisibleId = null
-
-      // Figure out what's visible
-      const containerRect = isMdUp ? el.getBoundingClientRect() : { top: 0, bottom: window.innerHeight }
+      const containerRect = el.getBoundingClientRect()
       const items = Array.from(el.querySelectorAll('[data-card-id]'))
+
+      let anchorId = null
+      let anchorOffset = 0
 
       for (let i = 0; i < items.length; i++) {
         const node = items[i]
         const r = node.getBoundingClientRect()
         const isVisible = r.bottom > containerRect.top && r.top < containerRect.bottom
         if (isVisible) {
-          lastVisibleId = node.getAttribute('data-card-id')
+          anchorId = node.getAttribute('data-card-id')
+          anchorOffset = Math.max(0, Math.round(r.top - containerRect.top))
           break
         }
       }
 
-      const scrollTop = isMdUp ? el.scrollTop : window.scrollY
-
       sessionStorage.setItem(
         restoreKey,
         JSON.stringify({
-          scrollTop,
-          count: cards.length,
-          lastVisibleId,
+          scrollTop: el.scrollTop,
+          count: cardsRef.current.length,
+          anchorId,
+          anchorOffset,
         })
       )
     } catch {}
   }
 
-
-  // --- Media Query
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const mq = window.matchMedia('(min-width: 768px)') // Tailwind md
-    const apply = () => setIsMdUp(mq.matches)
-    apply()
-    mq.addEventListener?.('change', apply)
-    return () => mq.removeEventListener?.('change', apply)
-  }, [])
-
-  // --- Save scroll position + loaded count + last visible card id while user scrolls ---
+  // --- Save scroll position while user scrolls (ALWAYS attach to el; no window scroll) ---
   useEffect(() => {
     const el = gridRef.current
     if (!el) return
 
     let raf = null
 
-    const persist = () => {
-      if (suppressPersistRef.current) return
-      try {
-        let lastVisibleId = null
-
-        const containerRect = isMdUp ? el.getBoundingClientRect() : { top: 0, bottom: window.innerHeight }
-        const items = Array.from(el.querySelectorAll('[data-card-id]'))
-
-        for (let i = items.length - 1; i >= 0; i--) {
-          const node = items[i]
-          const r = node.getBoundingClientRect()
-          const isVisible = r.bottom > containerRect.top && r.top < containerRect.bottom
-          if (isVisible) {
-            lastVisibleId = node.getAttribute('data-card-id')
-            break
-          }
-        }
-
-        const scrollTop = isMdUp ? el.scrollTop : window.scrollY
-
-        sessionStorage.setItem(
-          restoreKey,
-          JSON.stringify({
-            scrollTop,
-            count: cards.length,
-            lastVisibleId,
-          })
-        )
-      } catch {}
-    }
-
     const onScroll = () => {
       if (raf) return
       raf = window.requestAnimationFrame(() => {
         raf = null
-        persist()
+        if (suppressPersistRef.current) return
+        persistNow()
       })
     }
 
-    const target = isMdUp ? el : window
-    target.addEventListener('scroll', onScroll, { passive: true })
-    if (!isMdUp) window.addEventListener('resize', onScroll)
-
+    el.addEventListener('scroll', onScroll, { passive: true })
     return () => {
-      target.removeEventListener('scroll', onScroll)
-      if (!isMdUp) window.removeEventListener('resize', onScroll)
+      el.removeEventListener('scroll', onScroll)
       if (raf) window.cancelAnimationFrame(raf)
     }
-  }, [restoreKey, cards.length, isMdUp])
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restoreKey])
 
   function buildChips(sp) {
     const chips = []
@@ -379,7 +299,7 @@ export default function CardsPage() {
       if (key === 'page') continue
       if (key === 'from') continue
       if (key === 'sort_by' || key === 'sort_dir') continue
-      if (key === 'view') continue // don't show view as a filter chip
+      if (key === 'view') continue
 
       if (key === 'sets') {
         raw
@@ -473,100 +393,174 @@ export default function CardsPage() {
     router.push(qs ? `/cards?${qs}` : '/cards')
   }
 
-  // Reset when filters change (including view)
-  useEffect(() => {
-    setPage(1)
-    setCards([])
-    setTotal(0)
-    setTotalKnown(false) // mark unknown until fetch returns
-  }, [queryString])
+  // -------------------------
+  // Fetch helpers (offset+limit, append + dedupe)
+  // -------------------------
+  function mergeAppendDedupe(prev, nextChunk) {
+    if (!nextChunk || nextChunk.length === 0) return prev
+    if (!prev || prev.length === 0) return nextChunk
 
-  // Fetch cards (ever-growing limit, page stays for scheduling only)
-  useEffect(() => {
-    let cancelled = false
+    const seen = new Set(prev.map(r => r.card_id))
+    const out = prev.slice()
+    for (const row of nextChunk) {
+      const id = row?.card_id
+      if (id == null) continue
+      if (seen.has(id)) continue
+      seen.add(id)
+      out.push(row)
+    }
+    return out
+  }
 
-    async function loadCards() {
-      setLoading(true)
-      loadingRef.current = true
+  async function loadMore({ untilCount } = {}) {
+    const el = gridRef.current
+    if (!el) return
 
-      try {
-        const pending = pendingRestoreRef.current
-        const baseLimit = getCumulativeLimit(page)
+    if (loadingRef.current) return
+    if (pagingRef.current) return
+    if (restoringRef.current && !untilCount) return // during restore, only load via the restore path
+    if (totalKnown && cardsRef.current.length >= total) return
 
-        const effectiveLimit =
-          page === 1 && pending?.count && pending.count > baseLimit ? pending.count : baseLimit
+    pagingRef.current = true
+    loadingRef.current = true
+    setLoading(true)
 
-        // Always fetch from the start using page=1 and a growing limit.
-        const { data, count } = await fetchFilteredCards(paramsObj, 1, effectiveLimit)
+    try {
+      // If we're restoring, we may need multiple batches to reach untilCount
+      let safety = 0
+      while (true) {
+        safety++
+        if (safety > 25) break // hard stop (should never happen)
 
-        if (cancelled) return
+        const currentLen = cardsRef.current.length
+        if (typeof untilCount === 'number' && Number.isFinite(untilCount) && currentLen >= untilCount) {
+          break
+        }
 
-        setCards(data || [])
+        if (totalKnown && currentLen >= total) break
+
+        const offset = currentLen
+
+        // Choose a batch size:
+        // - restore path: chunk in sub-1000 slices (avoid PostgREST max rows per request)
+        // - normal paging: use your page sizing ramp
+        let limit = 0
+        if (typeof untilCount === 'number' && Number.isFinite(untilCount)) {
+          const remaining = Math.max(0, untilCount - currentLen)
+          // Keep restore batches reasonably sized (and well under 1000)
+          limit = clamp(remaining, 50, 400)
+        } else {
+          limit = getPageSizeForPage(pageRef.current)
+        }
+
+        // If we're near the end and already have total, clamp
+        if (totalKnown) {
+          limit = Math.max(1, Math.min(limit, Math.max(0, total - currentLen)))
+        }
+
+        if (limit <= 0) break
+
+        const { data, count } = await fetchFilteredCards(paramsObj, { offset, limit })
+
+        // Update total on any successful response
         setTotal(typeof count === 'number' ? count : 0)
         setTotalKnown(true)
-      } catch (err) {
-        console.error(err)
-        if (!cancelled) {
-          setTotal(0)
-          setTotalKnown(true)
-        }
-      } finally {
-        // Always reset guards (even on cancel/error)
-        if (!cancelled) setLoading(false)
-        loadingRef.current = false
-        pagingRef.current = false
-      }
-    }
 
-    loadCards()
-    return () => {
-      cancelled = true
+        const chunk = Array.isArray(data) ? data : []
+
+        if (chunk.length === 0) {
+          // No more data; stop
+          break
+        }
+
+        setCards(prev => {
+          const merged = mergeAppendDedupe(prev, chunk)
+          // keep ref in sync immediately for next loop iteration
+          cardsRef.current = merged
+          return merged
+        })
+
+        // Only advance "page" when it's a normal paging call
+        if (!(typeof untilCount === 'number' && Number.isFinite(untilCount))) {
+          pageRef.current = pageRef.current + 1
+          break // one batch per intersection
+        }
+
+        // restore path: loop again until we reach untilCount (or run out)
+      }
+    } catch (err) {
+      console.error(err)
+      setTotal(0)
+      setTotalKnown(true)
+    } finally {
+      setLoading(false)
+      loadingRef.current = false
+      pagingRef.current = false
+    }
+  }
+
+  // Reset when filters change (including view)
+  useEffect(() => {
+    // reset state
+    pageRef.current = 1
+    setCards([])
+    cardsRef.current = []
+    setTotal(0)
+    setTotalKnown(false)
+
+    pagingRef.current = false
+    loadingRef.current = false
+
+    // Initial load (and restore load if available)
+    const pending = pendingRestoreRef.current
+    if (pending?.count && Number.isFinite(pending.count) && pending.count > 0) {
+      // load enough to restore
+      loadMore({ untilCount: pending.count })
+    } else {
+      loadMore()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, queryString])
+  }, [queryString])
 
+  // Restore scroll after cards paint (container-only restore)
   useLayoutEffect(() => {
     const el = gridRef.current
     const pending = pendingRestoreRef.current
     if (!el || !pending) return
     if (didRestoreScrollRef.current) return
-  
+
+    // Don’t restore until we’ve loaded at least what we had before (prevents “restore to top” on mobile)
+    if (pending.count && cards.length < pending.count) return
+
     didRestoreScrollRef.current = true
     pendingRestoreRef.current = null
-  
+
     window.requestAnimationFrame(() => {
-      if (pending.lastVisibleId) {
+      if (pending.anchorId) {
         const safe =
           typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
-            ? CSS.escape(pending.lastVisibleId)
-            : pending.lastVisibleId.replace(/"/g, '\\"')
-  
+            ? CSS.escape(pending.anchorId)
+            : String(pending.anchorId).replace(/"/g, '\\"')
+
         const node = el.querySelector(`[data-card-id="${safe}"]`)
         if (node) {
-          if (isMdUp) {
-            // Desktop: scroll the container to the item's offset
-            el.scrollTo({ top: node.offsetTop, behavior: 'auto' })
-          } else {
-            // Mobile: scroll the window to the item’s document position
-            const y = window.scrollY + node.getBoundingClientRect().top - 12
-            window.scrollTo({ top: y, behavior: 'auto' })
-          }
+          const containerRect = el.getBoundingClientRect()
+          const nodeRect = node.getBoundingClientRect()
+          const delta = (nodeRect.top - containerRect.top) - (pending.anchorOffset || 0)
+          el.scrollTo({ top: el.scrollTop + delta, behavior: 'auto' })
         } else {
-          if (isMdUp) el.scrollTop = pending.scrollTop
-          else window.scrollTo({ top: pending.scrollTop, behavior: 'auto' })
+          el.scrollTop = pending.scrollTop || 0
         }
       } else {
-        // No lastVisibleId — fall back to raw scrollTop restore
-        if (isMdUp) el.scrollTop = pending.scrollTop
-        else window.scrollTo({ top: pending.scrollTop, behavior: 'auto' })
+        el.scrollTop = pending.scrollTop || 0
       }
-  
+
       suppressPersistRef.current = false
       restoringRef.current = false
       persistNow()
     })
-  }, [cards.length, isMdUp])
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards.length, restoreKey])
 
   // Measure results card top for fixed filter handle alignment
   useLayoutEffect(() => {
@@ -580,7 +574,6 @@ export default function CardsPage() {
 
     update()
     window.addEventListener('resize', update)
-
     return () => {
       window.removeEventListener('resize', update)
     }
@@ -598,40 +591,35 @@ export default function CardsPage() {
   }, [filtersOpen])
 
   // Infinite scroll observer (blocked during restore)
+  // Root is ALWAYS the gridRef container (mobile + desktop).
   useEffect(() => {
     const rootEl = gridRef.current
     const targetEl = observerRef.current
-    if (!targetEl) return
-    if (isMdUp && !rootEl) return
-  
+    if (!rootEl || !targetEl) return
+
     const observer = new IntersectionObserver(
       entries => {
         const hit = entries[0]?.isIntersecting
         if (!hit) return
-  
+
         if (loadingRef.current) return
         if (pagingRef.current) return
         if (restoringRef.current) return
-        if (totalKnown && cards.length >= total) return
-  
-        // IMPORTANT: prevent repeated fires while still intersecting
-        observer.unobserve(targetEl)
-  
-        pagingRef.current = true
-        setPage(p => p + 1)
+        if (totalKnown && cardsRef.current.length >= total) return
+
+        loadMore()
       },
       {
-        root: isMdUp ? rootEl : null,
-        // Consider slightly smaller margin on mobile so it doesn't "always intersect"
-        rootMargin: isMdUp ? '600px 0px 600px 0px' : '250px 0px 250px 0px',
+        root: rootEl,
+        rootMargin: '400px 0px 400px 0px',
         threshold: 0.01,
       }
     )
-  
+
     observer.observe(targetEl)
     return () => observer.disconnect()
-  }, [cards.length, total, totalKnown, isMdUp])
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalKnown, total, queryString])
 
   // -------------------------
   // View rendering helpers
@@ -646,38 +634,36 @@ export default function CardsPage() {
   )
 
   const gridClassName = useMemo(() => {
-  if (view === 'text') {
-    return [
-      'mt-4',
-      'grid',
-      'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
-      'gap-3',
-      'flex-1 md:overflow-y-auto',
-      'pt-1 px-4 md:px-5',
-      'items-start content-start',
-      'pdbg-scrollbar pb-16',
-    ].join(' ')
-  }
-
-
-    if (view === 'thumb') {
+    if (view === 'text') {
       return [
         'mt-4',
-        'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
-        'gap-2',
-        'flex-1 md:overflow-y-auto',
+        'grid',
+        'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
+        'gap-3',
+        'flex-1 overflow-y-auto',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
       ].join(' ')
     }
 
-    // full (default)
+    if (view === 'thumb') {
+      return [
+        'mt-4',
+        'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
+        'gap-2',
+        'flex-1 overflow-y-auto',
+        'pt-1 px-4 md:px-5',
+        'items-start content-start',
+        'pdbg-scrollbar pb-16',
+      ].join(' ')
+    }
+
     return [
       'mt-4',
       'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
       'gap-4',
-      'flex-1 md:overflow-y-auto',
+      'flex-1 overflow-y-auto',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
       'pdbg-scrollbar pb-16',
@@ -788,13 +774,13 @@ export default function CardsPage() {
       )}
 
       {/* RIGHT: Content */}
-      <div className="md:col-start-2 md:row-start-1 md:h-screen md:overflow-hidden md:min-w-0 flex flex-col">
+      <div className="md:col-start-2 md:row-start-1 h-[100dvh] overflow-hidden md:min-w-0 flex flex-col">
         <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6">
           <SiteBanner />
 
           <div
             ref={resultsTopRef}
-            className="mt-4 flex flex-col md:h-[calc(100vh-2rem-8.5rem)] md:overflow-hidden"
+            className="mt-4 flex flex-col flex-1 overflow-hidden md:h-[calc(100vh-2rem-8.5rem)] md:overflow-hidden"
           >
             <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-3 z-10 md:bg-zinc-900/95 md:backdrop-blur md:shadow-lg md:shrink-0">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -854,7 +840,7 @@ export default function CardsPage() {
                     </button>
                   </div>
 
-                  {/* View toggle (between Clear sort and Show Filters) */}
+                  {/* View toggle */}
                   <div className="flex items-center gap-2">
                     <label className="text-xs text-zinc-300">View</label>
                     <select
@@ -882,7 +868,7 @@ export default function CardsPage() {
                   <button
                     onClick={scrollGridToTop}
                     className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
-                    title="Scroll to the top of the page"
+                    title="Scroll to the top of the results"
                   >
                     Scroll to Top
                   </button>
@@ -928,7 +914,11 @@ export default function CardsPage() {
                     onMouseDown={persistBeforeNav}
                     onTouchStart={persistBeforeNav}
                   >
-                    <img src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url} alt={card.name} className={imageClassName} />
+                    <img
+                      src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
+                      alt={card.name}
+                      className={imageClassName}
+                    />
                   </Link>
                 ))}
 
@@ -960,7 +950,6 @@ export default function CardsPage() {
                       onTouchStart={persistBeforeNav}
                     >
                       <div className="flex flex-col gap-2">
-                        {/* Header */}
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="min-w-0">
                             <div className="text-base font-semibold text-zinc-100 truncate">
@@ -983,7 +972,6 @@ export default function CardsPage() {
                           </div>
                         </div>
 
-                        {/* Pills */}
                         {(primaryTypes.length > 0 || subtypes.length > 0) && (
                           <div className="flex flex-wrap gap-2">
                             {primaryTypes.map(pt => (
@@ -1005,7 +993,6 @@ export default function CardsPage() {
                           </div>
                         )}
 
-                        {/* Effect section (detail-page logic) */}
                         {showEffectSection && (
                           <div className="pt-1 space-y-2">
                             <div className="font-semibold text-sm text-zinc-200">Effect:</div>
@@ -1018,7 +1005,6 @@ export default function CardsPage() {
                               </div>
                             )}
 
-                            {/* Normal effect shown under highlight when both exist */}
                             {hasEffect && (
                               <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
                                 {card.effect}
@@ -1038,7 +1024,7 @@ export default function CardsPage() {
               <div className="col-span-full h-10" aria-hidden="true" />
 
               {shouldShowLoadingRow && (
-                 <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
+                <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
               )}
 
               {totalKnown && total === 0 && !loading && (
@@ -1052,4 +1038,8 @@ export default function CardsPage() {
       </div>
     </div>
   )
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n))
 }
