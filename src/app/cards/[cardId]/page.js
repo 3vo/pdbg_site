@@ -7,8 +7,11 @@ import FadeIn from '@/components/FadeIn'
 import CardImageGallery from '@/components/CardImageGallery'
 
 export default async function CardDetailPage({ params, searchParams }) {
-  const { cardId: rawCardId } = params
-  const sp = searchParams
+  // In newer Next.js versions, params/searchParams may be Promises.
+  const resolvedParams = await params
+  const sp = await searchParams
+
+  const { cardId: rawCardId } = resolvedParams || {}
 
   if (!rawCardId) notFound()
 
@@ -83,9 +86,9 @@ export default async function CardDetailPage({ params, searchParams }) {
 
       <div className="mt-4 grid md:grid-cols-2 gap-8 space-y-1">
         <CardImageGallery
-          imagePath={card.image_path}     // ✅ preferred
-          imageUrl={card.image_url}       // ✅ fallback (legacy)
-          variants={card.image_variants}  // ✅ can be URLs or paths now
+          imagePath={card.image_path} // ✅ preferred
+          imageUrl={card.image_url} // ✅ fallback (legacy)
+          variants={card.image_variants} // ✅ can be URLs or paths now
           alt={card.name}
         />
 
