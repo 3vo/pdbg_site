@@ -88,23 +88,22 @@ export default function CardsPage() {
 
   function setViewMode(next) {
     const nextView = next === 'thumb' || next === 'text' || next === 'full' ? next : 'full'
-  
+
     // ✅ Update state immediately so the select never gets stuck
     setView(nextView)
-  
+
     try {
       localStorage.setItem('cards:view', nextView)
     } catch {}
-  
+
     const params = new URLSearchParams(searchParams.toString())
     if (nextView === 'full') params.delete('view')
     else params.set('view', nextView)
-  
+
     params.delete('page')
     const qs = params.toString()
     router.push(qs ? `/cards?${qs}` : '/cards')
   }
-
 
   const observerRef = useRef(null) // sentinel div
   const gridRef = useRef(null) // the grid element (NOT the scroll container)
@@ -123,8 +122,9 @@ export default function CardsPage() {
     cardsRef.current = cards
   }, [cards])
 
-  // Handle should align with top of the results card
-  const resultsTopRef = useRef(null)
+  // Handle should align with top of the sticky controls (not the scrolled content wrapper)
+  const resultsTopRef = useRef(null) // kept because it's used elsewhere
+  const controlsRef = useRef(null) // NEW: sticky header ref
   const [handleTopPx, setHandleTopPx] = useState(null)
 
   // Persist/restore controls
@@ -557,33 +557,63 @@ export default function CardsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards.length, restoreKey])
 
-  // Measure results card top for fixed filter handle alignment
+  // ------------------------------------------------------------
+  // Handle position: measure against the STICKY CONTROLS bar.
+  // This prevents the “snap to top” when toggling filters mid-scroll,
+  // because resultsTopRef scrolls away while the sticky header does not.
+  // ------------------------------------------------------------
+  function computeHandleTop() {
+    const el = controlsRef.current
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    // Keep your original “feel”: clamp + offset.
+    return Math.max(12, Math.round(rect.top) + 120)
+  }
+
+  // Initial + resize updates
   useLayoutEffect(() => {
     const update = () => {
-      const el = resultsTopRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      const top = Math.max(12, Math.round(rect.top) + 120)
-      setHandleTopPx(top)
+      const top = computeHandleTop()
+      if (top != null) setHandleTopPx(top)
     }
 
     update()
     window.addEventListener('resize', update)
-    return () => {
-      window.removeEventListener('resize', update)
-    }
+    return () => window.removeEventListener('resize', update)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Re-measure after the sidebar opens/closes (layout shift)
   useEffect(() => {
     window.requestAnimationFrame(() => {
-      const el = resultsTopRef.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      const top = Math.max(12, Math.round(rect.top) + 120)
-      setHandleTopPx(top)
+      const top = computeHandleTop()
+      if (top != null) setHandleTopPx(top)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersOpen])
+
+  // Re-measure on scroll so we track the moment the sticky header locks to the top
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+
+    let raf = null
+    const onScroll = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(() => {
+        raf = null
+        const top = computeHandleTop()
+        if (top != null) setHandleTopPx(top)
+      })
+    }
+
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scroller.removeEventListener('scroll', onScroll)
+      if (raf) window.cancelAnimationFrame(raf)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Infinite scroll observer (blocked during restore)
   // Root is ALWAYS scrollRef container (mobile + desktop).
@@ -629,6 +659,7 @@ export default function CardsPage() {
   )
 
   // IMPORTANT: grid is NOT scrollable anymore; scrollRef is.
+  // Remove scrollbar styling from grid; it belongs on the scroll container now.
   const gridClassName = useMemo(() => {
     if (view === 'text') {
       return [
@@ -638,7 +669,7 @@ export default function CardsPage() {
         'gap-3',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
-        'pdbg-scrollbar pb-16',
+        'pb-16',
       ].join(' ')
     }
 
@@ -649,7 +680,7 @@ export default function CardsPage() {
         'gap-2',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
-        'pdbg-scrollbar pb-16',
+        'pb-16',
       ].join(' ')
     }
 
@@ -659,7 +690,7 @@ export default function CardsPage() {
       'gap-4',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
-      'pdbg-scrollbar pb-16',
+      'pb-16',
     ].join(' ')
   }, [view])
 
@@ -774,14 +805,17 @@ export default function CardsPage() {
               - Controls remain sticky */}
           <div
             ref={scrollRef}
-            className="flex-1 min-h-0 overflow-y-auto"
+            className="flex-1 min-h-0 overflow-y-auto pdbg-scrollbar"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             <SiteBanner />
 
             <div ref={resultsTopRef} className="mt-4 flex flex-col min-h-0">
               {/* Sticky controls */}
-              <div className="sticky top-0 z-20 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur p-3 shadow-lg">
+              <div
+                ref={controlsRef}
+                className="sticky top-0 z-20 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur p-3 shadow-lg"
+              >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-sm text-zinc-200">
                     <div>
