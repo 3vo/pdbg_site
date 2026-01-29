@@ -69,6 +69,17 @@ function applyEffectScopeFilters(query, effect_scope, include, exclude, phrase) 
   return applyTextFilters(query, 'effect', include, exclude, phrase)
 }
 
+// Supabase .not() expects a string value for array operators (cs/ov/etc).
+// Build a Postgres array literal like: {"Attack","Stack Ongoing"}
+function toPgArrayLiteral(items) {
+  const arr = Array.isArray(items) ? items : []
+  const escaped = arr
+    .map(v => String(v ?? '').trim())
+    .filter(Boolean)
+    .map(v => `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
+  return `{${escaped.join(',')}}`
+}
+
 export async function fetchCardById(cardId) {
   const { data, error } = await supabase
     .from('cards_flat')
@@ -158,7 +169,6 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     effect_scope,
   } = params
 
-
   let query = supabase.from('cards_flat').select('*', { count: 'exact' })
 
   // Set filter
@@ -179,22 +189,27 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     query = query.lte('wcs_tier', Number(wcs_tier_max))
   }
 
+  // ============================================================
   // Primary Types (text[] column)
-  // NEW params:
-  //  - primary_types_inc: CSV
-  //  - primary_types_exc: CSV
-  //  - primary_types_inc_mode: 'and'|'or' (default: 'and')
-  //  - primary_types_exc_mode: 'and'|'or' (default: 'or')
   //
-  // Back-compat:
-  //  - primary_type / primary_types behave like INCLUDE + AND
+  // INCLUDE:
+  //  - mode=and => must include ALL selected
+  //  - mode=or  => must include ANY selected
+  //
+  // EXCLUDE (IMPORTANT):
+  //  - mode=or  => exclude if it matches ANY excluded type
+  //  - mode=and => exclude only if it matches ALL excluded types
+  //
+  // This makes:
+  //  inc=Starter, exc=Pokemon (excMode=or) => Starter AND NOT Pokemon
+  // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
 
   const incList = []
   const excList = []
 
-  // legacy include -> incList
+  // legacy include -> incList (treat as INCLUDE+AND)
   if (primary_type) incList.push(String(primary_type).trim())
   if (primary_types) {
     incList.push(
@@ -205,7 +220,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     )
   }
 
-  // new include/exclude -> incList/excList
+  // new include/exclude
   if (primary_types_inc) {
     incList.push(
       ...String(primary_types_inc)
@@ -214,7 +229,6 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
         .filter(Boolean)
     )
   }
-
   if (primary_types_exc) {
     excList.push(
       ...String(primary_types_exc)
@@ -227,33 +241,23 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   const uniqueInc = [...new Set(incList)].filter(Boolean)
   const uniqueExc = [...new Set(excList)].filter(Boolean)
 
-  // INCLUDE semantics
-  //  - AND => must contain all selected types (array contains)
-  //  - OR  => must contain any selected type (array overlaps)
+  // INCLUDE
   if (uniqueInc.length > 0) {
-    if (incMode === 'or') {
-      query = query.overlaps('primary_types', uniqueInc)
-    } else {
-      query = query.contains('primary_types', uniqueInc)
-    }
+    if (incMode === 'or') query = query.overlaps('primary_types', uniqueInc)
+    else query = query.contains('primary_types', uniqueInc)
   }
 
-  // EXCLUDE semantics
-  //  - OR  => exclude if overlaps ANY excluded type
-  //  - AND => exclude only if it contains ALL excluded types
+  // EXCLUDE
   if (uniqueExc.length > 0) {
+    const lit = toPgArrayLiteral(uniqueExc)
     if (excMode === 'or') {
-      query = query.not('primary_types', 'ov', uniqueExc)
+      // Exclude if overlaps ANY excluded type
+      query = query.not('primary_types', 'ov', lit)
     } else {
-      query = query.not('primary_types', 'cs', uniqueExc)
+      // Exclude only if contains ALL excluded types
+      query = query.not('primary_types', 'cs', lit)
     }
   }
-
-
- // const uniqueTypes = [...new Set(typeList)]
- // if (uniqueTypes.length > 0) {
- //   query = query.contains('primary_types', uniqueTypes)
- // }
 
   // Location filter
   if (card_location) {
@@ -347,12 +351,21 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     if (term) query = query.or(`name.ilike.%${term}%,effect.ilike.%${term}%`)
   }
 
+  // ============================================================
   // Keywords (text[] column)
-  // NEW params:
-  //  - keywords_inc: CSV (AND semantics: each included keyword must be present)
-  //  - keywords_exc: CSV (excluded keywords must NOT be present)
-  // Back-compat:
-  //  - keywords behaves like keywords_inc
+  //
+  // Want:
+  //  - include Attack
+  //  - exclude Evolve
+  //
+  // keywords_inc=Attack
+  // keywords_exc=Evolve
+  //
+  // Include semantics: AND across included keywords (must have each)
+  // Exclude semantics: must not have each excluded keyword
+  //
+  // IMPORTANT: for exclude we must pass a Postgres array literal to .not()
+  // ============================================================
   const kwIncList = []
   if (keywords) {
     kwIncList.push(
@@ -388,11 +401,10 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
 
   // Exclude: must not contain that keyword
   for (const k of uniqueKwExc) {
-    query = query.not('keywords', 'cs', [k])
+    query = query.not('keywords', 'cs', toPgArrayLiteral([k]))
   }
 
-
-
+  // Subtypes
   if (subtypes) {
     String(subtypes)
       .split(',')
@@ -403,6 +415,7 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
       })
   }
 
+  // Symbols
   if (symbols) {
     const sym = String(symbols).trim()
     if (sym === '__none__') {
