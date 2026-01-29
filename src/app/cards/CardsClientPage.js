@@ -219,6 +219,13 @@ export default function CardsPage() {
     setSort('', 'asc')
   }
 
+  const wcsTierMin = searchParams.get('wcs_tier_min')
+  const wcsTierMax = searchParams.get('wcs_tier_max')
+
+  // WCS Tier filter is considered "enabled" if either bound is set
+  const wcsTierFilterEnabled = wcsTierMin != null || wcsTierMax != null
+
+
   // --- Load saved restore state (when arriving on /cards) ---
   useEffect(() => {
     didRestoreScrollRef.current = false
@@ -1074,8 +1081,17 @@ export default function CardsPage() {
 
               {/* Grid (not scrollable) */}
               <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
-                {view !== 'text' &&
-                  cards.map(card => (
+              {view !== 'text' &&
+                cards.map(card => {
+                  const isTrainer =
+                    Array.isArray(card.primary_types) && card.primary_types.includes('Trainer')
+              
+                  const showWcsTier =
+                    wcsTierFilterEnabled &&
+                    isTrainer &&
+                    typeof card.wcs_tier === 'number'
+              
+                  return (
                     <Link
                       scroll={false}
                       key={card.card_id}
@@ -1091,8 +1107,16 @@ export default function CardsPage() {
                         alt={card.name}
                         className={imageClassName}
                       />
+              
+                      {showWcsTier && (
+                        <div className="mt-1 text-center text-[11px] text-zinc-400">
+                          WCS Tier {card.wcs_tier}
+                        </div>
+                      )}
                     </Link>
-                  ))}
+                  )
+                })}
+
 
                 {view === 'text' &&
                   cards.map(card => {
