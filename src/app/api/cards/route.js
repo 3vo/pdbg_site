@@ -1,25 +1,23 @@
-import { NextResponse } from 'next/server'
 import { fetchFilteredCards } from '@/lib/cardQueries'
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url)
-  const paramsObj = Object.fromEntries(searchParams.entries())
+  const url = new URL(req.url)
+  const params = Object.fromEntries(url.searchParams.entries())
 
-  // parse offset/limit with sane defaults
-  const offset = Number(paramsObj.offset ?? 0)
-  const limit = Number(paramsObj.limit ?? 72)
-  delete paramsObj.offset
-  delete paramsObj.limit
+  const offset = Number(params.offset ?? 0)
+  const limit = Number(params.limit ?? 72)
 
-  const { data, count } = await fetchFilteredCards(paramsObj, { offset, limit })
+  delete params.offset
+  delete params.limit
+  delete params.page // just in case old links exist
 
-  const res = NextResponse.json({ data, count })
+  const { data, count } = await fetchFilteredCards(params, { offset, limit })
 
-  // CDN caching: cache 1 day, allow SWR for a week
-  res.headers.set(
-    'Cache-Control',
-    'public, s-maxage=86400, stale-while-revalidate=604800'
-  )
-
-  return res
+  return new Response(JSON.stringify({ data, count }), {
+    headers: {
+      'Content-Type': 'application/json',
+      // CDN cache: 1 day fresh, 7 days SWR
+      'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+    },
+  })
 }
