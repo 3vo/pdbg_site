@@ -35,26 +35,26 @@ export default function BackToResultsButton({ fallbackHref = '/cards' }) {
   const targetHref = useMemo(() => normalizeFallbackHref(fallbackHref), [fallbackHref])
   const isArticleBack = useMemo(() => targetHref.startsWith('/articles/'), [targetHref])
 
+  // Prefer router.back() when we *know* we came from /cards (same-origin referrer)
   const [preferBack, setPreferBack] = useState(false)
   useEffect(() => {
+    if (typeof window === 'undefined') return
     setPreferBack(canUseBackToCards(targetHref))
   }, [targetHref])
 
-function handleClick() {
-  if (leaving) return
-  setLeaving(true)
+  function handleClick() {
+    if (leaving) return
+    setLeaving(true)
 
-  // If we have history, prefer true back navigation.
-  // This preserves scroll + component state far better than push().
-  if (hasHistory) {
-    // No delay: delaying increases the chance the browser decides to reset scroll
-    router.back()
-    return
+    // If we navigated from /cards -> /cards/[id], use true back for best scroll restore.
+    if (!isArticleBack && preferBack) {
+      router.back()
+      return
+    }
+
+    // Otherwise fall back to explicit target (works for direct entry, no referrer, etc.)
+    router.push(targetHref)
   }
-
-  // Fallback (direct entry, no history)
-  router.push(targetHref)
-}
 
   const disabled = leaving
   const label = isArticleBack ? '← Back to article' : '← Back to results'
