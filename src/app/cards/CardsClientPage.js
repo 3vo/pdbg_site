@@ -641,6 +641,7 @@ export default function CardsPage() {
         'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
         'gap-3',
         'flex-1 overflow-y-auto',
+        'min-h-0',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
@@ -653,6 +654,7 @@ export default function CardsPage() {
         'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
         'gap-2',
         'flex-1 overflow-y-auto',
+        'min-h-0',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
@@ -664,6 +666,7 @@ export default function CardsPage() {
       'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
       'gap-4',
       'flex-1 overflow-y-auto',
+      'min-h-0',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
       'pdbg-scrollbar pb-16',
@@ -775,12 +778,12 @@ export default function CardsPage() {
 
       {/* RIGHT: Content */}
       <div className="md:col-start-2 md:row-start-1 h-[100dvh] overflow-hidden md:min-w-0 flex flex-col">
-        <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6">
+        <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6 flex flex-col h-full min-h-0">
           <SiteBanner />
 
           <div
             ref={resultsTopRef}
-            className="mt-4 flex flex-col flex-1 overflow-hidden md:h-[calc(100vh-2rem-8.5rem)] md:overflow-hidden"
+            className="mt-4 flex flex-col flex-1 min-h-0 overflow-hidden md:h-[calc(100vh-2rem-8.5rem)] md:overflow-hidden"
           >
             <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-3 z-10 md:bg-zinc-900/95 md:backdrop-blur md:shadow-lg md:shrink-0">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
