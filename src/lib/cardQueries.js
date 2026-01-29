@@ -116,6 +116,31 @@ export async function fetchCardsByCardIds(cardIds = []) {
  *  - fetchFilteredCards(params, { offset, limit })
  */
 export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize = 24) {
+    // If we're in the browser, hit our cached API route instead of PostgREST directly.
+  if (typeof window !== 'undefined') {
+    const opts =
+      typeof pageOrOpts === 'object' && pageOrOpts
+        ? { offset: pageOrOpts.offset ?? 0, limit: pageOrOpts.limit ?? pageSize }
+        : { offset: (Number(pageOrOpts || 1) - 1) * pageSize, limit: pageSize }
+
+    const qs = new URLSearchParams()
+
+    // push params into querystring
+    for (const [k, v] of Object.entries(params || {})) {
+      if (v == null) continue
+      const s = String(v)
+      if (!s) continue
+      qs.set(k, s)
+    }
+
+    qs.set('offset', String(opts.offset))
+    qs.set('limit', String(opts.limit))
+
+    const res = await fetch(`/api/cards?${qs.toString()}`)
+    if (!res.ok) throw new Error(`Cards API failed: ${res.status}`)
+    return await res.json()
+  }
+
   const {
     set,
     sets,
