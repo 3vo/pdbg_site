@@ -3,9 +3,13 @@ import { unstable_cache } from 'next/cache'
 
 // Cards basically never change.
 // Data Cache revalidate window (seconds). You can make this longer if you want.
-export const revalidate = 31536000 // 1 year
-// Ensure Next treats this as cacheable (not forced dynamic).
-export const dynamic = 'force-static'
+const DATA_CACHE_REVALIDATE = 31536000 // 1 year
+
+// IMPORTANT:
+// Do NOT force-static for this route. We need the handler to run per-request so
+// different querystrings (filters + offset) can produce different responses.
+// Caching is handled by unstable_cache + Cache-Control below.
+export const dynamic = 'force-dynamic'
 
 function toPosInt(n, fallback) {
   const x = Number(n)
@@ -62,31 +66,32 @@ function normalizeSearchParams(url) {
   const sortedEntries = Object.entries(params).sort(([a], [b]) => a.localeCompare(b))
   const qs = new URLSearchParams(sortedEntries).toString()
 
-  return { params, offset, limit, qs }
+  return { offset, limit, qs }
 }
 
 // Cache the Supabase-backed result by *normalized querystring + offset/limit*.
 // This is the Next.js Data Cache (persists across requests on the server).
+//
+// NOTE: bump the namespace key to avoid serving stale cached values from prior versions.
 const cachedFetch = unstable_cache(
   async (qs, offset, limit) => {
     const params = Object.fromEntries(new URLSearchParams(qs).entries())
     return await fetchFilteredCards(params, { offset, limit })
   },
-  // base key namespace (Next combines this with args)
-  ['cards-api-v1'],
-  { revalidate }
+  ['cards-api-v2'], // <-- bumped from v1
+  { revalidate: DATA_CACHE_REVALIDATE }
 )
 
 export async function GET(req) {
   const url = new URL(req.url)
   const { offset, limit, qs } = normalizeSearchParams(url)
 
-  // Fetch via Data Cache
   const { data, count } = await cachedFetch(qs, offset, limit)
 
   const headers = new Headers({
     'Content-Type': 'application/json',
-    // CDN cache: 7 days fresh, 1 year SWR (your previous intent)
+    // CDN cache: 7 days fresh, 1 year SWR
+    // CDN caching *will* vary by full URL including querystring on typical deployments.
     'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=31536000',
     // Debug key to confirm requests are varying as expected
     'X-Cards-Cache-Key': `${qs}&offset=${offset}&limit=${limit}`,
