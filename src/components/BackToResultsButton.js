@@ -40,17 +40,21 @@ export default function BackToResultsButton({ fallbackHref = '/cards' }) {
     setPreferBack(canUseBackToCards(targetHref))
   }, [targetHref])
 
-  function handleClick() {
-    if (leaving) return
-    setLeaving(true)
+function handleClick() {
+  if (leaving) return
+  setLeaving(true)
 
-    if (preferBack) {
-      router.back()
-      return
-    }
-
-    router.push(targetHref)
+  // If we have history, prefer true back navigation.
+  // This preserves scroll + component state far better than push().
+  if (hasHistory) {
+    // No delay: delaying increases the chance the browser decides to reset scroll
+    router.back()
+    return
   }
+
+  // Fallback (direct entry, no history)
+  router.push(targetHref)
+}
 
   const disabled = leaving
   const label = isArticleBack ? '← Back to article' : '← Back to results'
