@@ -1,4 +1,3 @@
-// src/app/api/cards/route.js
 import { fetchFilteredCards } from '@/lib/cardQueries'
 import { unstable_cache } from 'next/cache'
 
@@ -8,17 +7,51 @@ export const revalidate = 31536000 // 1 year
 // Ensure Next treats this as cacheable (not forced dynamic).
 export const dynamic = 'force-static'
 
+function toPosInt(n, fallback) {
+  const x = Number(n)
+  return Number.isFinite(x) && x > 0 ? Math.floor(x) : fallback
+}
+
+function toNonNegInt(n, fallback) {
+  const x = Number(n)
+  return Number.isFinite(x) && x >= 0 ? Math.floor(x) : fallback
+}
+
 function normalizeSearchParams(url) {
   const sp = url.searchParams
 
-  // pull paging
-  const offset = Number(sp.get('offset') ?? 0)
-  const limit = Number(sp.get('limit') ?? 72)
+  // ----------------------------
+  // Pagination (support BOTH styles)
+  // ----------------------------
+  const hasOffset = sp.has('offset')
+  const hasLimit = sp.has('limit')
 
-  // build params object excluding paging + legacy page
+  // New style
+  let offset = hasOffset ? toNonNegInt(sp.get('offset'), 0) : NaN
+  let limit = hasLimit ? toPosInt(sp.get('limit'), 72) : NaN
+
+  // Legacy style
+  const page = sp.has('page') ? toPosInt(sp.get('page'), 1) : NaN
+  const pageSize = sp.has('pageSize') ? toPosInt(sp.get('pageSize'), 72) : NaN
+
+  // If offset/limit not provided, derive from page/pageSize.
+  if (!Number.isFinite(offset)) {
+    const p = Number.isFinite(page) ? page : 1
+    const ps = Number.isFinite(pageSize) ? pageSize : 72
+    offset = (p - 1) * ps
+    if (!Number.isFinite(limit)) limit = ps
+  }
+
+  // Final safety clamps
+  offset = toNonNegInt(offset, 0)
+  limit = toPosInt(limit, 72)
+
+  // ----------------------------
+  // Filters: build params object excluding pagination + legacy paging keys
+  // ----------------------------
   const params = {}
   for (const [k, v] of sp.entries()) {
-    if (k === 'offset' || k === 'limit' || k === 'page') continue
+    if (k === 'offset' || k === 'limit' || k === 'page' || k === 'pageSize') continue
     if (v == null) continue
     const s = String(v).trim()
     if (!s) continue
@@ -46,19 +79,16 @@ const cachedFetch = unstable_cache(
 
 export async function GET(req) {
   const url = new URL(req.url)
-
-  const { params, offset, limit, qs } = normalizeSearchParams(url)
+  const { offset, limit, qs } = normalizeSearchParams(url)
 
   // Fetch via Data Cache
   const { data, count } = await cachedFetch(qs, offset, limit)
 
-  // Optional: helpful debug headers (remove if you prefer)
-  // Note: you won’t get an explicit “HIT/MISS” header from Data Cache,
-  // but keeping the normalized key visible can help while validating.
   const headers = new Headers({
     'Content-Type': 'application/json',
-    // CDN/edge cache: 1 day fresh, 7 days SWR (keep as you had)
+    // CDN cache: 7 days fresh, 1 year SWR (your previous intent)
     'Cache-Control': 'public, s-maxage=604800, stale-while-revalidate=31536000',
+    // Debug key to confirm requests are varying as expected
     'X-Cards-Cache-Key': `${qs}&offset=${offset}&limit=${limit}`,
   })
 
