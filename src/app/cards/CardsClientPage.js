@@ -103,7 +103,8 @@ export default function CardsPage() {
   }
 
   const observerRef = useRef(null) // sentinel div
-  const gridRef = useRef(null)
+  const gridRef = useRef(null) // the grid element (NOT the scroll container)
+  const scrollRef = useRef(null) // the scroll container (mobile + desktop)
 
   // Prevent runaway paging / concurrent loads
   const pagingRef = useRef(false)
@@ -164,7 +165,7 @@ export default function CardsPage() {
   const shouldShowLoadingRow = loading && !(totalKnown && total === 0)
 
   function scrollGridToTop() {
-    const el = gridRef.current
+    const el = scrollRef.current
     if (!el) return
     el.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -231,12 +232,12 @@ export default function CardsPage() {
   }
 
   function persistNow() {
-    const el = gridRef.current
-    if (!el) return
+    const scroller = scrollRef.current
+    if (!scroller) return
 
     try {
-      const containerRect = el.getBoundingClientRect()
-      const items = Array.from(el.querySelectorAll('[data-card-id]'))
+      const containerRect = scroller.getBoundingClientRect()
+      const items = Array.from(scroller.querySelectorAll('[data-card-id]'))
 
       let anchorId = null
       let anchorOffset = 0
@@ -255,7 +256,7 @@ export default function CardsPage() {
       sessionStorage.setItem(
         restoreKey,
         JSON.stringify({
-          scrollTop: el.scrollTop,
+          scrollTop: scroller.scrollTop,
           count: cardsRef.current.length,
           anchorId,
           anchorOffset,
@@ -264,10 +265,10 @@ export default function CardsPage() {
     } catch {}
   }
 
-  // --- Save scroll position while user scrolls (ALWAYS attach to el; no window scroll) ---
+  // --- Save scroll position while user scrolls (ALWAYS attach to scrollRef; no window scroll) ---
   useEffect(() => {
-    const el = gridRef.current
-    if (!el) return
+    const scroller = scrollRef.current
+    if (!scroller) return
 
     let raf = null
 
@@ -280,9 +281,9 @@ export default function CardsPage() {
       })
     }
 
-    el.addEventListener('scroll', onScroll, { passive: true })
+    scroller.addEventListener('scroll', onScroll, { passive: true })
     return () => {
-      el.removeEventListener('scroll', onScroll)
+      scroller.removeEventListener('scroll', onScroll)
       if (raf) window.cancelAnimationFrame(raf)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -413,9 +414,6 @@ export default function CardsPage() {
   }
 
   async function loadMore({ untilCount } = {}) {
-    const el = gridRef.current
-    if (!el) return
-
     if (loadingRef.current) return
     if (pagingRef.current) return
     if (restoringRef.current && !untilCount) return // during restore, only load via the restore path
@@ -430,10 +428,15 @@ export default function CardsPage() {
       let safety = 0
       while (true) {
         safety++
-        if (safety > 25) break // hard stop (should never happen)
+        if (safety > 25) break // hard stop
 
         const currentLen = cardsRef.current.length
-        if (typeof untilCount === 'number' && Number.isFinite(untilCount) && currentLen >= untilCount) {
+
+        if (
+          typeof untilCount === 'number' &&
+          Number.isFinite(untilCount) &&
+          currentLen >= untilCount
+        ) {
           break
         }
 
@@ -441,19 +444,15 @@ export default function CardsPage() {
 
         const offset = currentLen
 
-        // Choose a batch size:
-        // - restore path: chunk in sub-1000 slices (avoid PostgREST max rows per request)
-        // - normal paging: use your page sizing ramp
+        // Choose a batch size
         let limit = 0
         if (typeof untilCount === 'number' && Number.isFinite(untilCount)) {
           const remaining = Math.max(0, untilCount - currentLen)
-          // Keep restore batches reasonably sized (and well under 1000)
           limit = clamp(remaining, 50, 400)
         } else {
           limit = getPageSizeForPage(pageRef.current)
         }
 
-        // If we're near the end and already have total, clamp
         if (totalKnown) {
           limit = Math.max(1, Math.min(limit, Math.max(0, total - currentLen)))
         }
@@ -462,31 +461,24 @@ export default function CardsPage() {
 
         const { data, count } = await fetchFilteredCards(paramsObj, { offset, limit })
 
-        // Update total on any successful response
         setTotal(typeof count === 'number' ? count : 0)
         setTotalKnown(true)
 
         const chunk = Array.isArray(data) ? data : []
-
-        if (chunk.length === 0) {
-          // No more data; stop
-          break
-        }
+        if (chunk.length === 0) break
 
         setCards(prev => {
           const merged = mergeAppendDedupe(prev, chunk)
-          // keep ref in sync immediately for next loop iteration
           cardsRef.current = merged
           return merged
         })
 
-        // Only advance "page" when it's a normal paging call
+        // Normal paging: one batch per intersection
         if (!(typeof untilCount === 'number' && Number.isFinite(untilCount))) {
           pageRef.current = pageRef.current + 1
-          break // one batch per intersection
+          break
         }
-
-        // restore path: loop again until we reach untilCount (or run out)
+        // Restore path: loop again until we reach untilCount (or run out)
       }
     } catch (err) {
       console.error(err)
@@ -514,7 +506,6 @@ export default function CardsPage() {
     // Initial load (and restore load if available)
     const pending = pendingRestoreRef.current
     if (pending?.count && Number.isFinite(pending.count) && pending.count > 0) {
-      // load enough to restore
       loadMore({ untilCount: pending.count })
     } else {
       loadMore()
@@ -524,12 +515,12 @@ export default function CardsPage() {
 
   // Restore scroll after cards paint (container-only restore)
   useLayoutEffect(() => {
-    const el = gridRef.current
+    const scroller = scrollRef.current
     const pending = pendingRestoreRef.current
-    if (!el || !pending) return
+    if (!scroller || !pending) return
     if (didRestoreScrollRef.current) return
 
-    // Don’t restore until we’ve loaded at least what we had before (prevents “restore to top” on mobile)
+    // Don’t restore until we’ve loaded at least what we had before
     if (pending.count && cards.length < pending.count) return
 
     didRestoreScrollRef.current = true
@@ -542,17 +533,17 @@ export default function CardsPage() {
             ? CSS.escape(pending.anchorId)
             : String(pending.anchorId).replace(/"/g, '\\"')
 
-        const node = el.querySelector(`[data-card-id="${safe}"]`)
+        const node = scroller.querySelector(`[data-card-id="${safe}"]`)
         if (node) {
-          const containerRect = el.getBoundingClientRect()
+          const containerRect = scroller.getBoundingClientRect()
           const nodeRect = node.getBoundingClientRect()
           const delta = (nodeRect.top - containerRect.top) - (pending.anchorOffset || 0)
-          el.scrollTo({ top: el.scrollTop + delta, behavior: 'auto' })
+          scroller.scrollTo({ top: scroller.scrollTop + delta, behavior: 'auto' })
         } else {
-          el.scrollTop = pending.scrollTop || 0
+          scroller.scrollTop = pending.scrollTop || 0
         }
       } else {
-        el.scrollTop = pending.scrollTop || 0
+        scroller.scrollTop = pending.scrollTop || 0
       }
 
       suppressPersistRef.current = false
@@ -591,9 +582,9 @@ export default function CardsPage() {
   }, [filtersOpen])
 
   // Infinite scroll observer (blocked during restore)
-  // Root is ALWAYS the gridRef container (mobile + desktop).
+  // Root is ALWAYS scrollRef container (mobile + desktop).
   useEffect(() => {
-    const rootEl = gridRef.current
+    const rootEl = scrollRef.current
     const targetEl = observerRef.current
     if (!rootEl || !targetEl) return
 
@@ -633,6 +624,7 @@ export default function CardsPage() {
     []
   )
 
+  // IMPORTANT: grid is NOT scrollable anymore; scrollRef is.
   const gridClassName = useMemo(() => {
     if (view === 'text') {
       return [
@@ -640,8 +632,6 @@ export default function CardsPage() {
         'grid',
         'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
         'gap-3',
-        'flex-1 overflow-y-auto',
-        'min-h-0',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
@@ -653,8 +643,6 @@ export default function CardsPage() {
         'mt-4',
         'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
         'gap-2',
-        'flex-1 overflow-y-auto',
-        'min-h-0',
         'pt-1 px-4 md:px-5',
         'items-start content-start',
         'pdbg-scrollbar pb-16',
@@ -665,8 +653,6 @@ export default function CardsPage() {
       'mt-4',
       'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
       'gap-4',
-      'flex-1 overflow-y-auto',
-      'min-h-0',
       'pt-1 px-4 md:px-5',
       'items-start content-start',
       'pdbg-scrollbar pb-16',
@@ -779,169 +765,141 @@ export default function CardsPage() {
       {/* RIGHT: Content */}
       <div className="md:col-start-2 md:row-start-1 h-[100dvh] overflow-hidden md:min-w-0 flex flex-col">
         <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6 flex flex-col h-full min-h-0">
-          <SiteBanner />
-
+          {/* SCROLL CONTAINER:
+              - SiteBanner scrolls away on mobile
+              - Controls remain sticky */}
           <div
-            ref={resultsTopRef}
-            className="mt-4 flex flex-col flex-1 min-h-0 overflow-hidden md:h-[calc(100vh-2rem-8.5rem)] md:overflow-hidden"
+            ref={scrollRef}
+            className="flex-1 min-h-0 overflow-y-auto"
+            style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            <div className="rounded-lg border border-zinc-700 bg-zinc-900 p-3 z-10 md:bg-zinc-900/95 md:backdrop-blur md:shadow-lg md:shrink-0">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-sm text-zinc-200">
-                  <div>
-                    Showing <span className="font-semibold">{shownCount}</span>
-                    {hasTotal && (
-                      <>
-                        {' '}
-                        of <span className="font-semibold">{total}</span>
-                      </>
-                    )}{' '}
-                    cards
+            <SiteBanner />
+
+            <div ref={resultsTopRef} className="mt-4 flex flex-col min-h-0">
+              {/* Sticky controls */}
+              <div className="sticky top-0 z-20 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur p-3 shadow-lg">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-sm text-zinc-200">
+                    <div>
+                      Showing <span className="font-semibold">{shownCount}</span>
+                      {hasTotal && (
+                        <>
+                          {' '}
+                          of <span className="font-semibold">{total}</span>
+                        </>
+                      )}{' '}
+                      cards
+                    </div>
+
+                    {showProgress && (
+                      <div className="text-xs text-zinc-400 mt-1">
+                        {loading ? `Loading… (${progressText})` : progressText}
+                      </div>
+                    )}
                   </div>
 
-                  {showProgress && (
-                    <div className="text-xs text-zinc-400 mt-1">
-                      {loading ? `Loading… (${progressText})` : progressText}
+                  <div className="flex flex-wrap gap-2 self-start sm:self-auto items-center">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-zinc-300">Sort</label>
+
+                      <select
+                        className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                        value={sortBy}
+                        onChange={e => setSort(e.target.value, sortDir)}
+                        title="Sort by"
+                      >
+                        <option value="">Default</option>
+                        <option value="name">Name</option>
+                        <option value="cost">Cost</option>
+                        <option value="xp">XP</option>
+                      </select>
+
+                      <select
+                        className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                        value={sortDir}
+                        onChange={e => setSort(sortBy, e.target.value)}
+                        disabled={!hasSort}
+                        title="Sort direction"
+                      >
+                        <option value="asc">Asc</option>
+                        <option value="desc">Desc</option>
+                      </select>
+
+                      <button
+                        onClick={clearSort}
+                        className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-zinc-800"
+                        disabled={!hasSort}
+                        title={!hasSort ? 'No sort applied' : 'Clear Sort'}
+                      >
+                        Clear sort
+                      </button>
                     </div>
-                  )}
-                </div>
 
-                <div className="flex flex-wrap gap-2 self-start sm:self-auto items-center">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-zinc-300">Sort</label>
-
-                    <select
-                      className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
-                      value={sortBy}
-                      onChange={e => setSort(e.target.value, sortDir)}
-                      title="Sort by"
-                    >
-                      <option value="">Default</option>
-                      <option value="name">Name</option>
-                      <option value="cost">Cost</option>
-                      <option value="xp">XP</option>
-                    </select>
-
-                    <select
-                      className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
-                      value={sortDir}
-                      onChange={e => setSort(sortBy, e.target.value)}
-                      disabled={!hasSort}
-                      title="Sort direction"
-                    >
-                      <option value="asc">Asc</option>
-                      <option value="desc">Desc</option>
-                    </select>
+                    {/* View toggle */}
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-zinc-300">View</label>
+                      <select
+                        className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                        value={view}
+                        onChange={e => setViewMode(e.target.value)}
+                        title="View mode"
+                      >
+                        {VIEW_OPTIONS.map(o => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                     <button
-                      onClick={clearSort}
-                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-zinc-800"
-                      disabled={!hasSort}
-                      title={!hasSort ? 'No sort applied' : 'Clear Sort'}
+                      onClick={() => setFiltersOpen(o => !o)}
+                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                      title={filtersOpen ? 'Hide filters panel' : 'Show filters panel'}
                     >
-                      Clear sort
+                      {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+                    </button>
+
+                    <button
+                      onClick={scrollGridToTop}
+                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                      title="Scroll to the top of the results"
+                    >
+                      Scroll to Top
                     </button>
                   </div>
-
-                  {/* View toggle */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-zinc-300">View</label>
-                    <select
-                      className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
-                      value={view}
-                      onChange={e => setViewMode(e.target.value)}
-                      title="View mode"
-                    >
-                      {VIEW_OPTIONS.map(o => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button
-                    onClick={() => setFiltersOpen(o => !o)}
-                    className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
-                    title={filtersOpen ? 'Hide filters panel' : 'Show filters panel'}
-                  >
-                    {filtersOpen ? 'Hide Filters' : 'Show Filters'}
-                  </button>
-
-                  <button
-                    onClick={scrollGridToTop}
-                    className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
-                    title="Scroll to the top of the results"
-                  >
-                    Scroll to Top
-                  </button>
                 </div>
+
+                {chips.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={clearAllFilters}
+                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                      title="Clear all filters"
+                    >
+                      Clear Filters
+                    </button>
+
+                    {chips.map((chip, idx) => (
+                      <button
+                        key={`${chip.key}:${chip.value}:${idx}`}
+                        onClick={() => removeChip(chip)}
+                        className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                        title="Remove this filter"
+                      >
+                        <span className="text-zinc-300">{chip.label}:</span>
+                        <span className="font-medium">{chip.value}</span>
+                        <span className="text-zinc-300">×</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {chips.length > 0 && (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={clearAllFilters}
-                    className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
-                    title="Clear all filters"
-                  >
-                    Clear Filters
-                  </button>
-
-                  {chips.map((chip, idx) => (
-                    <button
-                      key={`${chip.key}:${chip.value}:${idx}`}
-                      onClick={() => removeChip(chip)}
-                      className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
-                      title="Remove this filter"
-                    >
-                      <span className="text-zinc-300">{chip.label}:</span>
-                      <span className="font-medium">{chip.value}</span>
-                      <span className="text-zinc-300">×</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
-              {view !== 'text' &&
-                cards.map(card => (
-                  <Link
-                    scroll={false}
-                    key={card.card_id}
-                    data-card-id={card.card_id}
-                    href={cardHref(card.card_id)}
-                    className={cardLinkClassName}
-                    onPointerDown={persistBeforeNav}
-                    onMouseDown={persistBeforeNav}
-                    onTouchStart={persistBeforeNav}
-                  >
-                    <img
-                      src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
-                      alt={card.name}
-                      className={imageClassName}
-                    />
-                  </Link>
-                ))}
-
-              {view === 'text' &&
-                cards.map(card => {
-                  const hasHighlightEffect =
-                    typeof card.highlight_effect === 'string' && card.highlight_effect.trim().length > 0
-                  const hasEffect = typeof card.effect === 'string' && card.effect.trim().length > 0
-
-                  const highlightBorderClass =
-                    highlightBorderClassMap[card.highlight_color] ?? 'border-zinc-500'
-
-                  const primaryTypes = Array.isArray(card.primary_types)
-                    ? card.primary_types.filter(Boolean)
-                    : []
-                  const subtypes = Array.isArray(card.subtypes) ? card.subtypes.filter(Boolean) : []
-
-                  const showEffectSection = hasHighlightEffect || hasEffect
-
-                  return (
+              {/* Grid (not scrollable) */}
+              <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
+                {view !== 'text' &&
+                  cards.map(card => (
                     <Link
                       scroll={false}
                       key={card.card_id}
@@ -952,90 +910,128 @@ export default function CardsPage() {
                       onMouseDown={persistBeforeNav}
                       onTouchStart={persistBeforeNav}
                     >
-                      <div className="flex flex-col gap-2">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="text-base font-semibold text-zinc-100 truncate">
-                              {card.name}
-                            </div>
-                            <div className="text-xs text-zinc-400">{card.set}</div>
-                          </div>
-
-                          <div className="flex items-center gap-3 text-xs text-zinc-300">
-                            {card.cost != null && (
-                              <span className="rounded bg-zinc-800 px-2 py-0.5">
-                                <span className="text-zinc-400">Cost</span> {card.cost}
-                              </span>
-                            )}
-                            {card.xp_display != null && (
-                              <span className="rounded bg-zinc-800 px-2 py-0.5">
-                                <span className="text-zinc-400">XP</span> {card.xp_display}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {(primaryTypes.length > 0 || subtypes.length > 0) && (
-                          <div className="flex flex-wrap gap-2">
-                            {primaryTypes.map(pt => (
-                              <span
-                                key={`pt:${card.card_id}:${pt}`}
-                                className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
-                              >
-                                {pt}
-                              </span>
-                            ))}
-                            {subtypes.map(st => (
-                              <span
-                                key={`st:${card.card_id}:${st}`}
-                                className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
-                              >
-                                {st}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {showEffectSection && (
-                          <div className="pt-1 space-y-2">
-                            <div className="font-semibold text-sm text-zinc-200">Effect:</div>
-
-                            {hasHighlightEffect && (
-                              <div className={`border-l-4 ${highlightBorderClass} pl-3 py-1`}>
-                                <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
-                                  {card.highlight_effect}
-                                </div>
-                              </div>
-                            )}
-
-                            {hasEffect && (
-                              <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
-                                {card.effect}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      <img
+                        src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
+                        alt={card.name}
+                        className={imageClassName}
+                      />
                     </Link>
-                  )
-                })}
+                  ))}
 
-              {/* Sentinel */}
-              <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+                {view === 'text' &&
+                  cards.map(card => {
+                    const hasHighlightEffect =
+                      typeof card.highlight_effect === 'string' &&
+                      card.highlight_effect.trim().length > 0
+                    const hasEffect =
+                      typeof card.effect === 'string' && card.effect.trim().length > 0
 
-              {/* Extra spacer so the last row never sits flush against the bottom edge */}
-              <div className="col-span-full h-10" aria-hidden="true" />
+                    const highlightBorderClass =
+                      highlightBorderClassMap[card.highlight_color] ?? 'border-zinc-500'
 
-              {shouldShowLoadingRow && (
-                <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
-              )}
+                    const primaryTypes = Array.isArray(card.primary_types)
+                      ? card.primary_types.filter(Boolean)
+                      : []
+                    const subtypes = Array.isArray(card.subtypes) ? card.subtypes.filter(Boolean) : []
 
-              {totalKnown && total === 0 && !loading && (
-                <div className="col-span-full text-center py-8 text-zinc-400">
-                  No cards match these filters.
-                </div>
-              )}
-            </main>
+                    const showEffectSection = hasHighlightEffect || hasEffect
+
+                    return (
+                      <Link
+                        scroll={false}
+                        key={card.card_id}
+                        data-card-id={card.card_id}
+                        href={cardHref(card.card_id)}
+                        className={cardLinkClassName}
+                        onPointerDown={persistBeforeNav}
+                        onMouseDown={persistBeforeNav}
+                        onTouchStart={persistBeforeNav}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="text-base font-semibold text-zinc-100 truncate">
+                                {card.name}
+                              </div>
+                              <div className="text-xs text-zinc-400">{card.set}</div>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-xs text-zinc-300">
+                              {card.cost != null && (
+                                <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                  <span className="text-zinc-400">Cost</span> {card.cost}
+                                </span>
+                              )}
+                              {card.xp_display != null && (
+                                <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                  <span className="text-zinc-400">XP</span> {card.xp_display}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {(primaryTypes.length > 0 || subtypes.length > 0) && (
+                            <div className="flex flex-wrap gap-2">
+                              {primaryTypes.map(pt => (
+                                <span
+                                  key={`pt:${card.card_id}:${pt}`}
+                                  className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                                >
+                                  {pt}
+                                </span>
+                              ))}
+                              {subtypes.map(st => (
+                                <span
+                                  key={`st:${card.card_id}:${st}`}
+                                  className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                                >
+                                  {st}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {showEffectSection && (
+                            <div className="pt-1 space-y-2">
+                              <div className="font-semibold text-sm text-zinc-200">Effect:</div>
+
+                              {hasHighlightEffect && (
+                                <div className={`border-l-4 ${highlightBorderClass} pl-3 py-1`}>
+                                  <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                    {card.highlight_effect}
+                                  </div>
+                                </div>
+                              )}
+
+                              {hasEffect && (
+                                <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                  {card.effect}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    )
+                  })}
+
+                {/* Sentinel */}
+                <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+
+                {/* Extra spacer so the last row never sits flush against the bottom edge */}
+                <div className="col-span-full h-10" aria-hidden="true" />
+
+                {shouldShowLoadingRow && (
+                  <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
+                )}
+
+                {totalKnown && total === 0 && !loading && (
+                  <div className="col-span-full text-center py-8 text-zinc-400">
+                    No cards match these filters.
+                  </div>
+                )}
+              </main>
+            </div>
           </div>
         </div>
       </div>
