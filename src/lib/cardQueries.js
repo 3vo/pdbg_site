@@ -1,15 +1,6 @@
 import { supabase } from './supabase'
 
-/**
- * Apply advanced text search to a given field
- * @param {object} query - Supabase query object
- * @param {string} field - Database field name
- * @param {string} include - Comma-separated terms to include
- * @param {string} exclude - Comma-separated terms to exclude
- * @param {string} phrase - Exact phrase to match
- */
 function applyTextFilters(query, field, include, exclude, phrase) {
-  // Include multiple comma-separated terms
   if (include) {
     include
       .split(',')
@@ -20,7 +11,6 @@ function applyTextFilters(query, field, include, exclude, phrase) {
       })
   }
 
-  // Exclude multiple comma-separated terms
   if (exclude) {
     exclude
       .split(',')
@@ -31,7 +21,6 @@ function applyTextFilters(query, field, include, exclude, phrase) {
       })
   }
 
-  // Exact phrase
   if (phrase) {
     const p = phrase.trim()
     if (p) query = query.ilike(field, `%${p}%`)
@@ -40,45 +29,24 @@ function applyTextFilters(query, field, include, exclude, phrase) {
   return query
 }
 
-/**
- * Effect/Highlight text search with scope control.
- *
- * effect_scope:
- *  - '' (default): only cards_flat.effect
- *  - 'all': effect OR highlight_effect
- *  - 'highlight': ONLY highlight_effect
- *
- * Include terms/phrase:
- *  - default/highlight: AND across terms on the chosen field
- *  - all: for each term/phrase, must appear in EITHER field (OR), AND across terms
- *
- * Exclude terms:
- *  - default/highlight: not present in chosen field
- *  - all: not present in EITHER field (i.e. must be absent from both)
- */
 function applyEffectScopeFilters(query, effect_scope, include, exclude, phrase) {
   const scope = String(effect_scope || '').trim()
 
-  // ONLY highlight_effect
   if (scope === 'highlight') {
     return applyTextFilters(query, 'highlight_effect', include, exclude, phrase)
   }
 
-  // effect OR highlight_effect
   if (scope === 'all') {
-    // Include (each term must match in either field)
     if (include) {
       include
         .split(',')
         .map(t => t.trim())
         .filter(Boolean)
         .forEach(word => {
-          // For THIS word, match in either column
           query = query.or(`effect.ilike.%${word}%,highlight_effect.ilike.%${word}%`)
         })
     }
 
-    // Exclude (must be absent from BOTH fields)
     if (exclude) {
       exclude
         .split(',')
@@ -90,7 +58,6 @@ function applyEffectScopeFilters(query, effect_scope, include, exclude, phrase) 
         })
     }
 
-    // Phrase (must match in either field)
     if (phrase) {
       const p = phrase.trim()
       if (p) query = query.or(`effect.ilike.%${p}%,highlight_effect.ilike.%${p}%`)
@@ -99,7 +66,6 @@ function applyEffectScopeFilters(query, effect_scope, include, exclude, phrase) 
     return query
   }
 
-  // DEFAULT: only effect
   return applyTextFilters(query, 'effect', include, exclude, phrase)
 }
 
@@ -113,7 +79,6 @@ export async function fetchCardById(cardId) {
   return data?.[0] ?? null
 }
 
-// Used by Related Cards gallery, variants, etc.
 export async function fetchCardsByCardIds(cardIds = []) {
   const ids = Array.isArray(cardIds) ? cardIds.map(String).filter(Boolean) : []
   if (ids.length === 0) return []
@@ -125,23 +90,24 @@ export async function fetchCardsByCardIds(cardIds = []) {
 
   if (error) throw error
 
-  // Preserve input order (Supabase .in() doesn't guarantee order)
   const byId = new Map((data || []).map(r => [r.card_id, r]))
   return ids.map(id => byId.get(id)).filter(Boolean)
 }
 
 /**
- * Fetch cards from Supabase with filters and pagination
- * @param {object} params - Filter parameters
- * @param {number} page - Pagination page (1-based)
- * @param {number} pageSize - Number of cards per page
+ * Fetch cards from Supabase with filters and pagination.
+ *
+ * Backward compatible signatures:
+ *  - fetchFilteredCards(params, page, pageSize)
+ * New signature:
+ *  - fetchFilteredCards(params, { offset, limit })
  */
-export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
+export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize = 24) {
   const {
-    set, // legacy single-set param
-    sets, // new multi-set param: CSV
-    primary_type, // legacy single-type param
-    primary_types, // new multi-type param: CSV
+    set,
+    sets,
+    primary_type,
+    primary_types,
 
     cost_min,
     cost_max,
@@ -158,11 +124,9 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     attack_multi,
     card_location,
 
-    // WCS tier numeric range (only applies when your UI has enabled it)
     wcs_tier_min,
     wcs_tier_max,
 
-    // NEW: sorting
     sort_by,
     sort_dir,
 
@@ -177,17 +141,12 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     effect_include,
     effect_exclude,
     effect_phrase,
-
-    // ✅ NEW: Effect scope toggle(s)
-    // '' | 'all' | 'highlight'
     effect_scope,
   } = params
 
   let query = supabase.from('cards_flat').select('*', { count: 'exact' })
 
-  // -------------------------
-  // Set filter (supports OR)
-  // -------------------------
+  // Set filter
   const setList = []
   if (set) setList.push(set)
   if (sets) setList.push(...String(sets).split(',').map(s => s.trim()).filter(Boolean))
@@ -197,7 +156,7 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     query = query.in('set', uniqueSets)
   }
 
-  // WCS Tier (nullable column; normal gte/lte naturally excludes nulls)
+  // WCS Tier
   if (wcs_tier_min !== undefined && wcs_tier_min !== '') {
     query = query.gte('wcs_tier', Number(wcs_tier_min))
   }
@@ -205,10 +164,7 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     query = query.lte('wcs_tier', Number(wcs_tier_max))
   }
 
-  // -----------------------------------
-  // Primary Types filter (supports OR)
-  // cards_flat.primary_types is text[]
-  // -----------------------------------
+  // Primary Types
   const typeList = []
   if (primary_type) typeList.push(primary_type)
   if (primary_types) {
@@ -217,24 +173,16 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
 
   const uniqueTypes = [...new Set(typeList)]
   if (uniqueTypes.length > 0) {
-    // NOTE: this is AND behavior (card must contain all selected)
-    // If you want OR behavior instead, use: query = query.overlaps('primary_types', uniqueTypes)
     query = query.contains('primary_types', uniqueTypes)
   }
 
-  // -------------------------
   // Location filter
-  // -------------------------
   if (card_location) {
     const loc = String(card_location).trim()
     if (loc) query = query.eq('card_location', loc)
   }
 
-  // -------------------------
-  // Numeric filters
-  // -------------------------
-
-  // COST (supports: range, include-null, only-null)
+  // COST
   const costOnlyNull = params.cost_only_null === '1'
   const costIncludeNull = params.cost_include_null === '1'
 
@@ -263,7 +211,7 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     }
   }
 
-  // XP (supports: range, include-null, only-null, include-variable, only-variable)
+  // XP
   const xpOnlyNull = params.xp_only_null === '1'
   const xpOnlyVariable = params.xp_only_variable === '1'
   const xpIncludeNull = params.xp_include_null === '1'
@@ -289,7 +237,9 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     const maxOk = xpMaxNum !== null && Number.isFinite(xpMaxNum) ? xpMaxNum : null
 
     const parts = [`xp_is_variable.eq.false`, `xp_value.gte.${minOk}`]
-    if (maxOk !== null) parts.push(`xp_value.lte.${maxOk}`)
+    if (maxOk !== null) parts.push(`xp_value.lte.${maxOk}`
+
+    )
 
     const numericAnd = `and(${parts.join(',')})`
 
@@ -309,23 +259,19 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     query = query.or(orParts.join(','))
   }
 
-  // Multiple Attacks filter (attack_count > 1)
+  // Multiple Attacks
   const multipleAttacks = attack_multi === '1'
   if (multipleAttacks) {
     query = query.gt('attack_count', 1)
   }
 
-  // -------------------------
   // Generic search
-  // -------------------------
   if (q) {
     const term = String(q).trim()
     if (term) query = query.or(`name.ilike.%${term}%,effect.ilike.%${term}%`)
   }
 
-  // -------------------------
   // Array filters
-  // -------------------------
   if (keywords) {
     String(keywords)
       .split(',')
@@ -346,7 +292,6 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
       })
   }
 
-  // Symbols filter with No Symbol support (cards_flat.symbols is text[])
   if (symbols) {
     const sym = String(symbols).trim()
     if (sym === '__none__') {
@@ -356,18 +301,11 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     }
   }
 
-  // -------------------------
   // Advanced text search
-  // -------------------------
   query = applyTextFilters(query, 'name', name_include, name_exclude, name_phrase)
-
-  // ✅ UPDATED: Effect text search now supports effect_scope
   query = applyEffectScopeFilters(query, effect_scope, effect_include, effect_exclude, effect_phrase)
 
-  // -------------------------
-  // Ordering (supports sort_by/sort_dir) + tie-break by set_sort
-  // Tie-break order: set_sort ASC, then card_id ASC.
-  // -------------------------
+  // Ordering
   const dir = String(sort_dir || 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc'
   const asc = dir === 'asc'
 
@@ -380,22 +318,30 @@ export async function fetchFilteredCards(params = {}, page = 1, pageSize = 24) {
     query = query.order('set_sort', { ascending: true })
     query = query.order('card_id', { ascending: true })
   } else if (sort_by === 'xp') {
-    // Keep variable XP at the end regardless of asc/desc:
-    query = query.order('xp_is_variable', { ascending: true }) // false first, true last
+    query = query.order('xp_is_variable', { ascending: true })
     query = query.order('xp_value', { ascending: asc, nullsFirst: false })
     query = query.order('set_sort', { ascending: true })
     query = query.order('card_id', { ascending: true })
   } else {
-    // Default ordering
     query = query.order('set_sort', { ascending: true })
     query = query.order('card_id', { ascending: true })
   }
 
-  // -------------------------
-  // Pagination
-  // -------------------------
-  const from = (page - 1) * pageSize
-  const to = from + pageSize - 1
+  // Pagination: support both signatures
+  let from = 0
+  let to = 0
+
+  if (typeof pageOrOpts === 'object' && pageOrOpts) {
+    const offset = Number(pageOrOpts.offset ?? 0)
+    const limit = Number(pageOrOpts.limit ?? pageSize)
+    from = Math.max(0, offset)
+    to = Math.max(from, from + Math.max(1, limit) - 1)
+  } else {
+    const page = Number(pageOrOpts || 1)
+    from = (page - 1) * pageSize
+    to = from + pageSize - 1
+  }
+
   query = query.range(from, to)
 
   const { data, count, error } = await query
