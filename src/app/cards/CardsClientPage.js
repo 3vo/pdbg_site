@@ -1106,7 +1106,7 @@ export default function CardsPage() {
                         src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
                         alt={card.name}
                         className={imageClassName}
-                        {showWcsTier && (
+                        {isTrainer && (
                           title={`WCS Tier ${card.wcs_tier}`}
                         )}
                       />
