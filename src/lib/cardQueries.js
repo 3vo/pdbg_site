@@ -80,6 +80,8 @@ function toPgArrayLiteral(items) {
   return `{${escaped.join(',')}}`
 }
 
+const EMPTY_PG_ARRAY = '{}' // Postgres empty array literal
+
 export async function fetchCardById(cardId) {
   const { data, error } = await supabase
     .from('cards_flat')
@@ -190,22 +192,18 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   }
 
   // ============================================================
-  // Primary Types (text[] column; may be NULL)
+  // Primary Types (text[] column; empty array means "None")
   //
   // Special sentinel from UI:
-  //  - "__none__" means: primary_types IS NULL
+  //  - "__none__" means: primary_types = '{}'  (empty array)
   //
   // INCLUDE:
-  //  - mode=and => must include ALL selected (array @> list)
-  //  - mode=or  => must include ANY selected (array && list)
+  //  - mode=and => must include ALL selected
+  //  - mode=or  => must include ANY selected
   //
   // EXCLUDE:
-  //  - mode=or  => exclude if it matches ANY excluded type (NOT (array && list))
-  //  - mode=and => exclude only if it matches ALL excluded types (NOT (array @> list))
-  //
-  // Null handling:
-  //  - include "__none__" => allow NULLs (or require NULL if it's the only include)
-  //  - exclude "__none__" => filter out NULLs
+  //  - mode=or  => exclude if it matches ANY excluded type
+  //  - mode=and => exclude only if it matches ALL excluded types
   // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
@@ -253,13 +251,15 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
 
   // INCLUDE
   if (incHasNone && incTypes.length === 0) {
-    // Only "None" selected => primary_types IS NULL
-    query = query.is('primary_types', null)
+    // Only "None" selected => empty array (and tolerate null just in case)
+    query = query.or(`primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null`)
   } else if (incHasNone && incTypes.length > 0) {
     // "None" + other types:
-    // Always treat as OR (otherwise AND would yield no rows).
+    // Treat as OR regardless of incMode, because AND with empty array is impossible.
     const lit = toPgArrayLiteral(incTypes)
-    query = query.or(`primary_types.is.null,primary_types.ov.${lit}`)
+    query = query.or(
+      `primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null,primary_types.ov.${lit}`
+    )
   } else if (incTypes.length > 0) {
     if (incMode === 'or') {
       query = query.overlaps('primary_types', incTypes)
@@ -270,7 +270,8 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
 
   // EXCLUDE
   if (excHasNone) {
-    // Exclude NULLs outright (regardless of mode; "AND" with others would be impossible anyway).
+    // Exclude empty arrays (and also exclude nulls for robustness)
+    query = query.not('primary_types', 'eq', EMPTY_PG_ARRAY)
     query = query.not('primary_types', 'is', null)
   }
 
