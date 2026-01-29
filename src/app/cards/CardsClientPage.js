@@ -88,19 +88,23 @@ export default function CardsPage() {
 
   function setViewMode(next) {
     const nextView = next === 'thumb' || next === 'text' || next === 'full' ? next : 'full'
-
+  
+    // ✅ Update state immediately so the select never gets stuck
+    setView(nextView)
+  
     try {
       localStorage.setItem('cards:view', nextView)
     } catch {}
-
+  
     const params = new URLSearchParams(searchParams.toString())
     if (nextView === 'full') params.delete('view')
     else params.set('view', nextView)
-
+  
     params.delete('page')
     const qs = params.toString()
     router.push(qs ? `/cards?${qs}` : '/cards')
   }
+
 
   const observerRef = useRef(null) // sentinel div
   const gridRef = useRef(null) // the grid element (NOT the scroll container)
