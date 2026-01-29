@@ -228,9 +228,13 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   // Special sentinel from UI:
   //  - "__none__" means: primary_types = '{}'  (empty array)
   //
-  // NOTE:
-  //  Supabase `.or()` does NOT URL-encode values inside the string.
-  //  PostgREST requires `{}` literals to be URL-encoded, so we encode them.
+  // INCLUDE:
+  //  - mode=and => must include ALL selected
+  //  - mode=or  => must include ANY selected
+  //
+  // EXCLUDE:
+  //  - mode=or  => exclude if it matches ANY excluded type
+  //  - mode=and => exclude only if it matches ALL excluded types
   // ============================================================
   const incMode = String(primary_types_inc_mode || 'and').toLowerCase() === 'or' ? 'or' : 'and'
   const excMode = String(primary_types_exc_mode || 'or').toLowerCase() === 'and' ? 'and' : 'or'
@@ -281,13 +285,15 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
   // INCLUDE
   if (incHasNone && incTypes.length === 0) {
     // Only "None" selected => empty array (and tolerate null just in case)
-    query = query.or(`primary_types.eq.${emptyEnc},primary_types.is.null`)
+    //query = query.or(`primary_types.eq.${emptyEnc},primary_types.is.null`)
+    query = query.or(`primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null`)
   } else if (incHasNone && incTypes.length > 0) {
     // "None" + other types: treat as OR (AND with empty array is impossible).
     const lit = toPgArrayLiteral(incTypes)
-    const litEnc = encodeURIComponent(lit)
+    //const litEnc = encodeURIComponent(lit)
     query = query.or(
-      `primary_types.eq.${emptyEnc},primary_types.is.null,primary_types.ov.${litEnc}`
+      `primary_types.eq.${EMPTY_PG_ARRAY},primary_types.is.null,primary_types.ov.${lit}`
+      //`primary_types.eq.${emptyEnc},primary_types.is.null,primary_types.ov.${litEnc}`
     )
   } else if (incTypes.length > 0) {
     if (incMode === 'or') {
