@@ -220,6 +220,8 @@ export default function CardsPage() {
       // Auto-enable WCS Tier filter when sorting by it
       if (by === 'wcs_tier') {
         params.set('wcs_tier', 'true')
+        params.set('wcs_tier_min', '2')
+        params.set('wcs_tier_max', '7')
       }
     }
 
