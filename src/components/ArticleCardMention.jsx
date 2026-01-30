@@ -53,7 +53,7 @@ export default function ArticleCardMention({ id, children }) {
             shadow-xl
           "
         >
-          <img src={imgSrc} alt={card?.name || cardId} className="w-full h-auto rounded" />
+          <img src={imgSrc} crossOrigin="anonymous" alt={card?.name || cardId} className="w-full h-auto rounded" />
           <div className="mt-2 text-xs text-zinc-200 font-semibold truncate">{card?.name}</div>
           <div className="text-[10px] text-zinc-400 truncate">{card?.card_id}</div>
         </div>
