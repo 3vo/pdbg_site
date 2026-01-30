@@ -1166,7 +1166,7 @@ export default function CardsPage() {
                     <Link
                       scroll={false}
                       key={card.card_id}
-                      crossorigin="anonymous"
+                      crossOrigin="anonymous"
                       data-card-id={card.card_id}
                       href={cardHref(card.card_id)}
                       className={cardLinkClassName}
@@ -1176,7 +1176,7 @@ export default function CardsPage() {
                     >
                       <img
                         src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
-                        crossorigin="anonymous"
+                        crossOrigin="anonymous"
                         alt={card.name}
                         className={imageClassName}
                         title={isTrainer ? `WCS Tier ${card.wcs_tier}` : undefined}
