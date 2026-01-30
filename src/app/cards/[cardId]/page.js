@@ -76,6 +76,7 @@ export default async function CardDetailPage({ params, searchParams }) {
       {from && isPathFrom ? (
         <Link
           href={backHref}
+          crossOrigin="anonymous"
           className="inline-flex items-center text-sm text-blue-300 hover:text-blue-200"
         >
           ← Back to article
