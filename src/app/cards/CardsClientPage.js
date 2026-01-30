@@ -7,14 +7,18 @@ import { cardImageUrlFromPath } from '@/lib/cardAssets'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import ViewportScrollbar from '@/components/ViewportScrollbar'
 
 function getPageSizeForPage(page) {
+  // page 1: 24 (fast initial paint)
+  // pages 2-3: 72
+  // page 4+: 144
   if (page <= 1) return 24
   if (page <= 3) return 72
   return 144
 }
 
-export default function CardsClientPage() {
+export default function CardsPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -23,24 +27,19 @@ export default function CardsClientPage() {
   const [totalKnown, setTotalKnown] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  // ----------------------------------------
-  // Query string 
-  // ----------------------------------------
   const queryString = useMemo(() => searchParams.toString(), [searchParams])
+  
+  // Force sentinel to remount when query changes (and when we reset cards).
+  const sentinelKey = useMemo(() => `sentinel:${queryString}:${cards.length}`, [queryString, cards.length])
 
-  // Force sentinel remount when query changes
-  const sentinelKey = useMemo(() => `sentinel:${queryString}`, [queryString])
-
-  // ----------------------------------------
-  // Filters panel (persisted)
-  // ----------------------------------------
+  // Collapsible Filters Panel (persisted)
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem('cards:filtersOpen')
-      if (saved === '1') setFiltersOpen(true)
       if (saved === '0') setFiltersOpen(false)
+      if (saved === '1') setFiltersOpen(true)
     } catch {}
   }, [])
 
@@ -50,11 +49,9 @@ export default function CardsClientPage() {
     } catch {}
   }, [filtersOpen])
 
-  // ----------------------------------------
   // Mobile sticky controls collapse
-  // ----------------------------------------
   const [mobileControlsCollapsed, setMobileControlsCollapsed] = useState(false)
-
+  
   useEffect(() => {
     try {
       const saved = localStorage.getItem('cards:mobileControlsCollapsed')
@@ -65,30 +62,30 @@ export default function CardsClientPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(
-        'cards:mobileControlsCollapsed',
-        mobileControlsCollapsed ? '1' : '0'
-      )
+      localStorage.setItem('cards:mobileControlsCollapsed', mobileControlsCollapsed ? '1' : '0')
     } catch {}
   }, [mobileControlsCollapsed])
 
-  // ----------------------------------------
+  // -------------------------
   // View (URL + localStorage)
-  // ----------------------------------------
-  const VIEW_OPTIONS = [
-    { value: 'full', label: 'Full' },
-    { value: 'thumb', label: 'Thumbnail' },
-    { value: 'text', label: 'Text' },
-  ]
+  // -------------------------
+  const VIEW_OPTIONS = useMemo(
+    () => [
+      { value: 'full', label: 'Full' },
+      { value: 'thumb', label: 'Thumbnail' },
+      { value: 'text', label: 'Text' },
+    ],
+    []
+  )
 
   const urlViewRaw = searchParams.get('view')
   const urlView =
-    urlViewRaw === 'full' || urlViewRaw === 'thumb' || urlViewRaw === 'text'
-      ? urlViewRaw
-      : null
+    urlViewRaw === 'full' || urlViewRaw === 'thumb' || urlViewRaw === 'text' ? urlViewRaw : null
 
   const [view, setView] = useState(urlView || 'full')
 
+  // On mount / when URL changes (back/forward), prefer URL.
+  // Otherwise fall back to localStorage, else default.
   useEffect(() => {
     if (urlView) {
       setView(urlView)
@@ -108,12 +105,13 @@ export default function CardsClientPage() {
     } catch {
       setView('full')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlViewRaw])
 
   function setViewMode(next) {
-    const nextView =
-      next === 'full' || next === 'thumb' || next === 'text' ? next : 'full'
+    const nextView = next === 'thumb' || next === 'text' || next === 'full' ? next : 'full'
 
+    // Update state immediately so the select never gets stuck
     setView(nextView)
 
     try {
@@ -145,6 +143,11 @@ export default function CardsClientPage() {
     cardsRef.current = cards
   }, [cards])
 
+  // Handle should align with top of the sticky controls (not the scrolled content wrapper)
+  const resultsTopRef = useRef(null) // kept because it's used elsewhere
+  const controlsRef = useRef(null) // NEW: sticky header ref
+  const [handleTopPx, setHandleTopPx] = useState(null)
+  
   // ----------------------------------------
   // Restore state
   // ----------------------------------------
@@ -153,251 +156,1167 @@ export default function CardsClientPage() {
   const pendingRestoreRef = useRef(null)
   const didRestoreScrollRef = useRef(false)
 
+
   const restoreKey = useMemo(() => {
     const p = new URLSearchParams(searchParams.toString())
     p.delete('page')
     p.delete('from')
     p.delete('view')
 
-    const entries = Array.from(p.entries()).sort(([a], [b]) =>
-      a.localeCompare(b)
-    )
-    return `cardsGridRestore:${new URLSearchParams(entries).toString()}`
+    const entries = Array.from(p.entries())
+    entries.sort(([aKey, aVal], [bKey, bVal]) => {
+      if (aKey !== bKey) return aKey.localeCompare(bKey)
+      return String(aVal).localeCompare(String(bVal))
+    })
+
+    const canonical = new URLSearchParams(entries).toString()
+    return `cardsGridRestore:${canonical}`
   }, [searchParams])
 
-  // ----------------------------------------
-  // Params object for fetch
-  // ----------------------------------------
+  // Convert URLSearchParams -> plain object
   const paramsObj = useMemo(() => {
     const obj = {}
-    for (const [k, v] of searchParams.entries()) obj[k] = v
+    for (const [key, value] of searchParams.entries()) obj[key] = value
     return obj
   }, [searchParams])
 
-  // ----------------------------------------
-  // Load restore snapshot
-  // ----------------------------------------
+  const currentQueryString = queryString
+  const shownCount = cards.length
+  const hasTotal = totalKnown
+
+  const showProgress = hasTotal && shownCount < total
+  const progressText =
+    hasTotal && shownCount >= total ? 'All results loaded' : `Loaded ${shownCount} of ${total}`
+
+  const shouldShowLoadingRow = loading && !(totalKnown && total === 0)
+
+  function scrollGridToTop() {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // -------------------------
+  // Sorting (URL-driven)
+  // -------------------------
+  const sortBy = searchParams.get('sort_by') || ''
+  const sortDir = searchParams.get('sort_dir') || 'asc'
+  const hasSort = Boolean(sortBy)
+  const isWcsSort = sortBy === 'wcs_tier'
+
+
+  function setSort(nextBy, nextDir) {
+    const params = new URLSearchParams(searchParams.toString())
+
+    const by = nextBy || ''
+    let dir = nextDir === 'desc' ? 'desc' : 'asc'
+
+    if (!by) {
+      params.delete('sort_by')
+      params.delete('sort_dir')
+    } else {
+
+      params.set('sort_by', by)
+      params.set('sort_dir', dir)
+
+      // Auto-enable WCS Tier filter when sorting by it
+      if (by === 'wcs_tier') {
+        params.set('wcs_tier', 'true')
+        params.set('wcs_tier_min', '2')
+        params.set('wcs_tier_max', '7')
+      }
+    }
+
+    params.delete('page')
+    const qs = params.toString()
+    router.push(qs ? `/cards?${qs}` : '/cards')
+  }
+
+  function clearSort() {
+    setSort('', 'asc')
+  }
+
+  const wcsTierMin = searchParams.get('wcs_tier_min')
+  const wcsTierMax = searchParams.get('wcs_tier_max')
+
+  // WCS Tier filter is considered "enabled" if either bound is set
+  const wcsTierFilterEnabled = wcsTierMin != null || wcsTierMax != null
+
+
+  // --- Load saved restore state (when arriving on /cards) ---
   useEffect(() => {
     didRestoreScrollRef.current = false
     pendingRestoreRef.current = null
 
+    let saved = null
     try {
-      const saved = JSON.parse(sessionStorage.getItem(restoreKey) || 'null')
-      if (saved?.count > 0 && Number.isFinite(saved.scrollTop)) {
-        pendingRestoreRef.current = saved
-        restoringRef.current = true
-        suppressPersistRef.current = true
-      } else {
-        restoringRef.current = false
-        suppressPersistRef.current = false
-      }
+      saved = JSON.parse(sessionStorage.getItem(restoreKey) || 'null')
     } catch {
-      restoringRef.current = false
+      saved = null
+    }
+
+    if (
+      saved &&
+      typeof saved.scrollTop === 'number' &&
+      Number.isFinite(saved.scrollTop) &&
+      typeof saved.count === 'number' &&
+      Number.isFinite(saved.count) &&
+      saved.count > 0
+    ) {
+      pendingRestoreRef.current = saved
+      suppressPersistRef.current = true
+      restoringRef.current = true
+    } else {
       suppressPersistRef.current = false
+      restoringRef.current = false
     }
   }, [restoreKey])
+
+  function persistBeforeNav() {
+    if (restoringRef.current) return
+    persistNow()
+  }
 
   function persistNow() {
     const scroller = scrollRef.current
     if (!scroller) return
 
     try {
+      const containerRect = scroller.getBoundingClientRect()
+      const items = Array.from(scroller.querySelectorAll('[data-card-id]'))
+
+      let anchorId = null
+      let anchorOffset = 0
+
+      for (let i = 0; i < items.length; i++) {
+        const node = items[i]
+        const r = node.getBoundingClientRect()
+        const isVisible = r.bottom > containerRect.top && r.top < containerRect.bottom
+        if (isVisible) {
+          anchorId = node.getAttribute('data-card-id')
+          anchorOffset = Math.max(0, Math.round(r.top - containerRect.top))
+          break
+        }
+      }
+
       sessionStorage.setItem(
         restoreKey,
         JSON.stringify({
           scrollTop: scroller.scrollTop,
           count: cardsRef.current.length,
+          anchorId,
+          anchorOffset,
         })
       )
     } catch {}
   }
 
-  function persistBeforeNav() {
-    if (!restoringRef.current) persistNow()
+  // --- Save scroll position while user scrolls (ALWAYS attach to scrollRef; no window scroll) ---
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+
+    let raf = null
+
+    const onScroll = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(() => {
+        raf = null
+        if (suppressPersistRef.current) return
+        persistNow()
+      })
+    }
+
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scroller.removeEventListener('scroll', onScroll)
+      if (raf) window.cancelAnimationFrame(raf)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restoreKey])
+
+  function buildChips(sp) {
+    const chips = []
+    const add = (key, label, value, opts = {}) => {
+      chips.push({ key, label, value, removeValue: opts.removeValue ?? null })
+    }
+
+    for (const [key, raw] of sp.entries()) {
+      if (!raw) continue
+      if (key === 'page') continue
+      if (key === 'from') continue
+      if (key === 'sort_by' || key === 'sort_dir') continue
+      if (key === 'view') continue
+
+      if (key === 'sets') {
+        raw
+          .split(',')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .forEach(v => add('sets', 'Set', v, { removeValue: v }))
+        continue
+      }
+
+      if (key === 'set') {
+        const v = String(raw).trim()
+        if (v) add('set', 'Set', v)
+        continue
+      }
+
+      if (key === 'keywords' || key === 'subtypes') {
+        raw
+          .split(',')
+          .map(v => v.trim())
+          .filter(Boolean)
+          .forEach(v =>
+            add(key, key === 'keywords' ? 'Keyword' : 'Sub-type', v, { removeValue: v })
+          )
+        continue
+      }
+
+      if (key === 'symbols') {
+        add('symbols', 'Symbol', raw === '__none__' ? 'No Symbol' : raw)
+        continue
+      }
+
+      const labelMap = {
+        primary_type: 'Type',
+        primary_types: 'Type',
+        card_location: 'Location',
+        name_include: 'Name includes',
+        name_exclude: 'Name excludes',
+        name_phrase: 'Name phrase',
+        effect_include: 'Effect includes',
+        effect_exclude: 'Effect excludes',
+        effect_phrase: 'Effect phrase',
+        q: 'Search',
+        cost_min: 'Cost ≥',
+        cost_max: 'Cost ≤',
+        xp_min: 'XP ≥',
+        xp_max: 'XP ≤',
+      }
+
+      add(key, labelMap[key] ?? key, raw)
+    }
+
+    return chips
   }
 
-  // ----------------------------------------
-  // Fetch helpers
-  // ----------------------------------------
-  function mergeAppendDedupe(prev, next) {
-    if (!next?.length) return prev
+  const chips = buildChips(searchParams)
+
+  function removeChip(chip) {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (chip.removeValue) {
+      const current = (params.get(chip.key) || '')
+        .split(',')
+        .map(v => v.trim())
+        .filter(Boolean)
+
+      const next = current.filter(v => v !== chip.removeValue)
+      if (next.length === 0) params.delete(chip.key)
+      else params.set(chip.key, next.join(','))
+    } else {
+      params.delete(chip.key)
+    }
+
+    params.delete('page')
+    const qs = params.toString()
+    router.push(qs ? `/cards?${qs}` : '/cards')
+  }
+
+  function clearAllFilters() {
+    const current = new URLSearchParams(searchParams.toString())
+    const sortBy = current.get('sort_by')
+    const sortDir = current.get('sort_dir')
+    const view = current.get('view')
+
+    const next = new URLSearchParams()
+    if (sortBy) next.set('sort_by', sortBy)
+    if (sortDir) next.set('sort_dir', sortDir)
+    if (view) next.set('view', view)
+
+    const qs = next.toString()
+    router.push(qs ? `/cards?${qs}` : '/cards')
+  }
+
+  // -------------------------
+  // Fetch helpers (offset+limit, append + dedupe)
+  // -------------------------
+  function mergeAppendDedupe(prev, nextChunk) {
+    if (!nextChunk || nextChunk.length === 0) return prev
+    if (!prev || prev.length === 0) return nextChunk
+
     const seen = new Set(prev.map(r => r.card_id))
-    const out = [...prev]
-    for (const r of next) {
-      if (!seen.has(r.card_id)) {
-        seen.add(r.card_id)
-        out.push(r)
-      }
+    const out = prev.slice()
+    for (const row of nextChunk) {
+      const id = row?.card_id
+      if (id == null) continue
+      if (seen.has(id)) continue
+      seen.add(id)
+      out.push(row)
     }
     return out
   }
 
   async function loadMore({ untilCount } = {}) {
-    if (loadingRef.current || pagingRef.current) return
+    if (loadingRef.current) return
+    if (pagingRef.current) return
+    if (restoringRef.current && !untilCount) return // during restore, only load via the restore path
     if (totalKnown && cardsRef.current.length >= total) return
-    if (restoringRef.current && !untilCount) return
 
     pagingRef.current = true
     loadingRef.current = true
     setLoading(true)
 
     try {
+      // If we're restoring, we may need multiple batches to reach untilCount
       let safety = 0
-      while (++safety < 20) {
+      while (true) {
+        safety++
+        if (safety > 25) break // hard stop
+
         const currentLen = cardsRef.current.length
-        if (untilCount && currentLen >= untilCount) break
+
+        if (
+          typeof untilCount === 'number' &&
+          Number.isFinite(untilCount) &&
+          currentLen >= untilCount
+        ) {
+          break
+        }
+
         if (totalKnown && currentLen >= total) break
 
         const offset = currentLen
-        const limit = untilCount
-          ? Math.min(400, Math.max(50, untilCount - currentLen))
-          : getPageSizeForPage(pageRef.current)
+
+        // Choose a batch size
+        let limit = 0
+        if (typeof untilCount === 'number' && Number.isFinite(untilCount)) {
+          const remaining = Math.max(0, untilCount - currentLen)
+          limit = clamp(remaining, 50, 400)
+        } else {
+          limit = getPageSizeForPage(pageRef.current)
+        }
+
+        if (totalKnown) {
+          limit = Math.max(1, Math.min(limit, Math.max(0, total - currentLen)))
+        }
+
+        if (limit <= 0) break
 
         const { data, count } = await fetchFilteredCards(paramsObj, { offset, limit })
 
-        setTotal(count ?? 0)
+        setTotal(typeof count === 'number' ? count : 0)
         setTotalKnown(true)
 
-        if (!data?.length) break
+        const chunk = Array.isArray(data) ? data : []
+        if (chunk.length === 0) break
 
         setCards(prev => {
-          const merged = mergeAppendDedupe(prev, data)
+          const merged = mergeAppendDedupe(prev, chunk)
           cardsRef.current = merged
           return merged
         })
 
-        if (!untilCount) {
-          pageRef.current += 1
+        // Normal paging: one batch per intersection
+        if (!(typeof untilCount === 'number' && Number.isFinite(untilCount))) {
+          pageRef.current = pageRef.current + 1
           break
         }
+        // Restore path: loop again until we reach untilCount (or run out)
       }
+    } catch (err) {
+      console.error(err)
+      setTotal(0)
+      setTotalKnown(true)
     } finally {
+      setLoading(false)
       loadingRef.current = false
       pagingRef.current = false
-      setLoading(false)
     }
   }
 
-  // ----------------------------------------
-  // Reset on query change
-  // ----------------------------------------
+  // Reset when filters change (including view)
   useEffect(() => {
+    // reset state
     pageRef.current = 1
     setCards([])
     cardsRef.current = []
     setTotal(0)
     setTotalKnown(false)
 
+    pagingRef.current = false
+    loadingRef.current = false
+    restoringRef.current = false
+    pendingRestoreRef.current = null
+    suppressPersistRef.current = false
+    didRestoreScrollRef.current = false
+
+
+    // Initial load (and restore load if available)
     const pending = pendingRestoreRef.current
-    if (pending?.count) {
+    if (pending?.count && Number.isFinite(pending.count) && pending.count > 0) {
       loadMore({ untilCount: pending.count })
     } else {
       loadMore()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryString])
 
-  // ----------------------------------------
-  // Restore scroll
-  // ----------------------------------------
+  // Restore scroll after cards paint (container-only restore)
   useLayoutEffect(() => {
     const scroller = scrollRef.current
     const pending = pendingRestoreRef.current
-    if (!scroller || !pending || didRestoreScrollRef.current) return
-    if (cards.length < pending.count) return
+    if (!scroller || !pending) return
+    if (didRestoreScrollRef.current) return
+
+    // Don’t restore until we’ve loaded at least what we had before
+    if (pending.count && cards.length < pending.count) return
 
     didRestoreScrollRef.current = true
     pendingRestoreRef.current = null
 
-    scroller.scrollTop = pending.scrollTop || 0
-    restoringRef.current = false
-    suppressPersistRef.current = false
-    persistNow()
+    window.requestAnimationFrame(() => {
+      if (pending.anchorId) {
+        const safe =
+          typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+            ? CSS.escape(pending.anchorId)
+            : String(pending.anchorId).replace(/"/g, '\\"')
+
+        const node = scroller.querySelector(`[data-card-id="${safe}"]`)
+        if (node) {
+          const containerRect = scroller.getBoundingClientRect()
+          const nodeRect = node.getBoundingClientRect()
+          const delta = (nodeRect.top - containerRect.top) - (pending.anchorOffset || 0)
+          scroller.scrollTo({ top: scroller.scrollTop + delta, behavior: 'auto' })
+        } else {
+          scroller.scrollTop = pending.scrollTop || 0
+        }
+      } else {
+        scroller.scrollTop = pending.scrollTop || 0
+      }
+
+      suppressPersistRef.current = false
+      restoringRef.current = false
+      persistNow()
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards.length, restoreKey])
 
-  // ----------------------------------------
-  // Infinite scroll observer
-  // ----------------------------------------
-  useEffect(() => {
-    const root = scrollRef.current
-    const target = observerRef.current
-    if (!root || !target) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) loadMore()
-      },
-      { root, rootMargin: '400px', threshold: 0.01 }
-    )
-
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [sentinelKey, totalKnown, total])
-
-  // ----------------------------------------
-  // Render helpers
-  // ----------------------------------------
-  function cardHref(cardId) {
-    const safe = encodeURIComponent(String(cardId))
-    return queryString
-      ? `/cards/${safe}?from=${encodeURIComponent(queryString)}`
-      : `/cards/${safe}`
+  // ------------------------------------------------------------
+  // Handle position: measure against the STICKY CONTROLS bar.
+  // This prevents the “snap to top” when toggling filters mid-scroll,
+  // because resultsTopRef scrolls away while the sticky header does not.
+  // ------------------------------------------------------------
+  function computeHandleTop() {
+    const el = controlsRef.current
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    // Keep your original “feel”: clamp + offset.
+    return Math.max(12, Math.round(rect.top) + 120)
   }
 
-  const gridClassName =
-    view === 'thumb'
-      ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 p-4'
-      : view === 'text'
-      ? 'grid grid-cols-1 md:grid-cols-2 gap-3 p-4'
-      : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4'
+  // Initial + resize updates
+  useLayoutEffect(() => {
+    const update = () => {
+      const top = computeHandleTop()
+      if (top != null) setHandleTopPx(top)
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Re-measure after the sidebar opens/closes (layout shift)
+  useEffect(() => {
+    window.requestAnimationFrame(() => {
+      const top = computeHandleTop()
+      if (top != null) setHandleTopPx(top)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersOpen])
+
+  // Re-measure on scroll so we track the moment the sticky header locks to the top
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+
+    let raf = null
+    const onScroll = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(() => {
+        raf = null
+        const top = computeHandleTop()
+        if (top != null) setHandleTopPx(top)
+      })
+    }
+
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      scroller.removeEventListener('scroll', onScroll)
+      if (raf) window.cancelAnimationFrame(raf)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Infinite scroll observer (blocked during restore)
+  // Root is ALWAYS scrollRef container (mobile + desktop).
+  useEffect(() => {
+    const rootEl = scrollRef.current
+    const targetEl = observerRef.current
+    if (!rootEl || !targetEl) return
+
+    let didKick = false
+
+    const maybeLoad = () => {
+      if (loadingRef.current) return
+      if (pagingRef.current) return
+      if (restoringRef.current) return
+      if (totalKnown && cardsRef.current.length >= total) return
+      loadMore()
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const hit = entries[0]?.isIntersecting
+        if (!hit) return
+        maybeLoad()
+      },
+      {
+        root: rootEl,
+        rootMargin: '400px 0px 400px 0px',
+        threshold: 0.01,
+      }
+    )
+
+    observer.observe(targetEl)
+
+    // Kick once after attach in case the sentinel starts intersecting
+    // and the IO callback doesn't fire due to timing.
+    const raf = window.requestAnimationFrame(() => {
+      if (didKick) return
+      didKick = true
+
+      const rootRect = rootEl.getBoundingClientRect()
+      const targetRect = targetEl.getBoundingClientRect()
+
+      const verticallyIntersecting =
+        targetRect.bottom >= rootRect.top - 400 && targetRect.top <= rootRect.bottom + 400
+
+      if (verticallyIntersecting) {
+        maybeLoad()
+      }
+    })
+
+    return () => {
+      window.cancelAnimationFrame(raf)
+      observer.disconnect()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalKnown, total, queryString, sentinelKey])
+
+
+  // If the list isn't tall enough to enable scrolling (or IO doesn't re-fire),
+  // keep loading until it becomes scrollable or we hit total.
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+
+    if (loadingRef.current) return
+    if (pagingRef.current) return
+    if (restoringRef.current) return
+    if (!totalKnown) return
+    if (cardsRef.current.length >= total) return
+
+    const slack = 160 // px buffer so we don't thrash right at the edge
+    const notScrollableYet = scroller.scrollHeight <= scroller.clientHeight + slack
+
+    if (notScrollableYet) {
+      // kick one more batch
+      loadMore()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalKnown, total, cards.length, queryString])
+
+  // -------------------------
+  // View rendering helpers
+  // -------------------------
+  const highlightBorderClassMap = useMemo(
+    () => ({
+      blue: 'border-blue-500',
+      yellow: 'border-yellow-500',
+      red: 'border-red-500',
+    }),
+    []
+  )
+
+  // IMPORTANT: grid is NOT scrollable anymore; scrollRef is.
+  // Remove scrollbar styling from grid; it belongs on the scroll container now.
+  const gridClassName = useMemo(() => {
+    if (view === 'text') {
+      return [
+        'mt-4',
+        'grid',
+        'grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3',
+        'gap-3',
+        'pt-1 px-4 md:px-5',
+        'items-start content-start',
+        'pb-16',
+      ].join(' ')
+    }
+
+    if (view === 'thumb') {
+      return [
+        'mt-4',
+        'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10',
+        'gap-2',
+        'pt-1 px-4 md:px-5',
+        'items-start content-start',
+        'pb-16',
+      ].join(' ')
+    }
+
+    return [
+      'mt-4',
+      'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
+      'gap-4',
+      'pt-1 px-4 md:px-5',
+      'items-start content-start',
+      'pb-16',
+    ].join(' ')
+  }, [view])
+
+  const cardLinkClassName = useMemo(() => {
+    if (view === 'thumb') {
+      return 'block self-start bg-zinc-900 rounded-lg p-1 transition hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-blue-500'
+    }
+    if (view === 'text') {
+      return [
+        'block',
+        'rounded-lg border border-zinc-800 bg-zinc-900',
+        'p-3',
+        'transition',
+        'hover:border-blue-500 hover:bg-zinc-900/80',
+        'hover:shadow-lg hover:shadow-black/20',
+        'focus:outline-none focus:ring-2 focus:ring-blue-500',
+      ].join(' ')
+    }
+    return 'block self-start bg-zinc-900 rounded-lg p-2 transition hover:outline hover:outline-2 hover:outline-offset-2 hover:outline-blue-500'
+  }, [view])
+
+  const imageClassName = useMemo(() => {
+    if (view === 'thumb') return 'w-full h-auto rounded'
+    return 'w-full h-auto rounded'
+  }, [view])
+
+  function cardHref(cardId) {
+    const safeId = encodeURIComponent(String(cardId))
+    return currentQueryString
+      ? `/cards/${safeId}?from=${encodeURIComponent(currentQueryString)}`
+      : `/cards/${safeId}`
+  }
 
   return (
-    <div className="flex flex-col md:grid md:grid-cols-[22rem_1fr] h-screen overflow-hidden">
-      <aside className="hidden md:block overflow-y-auto p-4">
-        {filtersOpen && <CardFilters />}
+    <div
+      className={`flex flex-col md:grid md:h-screen md:overflow-hidden ${
+        filtersOpen ? 'md:grid-cols-[22rem_1fr]' : 'md:grid-cols-[0_1fr]'
+      }`}
+    >
+      {/* LEFT: Filters (collapsible) */}
+      <aside className="relative md:col-start-1 md:row-start-1 md:h-screen md:overflow-y-auto md:min-w-0 p-4">
+        {filtersOpen && (
+          <div className="min-w-0 w-full">
+            <CardFilters />
+          </div>
+        )}
       </aside>
 
-      <div className="flex flex-col h-full overflow-hidden">
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          <SiteBanner />
+      {/* Collapse handle (Hide Filters) */}
+      {filtersOpen && (
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(false)}
+          style={{ top: handleTopPx != null ? `${handleTopPx}px` : '50%' }}
+          className="
+            hidden md:flex
+            fixed left-[22rem] -translate-x-1/2
+            z-40
+            items-center justify-center
+            h-36 w-8
+            rounded-lg
+            border border-zinc-700
+            bg-zinc-900/95
+            text-zinc-100
+            shadow-lg
+            hover:bg-zinc-800
+            focus:outline-none focus:ring-2 focus:ring-blue-500
+          "
+          title="Hide filters"
+          aria-label="Hide filters"
+        >
+          <span className="text-xs font-medium tracking-widest rotate-90 whitespace-nowrap select-none">
+            Hide Filters
+          </span>
+        </button>
+      )}
 
-          <main ref={gridRef} className={gridClassName}>
-            {cards.map(card => (
-              <Link
-                key={card.card_id}
-                data-card-id={card.card_id}
-                href={cardHref(card.card_id)}
-                scroll={false}
-                onPointerDown={persistBeforeNav}
-                className="bg-zinc-900 rounded-lg p-2 hover:outline hover:outline-2 hover:outline-blue-500"
+      {/* Collapsed "Show Filters" tab */}
+      {!filtersOpen && (
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(true)}
+          style={{ top: handleTopPx != null ? `${handleTopPx}px` : '50%' }}
+          className="
+            hidden md:flex
+            fixed left-0
+            z-50
+            items-center justify-center
+            h-36 w-8
+            rounded-r-lg
+            border border-zinc-700
+            bg-zinc-900/95
+            text-zinc-100
+            shadow-lg
+            hover:bg-zinc-800
+            focus:outline-none focus:ring-2 focus:ring-blue-500
+          "
+          title="Show filters"
+          aria-label="Show filters"
+        >
+          <span className="text-xs font-medium tracking-widest rotate-90 whitespace-nowrap select-none">
+            Show Filters
+          </span>
+        </button>
+      )}
+
+      {/* RIGHT: Content */}
+      <div className="md:col-start-2 md:row-start-1 h-[100dvh] overflow-hidden md:min-w-0 flex flex-col">
+        <div className="w-full mx-auto max-w-[140rem] px-4 md:px-6 flex flex-col h-full min-h-0">
+          {/* SCROLL CONTAINER:
+              - SiteBanner scrolls away on mobile
+              - Controls remain sticky */}
+          <div
+            ref={scrollRef}
+            className="flex-1 min-h-0 overflow-y-auto pdbg-scrollbar"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            <SiteBanner />
+
+            <div ref={resultsTopRef} className="mt-4 flex flex-col min-h-0">
+              {/* Sticky controls */}
+              <div
+                ref={controlsRef}
+                className="sticky top-0 z-20 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur p-3 shadow-lg"
               >
-                <img
-                  src={
-                    card.image_path
-                      ? cardImageUrlFromPath(card.image_path)
-                      : card.image_url
-                  }
-                  alt={card.name}
-                  className="w-full h-auto rounded"
+                {/* Header row: counts left, controls right (desktop), mobile collapse button */}
+                <div className="flex items-center justify-between gap-3">
+                  {/* Left: counts */}
+                  <div className="min-w-0 text-sm text-zinc-200">
+                    <div>
+                      Showing <span className="font-semibold">{shownCount}</span>
+                      {hasTotal && (
+                        <>
+                          {' '}
+                          of <span className="font-semibold">{total}</span>
+                        </>
+                      )}{' '}
+                      cards
+                    </div>
+
+                    {showProgress && (
+                      <div className="text-xs text-zinc-400 mt-1">
+                        {loading ? `Loading… (${progressText})` : progressText}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: controls (desktop) + collapse toggle (mobile) */}
+                  <div className="flex items-center justify-end gap-2">
+                    {/* Mobile-only: collapse/expand sticky controls */}
+                    <button
+                      type="button"
+                      onClick={() => setMobileControlsCollapsed(v => !v)}
+                      className="md:hidden shrink-0 rounded bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                      title={mobileControlsCollapsed ? 'Show controls' : 'Hide controls'}
+                      aria-expanded={!mobileControlsCollapsed}
+                    >
+                      {mobileControlsCollapsed ? 'Show' : 'Hide'}
+                    </button>
+
+                    {/* Desktop-only controls inline with counts */}
+                    <div className="hidden md:flex items-center justify-end gap-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-300">Sort</label>
+
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={sortBy}
+                          onChange={e => setSort(e.target.value, sortDir)}
+                          title="Sort by"
+                        >
+                          <option value="">Default</option>
+                          <option value="name">Name</option>
+                          <option value="cost">Cost</option>
+                          <option value="xp">XP</option>
+                          <option value="wcs_tier">WCS Tier</option>
+                        </select>
+
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={sortDir}
+                          onChange={e => setSort(sortBy, e.target.value)}
+                          disabled={!hasSort || isWcsSort}
+                          title="Sort direction"
+                        >
+                          <option value="asc">Asc</option>
+                          <option value="desc">Desc</option>
+                        </select>
+
+                        <button
+                          onClick={clearSort}
+                          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-zinc-800"
+                          disabled={!hasSort}
+                          title={!hasSort ? 'No sort applied' : 'Clear Sort'}
+                        >
+                          Clear sort
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-300">View</label>
+                        <select
+                          className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                          value={view}
+                          onChange={e => setViewMode(e.target.value)}
+                          title="View mode"
+                        >
+                          {VIEW_OPTIONS.map(o => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        onClick={() => setFiltersOpen(o => !o)}
+                        className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                        title={filtersOpen ? 'Hide filters panel' : 'Show filters panel'}
+                      >
+                        {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+                      </button>
+
+                      <button
+                        onClick={scrollGridToTop}
+                        className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                        title="Scroll to the top of the results"
+                      >
+                        Scroll to Top
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile-only expanded controls + chips (collapsible) */}
+                <div className="md:hidden">
+                  {!mobileControlsCollapsed && (
+                    <>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs text-zinc-300">Sort</label>
+
+                          <select
+                            className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                            value={sortBy}
+                            onChange={e => setSort(e.target.value, sortDir)}
+                            title="Sort by"
+                          >
+                            <option value="">Default</option>
+                            <option value="name">Name</option>
+                            <option value="cost">Cost</option>
+                            <option value="xp">XP</option>
+                          </select>
+
+                          <select
+                            className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                            value={sortDir}
+                            onChange={e => setSort(sortBy, e.target.value)}
+                            disabled={!hasSort}
+                            title="Sort direction"
+                          >
+                            <option value="asc">Asc</option>
+                            <option value="desc">Desc</option>
+                          </select>
+
+                          <button
+                            onClick={clearSort}
+                            className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700 disabled:opacity-50 disabled:hover:bg-zinc-800"
+                            disabled={!hasSort}
+                            title={!hasSort ? 'No sort applied' : 'Clear Sort'}
+                          >
+                            Clear sort
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs text-zinc-300">View</label>
+                          <select
+                            className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
+                            value={view}
+                            onChange={e => setViewMode(e.target.value)}
+                            title="View mode"
+                          >
+                            {VIEW_OPTIONS.map(o => (
+                              <option key={o.value} value={o.value}>
+                                {o.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <button
+                          onClick={() => setFiltersOpen(o => !o)}
+                          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                          title={filtersOpen ? 'Hide filters panel' : 'Show filters panel'}
+                        >
+                          {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+                        </button>
+
+                        <button
+                          onClick={scrollGridToTop}
+                          className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                          title="Scroll to the top of the results"
+                        >
+                          Scroll to Top
+                        </button>
+                      </div>
+
+                      {chips.length > 0 && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <button
+                            onClick={clearAllFilters}
+                            className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                            title="Clear all filters"
+                          >
+                            Clear Filters
+                          </button>
+
+                          {chips.map((chip, idx) => (
+                            <button
+                              key={`${chip.key}:${chip.value}:${idx}`}
+                              onClick={() => removeChip(chip)}
+                              className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                              title="Remove this filter"
+                            >
+                              <span className="text-zinc-300">{chip.label}:</span>
+                              <span className="font-medium">{chip.value}</span>
+                              <span className="text-zinc-300">×</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Desktop chips (always visible) */}
+                {chips.length > 0 && (
+                  <div className="hidden md:flex mt-3 flex-wrap items-center gap-2">
+                    <button
+                      onClick={clearAllFilters}
+                      className="rounded bg-zinc-800 px-3 py-1 text-sm text-zinc-100 hover:bg-zinc-700"
+                      title="Clear all filters"
+                    >
+                      Clear Filters
+                    </button>
+
+                    {chips.map((chip, idx) => (
+                      <button
+                        key={`${chip.key}:${chip.value}:${idx}`}
+                        onClick={() => removeChip(chip)}
+                        className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-100 hover:bg-zinc-700"
+                        title="Remove this filter"
+                      >
+                        <span className="text-zinc-300">{chip.label}:</span>
+                        <span className="font-medium">{chip.value}</span>
+                        <span className="text-zinc-300">×</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+
+              {/* Grid (not scrollable) */}
+              <main ref={gridRef} className={gridClassName} style={{ scrollPaddingBottom: 64 }}>
+              {view !== 'text' &&
+                cards.map(card => {
+                  const isTrainer =
+                    Array.isArray(card.primary_types) && card.primary_types.includes('Trainer')
+              
+                  const showWcsTier =
+                    wcsTierFilterEnabled &&
+                    isTrainer &&
+                    typeof card.wcs_tier === 'number'
+              
+                  return (
+                    <Link
+                      scroll={false}
+                      key={card.card_id}
+                      data-card-id={card.card_id}
+                      href={cardHref(card.card_id)}
+                      className={cardLinkClassName}
+                      onPointerDown={persistBeforeNav}
+                      onMouseDown={persistBeforeNav}
+                      onTouchStart={persistBeforeNav}
+                    >
+                      <img
+                        src={card.image_path ? cardImageUrlFromPath(card.image_path) : card.image_url}
+                        alt={card.name}
+                        className={imageClassName}
+                        title={isTrainer ? `WCS Tier ${card.wcs_tier}` : undefined}
+                      />
+              
+                      {showWcsTier && (
+                        <div className="mt-2 text-center text-[14px] text-zinc-400">
+                          WCS Tier {card.wcs_tier}
+                        </div>
+                      )}
+                    </Link>
+                  )
+                })}
+
+
+                {view === 'text' &&
+                  cards.map(card => {
+                    const hasHighlightEffect =
+                      typeof card.highlight_effect === 'string' &&
+                      card.highlight_effect.trim().length > 0
+                    const hasEffect =
+                      typeof card.effect === 'string' && card.effect.trim().length > 0
+
+                    const highlightBorderClass =
+                      highlightBorderClassMap[card.highlight_color] ?? 'border-zinc-500'
+
+                    const primaryTypes = Array.isArray(card.primary_types)
+                      ? card.primary_types.filter(Boolean)
+                      : []
+                    const subtypes = Array.isArray(card.subtypes) ? card.subtypes.filter(Boolean) : []
+
+                    const showEffectSection = hasHighlightEffect || hasEffect
+
+                    return (
+                      <Link
+                        scroll={false}
+                        key={card.card_id}
+                        data-card-id={card.card_id}
+                        href={cardHref(card.card_id)}
+                        className={cardLinkClassName}
+                        onPointerDown={persistBeforeNav}
+                        onMouseDown={persistBeforeNav}
+                        onTouchStart={persistBeforeNav}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="text-base font-semibold text-zinc-100 truncate">
+                                {card.name}
+                              </div>
+                              <div className="text-xs text-zinc-400">{card.set}</div>
+                            </div>
+
+                            <div className="flex items-center gap-3 text-xs text-zinc-300">
+                              {card.cost != null && (
+                                <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                  <span className="text-zinc-400">Cost</span> {card.cost}
+                                </span>
+                              )}
+                              {card.xp_display != null && (
+                                <span className="rounded bg-zinc-800 px-2 py-0.5">
+                                  <span className="text-zinc-400">XP</span> {card.xp_display}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {(primaryTypes.length > 0 || subtypes.length > 0) && (
+                            <div className="flex flex-wrap gap-2">
+                              {primaryTypes.map(pt => (
+                                <span
+                                  key={`pt:${card.card_id}:${pt}`}
+                                  className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                                >
+                                  {pt}
+                                </span>
+                              ))}
+                              {subtypes.map(st => (
+                                <span
+                                  key={`st:${card.card_id}:${st}`}
+                                  className="px-2 py-0.5 rounded bg-zinc-800 text-xs text-zinc-200"
+                                >
+                                  {st}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {showEffectSection && (
+                            <div className="pt-1 space-y-2">
+                              <div className="font-semibold text-sm text-zinc-200">Effect:</div>
+
+                              {hasHighlightEffect && (
+                                <div className={`border-l-4 ${highlightBorderClass} pl-3 py-1`}>
+                                  <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                    {card.highlight_effect}
+                                  </div>
+                                </div>
+                              )}
+
+                              {hasEffect && (
+                                <div className="whitespace-pre-line text-zinc-200 text-sm leading-relaxed">
+                                  {card.effect}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    )
+                  })}
+
+                {/* Sentinel (keyed to force remount on filter/sort/view changes) */}
+                <div
+                  key={sentinelKey}
+                  ref={observerRef}
+                  className="col-span-full h-px"
+                  aria-hidden="true"
                 />
-              </Link>
-            ))}
 
-            <div key={sentinelKey} ref={observerRef} className="h-px col-span-full" />
 
-            {loading && (
-              <div className="col-span-full text-center py-4 text-zinc-400">
-                Loading…
-              </div>
-            )}
+                {/* Extra spacer so the last row never sits flush against the bottom edge */}
+                <div className="col-span-full h-10" aria-hidden="true" />
 
-            {totalKnown && total === 0 && !loading && (
-              <div className="col-span-full text-center py-8 text-zinc-400">
-                No cards match these filters.
-              </div>
-            )}
-          </main>
+                {shouldShowLoadingRow && (
+                  <div className="col-span-full text-center py-4 text-zinc-400">Loading…</div>
+                )}
+
+                {totalKnown && total === 0 && !loading && (
+                  <div className="col-span-full text-center py-8 text-zinc-400">
+                    No cards match these filters.
+                  </div>
+                )}
+              </main>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n))
 }
