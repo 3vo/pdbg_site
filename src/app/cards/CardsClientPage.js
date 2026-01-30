@@ -202,12 +202,23 @@ export default function CardsPage() {
   function setSort(nextBy, nextDir) {
     const params = new URLSearchParams(searchParams.toString())
 
-    if (!nextBy) {
+    const by = nextBy || ''
+    let dir = nextDir === 'desc' ? 'desc' : 'asc'
+
+    if (!by) {
       params.delete('sort_by')
       params.delete('sort_dir')
     } else {
-      params.set('sort_by', nextBy)
-      params.set('sort_dir', nextDir === 'desc' ? 'desc' : 'asc')
+      // Force WCS Tier sort to ascending (optional but matches your intent)
+      if (by === 'wcs_tier') dir = 'asc'
+
+      params.set('sort_by', by)
+      params.set('sort_dir', dir)
+
+      // Auto-enable WCS Tier filter when sorting by it
+      if (by === 'wcs_tier') {
+        params.set('wcs_tier', 'true')
+      }
     }
 
     params.delete('page')
@@ -891,13 +902,14 @@ export default function CardsPage() {
                           <option value="name">Name</option>
                           <option value="cost">Cost</option>
                           <option value="xp">XP</option>
+                          <option value="wcs_tier">WCS Tier</option>
                         </select>
 
                         <select
                           className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
                           value={sortDir}
                           onChange={e => setSort(sortBy, e.target.value)}
-                          disabled={!hasSort}
+                          disabled={!hasSort || isWcsSort}
                           title="Sort direction"
                         >
                           <option value="asc">Asc</option>
