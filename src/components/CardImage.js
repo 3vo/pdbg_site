@@ -136,6 +136,7 @@ export default function CardImage({
   const ImageNode = (
     <img
       src={imgSrc}
+      crossOrigin="anonymous"
       alt={displayAlt}
       loading="lazy"
       className={[
