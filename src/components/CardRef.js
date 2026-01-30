@@ -168,6 +168,7 @@ export default function CardRef({ id, from }) {
                 <div className="rounded-md border border-zinc-800 bg-black overflow-hidden">
                   <img
                     src={imgSrc}
+                    crossOrigin="anonymous"
                     alt={card.name}
                     className="w-full h-auto block"
                     loading="lazy"
