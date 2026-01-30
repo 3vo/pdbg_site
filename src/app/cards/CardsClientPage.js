@@ -684,6 +684,28 @@ export default function CardsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalKnown, total, queryString])
 
+  // If the list isn't tall enough to enable scrolling (or IO doesn't re-fire),
+  // keep loading until it becomes scrollable or we hit total.
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+
+    if (loadingRef.current) return
+    if (pagingRef.current) return
+    if (restoringRef.current) return
+    if (!totalKnown) return
+    if (cardsRef.current.length >= total) return
+
+    const slack = 160 // px buffer so we don't thrash right at the edge
+    const notScrollableYet = scroller.scrollHeight <= scroller.clientHeight + slack
+
+    if (notScrollableYet) {
+      // kick one more batch
+      loadMore()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalKnown, total, cards.length, queryString])
+
   // -------------------------
   // View rendering helpers
   // -------------------------
