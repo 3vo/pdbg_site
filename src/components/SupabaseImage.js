@@ -19,6 +19,7 @@ export default function SupabaseImage({
     <figure className="my-6">
       <img
         src={src}
+        crossOrigin="anonymous"
         alt={alt}
         loading="lazy"
         className={[
