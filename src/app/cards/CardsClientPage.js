@@ -968,7 +968,7 @@ export default function CardsPage() {
                           className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100"
                           value={sortDir}
                           onChange={e => setSort(sortBy, e.target.value)}
-                          disabled={!hasSort || isWcsSort}
+                          disabled={!hasSort}
                           title="Sort direction"
                         >
                           <option value="asc">Asc</option>
