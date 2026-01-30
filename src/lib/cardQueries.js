@@ -528,8 +528,17 @@ export async function fetchFilteredCards(params = {}, pageOrOpts = 1, pageSize =
     query = query.order('xp_value', { ascending: asc, nullsFirst: false })
     query = query.order('set_sort', { ascending: true })
     query = query.order('card_id', { ascending: true })
-  } else {
+  } else if (sort_by === 'wcs_tier') {
+    // Sorting by WCS tier implies tiers must exist; rely on wcs_tier=true to exclude nulls
+    query = query.order('wcs_tier', { ascending: asc, nullsFirst: false })
+    query = query.order('name', { ascending: asc })
     query = query.order('set_sort', { ascending: true })
+  } else {
+    // Default: Set, then Location, then Primary Types (1st then 2nd), then card_id
+    query = query.order('set_sort', { ascending: true })
+    query = query.order('card_location_sort', { ascending: true, nullsFirst: false })
+    query = query.order('primary_type_sort_1', { ascending: true, nullsFirst: false })
+    query = query.order('primary_type_sort_2', { ascending: true, nullsFirst: false })
     query = query.order('card_id', { ascending: true })
   }
 
