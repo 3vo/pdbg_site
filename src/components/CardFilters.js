@@ -282,7 +282,7 @@ export default function CardFilters() {
   useEffect(() => setEffectExcludeDraft(searchParams.get('effect_exclude') || ''), [searchParams])
   useEffect(() => setEffectPhraseDraft(searchParams.get('effect_phrase') || ''), [searchParams])
 
-  const DEBOUNCE_MS = 350
+  const DEBOUNCE_MS = 700
 
   const nameIncludeDebounced = useDebouncedValue(nameIncludeDraft, DEBOUNCE_MS)
   const nameExcludeDebounced = useDebouncedValue(nameExcludeDraft, DEBOUNCE_MS)
