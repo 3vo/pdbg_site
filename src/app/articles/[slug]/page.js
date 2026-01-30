@@ -114,6 +114,7 @@ export default async function ArticlePage({ params, searchParams }) {
                           {url ? (
                             <img
                               src={url}
+                              crossOrigin="anonymous"
                               alt={name}
                               className="h-7 w-7 rounded-full border border-zinc-800 object-cover bg-zinc-900"
                               loading="lazy"
