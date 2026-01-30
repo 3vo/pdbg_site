@@ -61,6 +61,8 @@ export default function CardsPage() {
     } catch {}
   }, [mobileControlsCollapsed])
 
+  // Force sentinel to remount when query changes (and when we reset cards).
+  const sentinelKey = useMemo(() => `sentinel:${queryString}:${cards.length}`, [queryString, cards.length])
 
   // -------------------------
   // View (URL + localStorage)
@@ -544,6 +546,11 @@ export default function CardsPage() {
 
     pagingRef.current = false
     loadingRef.current = false
+    restoringRef.current = false
+    pendingRestoreRef.current = null
+    suppressPersistRef.current = false
+    didRestoreScrollRef.current = false
+
 
     // Initial load (and restore load if available)
     const pending = pendingRestoreRef.current
@@ -660,17 +667,21 @@ export default function CardsPage() {
     const targetEl = observerRef.current
     if (!rootEl || !targetEl) return
 
+    let didKick = false
+
+    const maybeLoad = () => {
+      if (loadingRef.current) return
+      if (pagingRef.current) return
+      if (restoringRef.current) return
+      if (totalKnown && cardsRef.current.length >= total) return
+      loadMore()
+    }
+
     const observer = new IntersectionObserver(
       entries => {
         const hit = entries[0]?.isIntersecting
         if (!hit) return
-
-        if (loadingRef.current) return
-        if (pagingRef.current) return
-        if (restoringRef.current) return
-        if (totalKnown && cardsRef.current.length >= total) return
-
-        loadMore()
+        maybeLoad()
       },
       {
         root: rootEl,
@@ -680,9 +691,31 @@ export default function CardsPage() {
     )
 
     observer.observe(targetEl)
-    return () => observer.disconnect()
+
+    // Kick once after attach in case the sentinel starts intersecting
+    // and the IO callback doesn't fire due to timing.
+    const raf = window.requestAnimationFrame(() => {
+      if (didKick) return
+      didKick = true
+
+      const rootRect = rootEl.getBoundingClientRect()
+      const targetRect = targetEl.getBoundingClientRect()
+
+      const verticallyIntersecting =
+        targetRect.bottom >= rootRect.top - 400 && targetRect.top <= rootRect.bottom + 400
+
+      if (verticallyIntersecting) {
+        maybeLoad()
+      }
+    })
+
+    return () => {
+      window.cancelAnimationFrame(raf)
+      observer.disconnect()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalKnown, total, queryString])
+  }, [totalKnown, total, queryString, sentinelKey])
+
 
   // If the list isn't tall enough to enable scrolling (or IO doesn't re-fire),
   // keep loading until it becomes scrollable or we hit total.
@@ -1252,8 +1285,14 @@ export default function CardsPage() {
                     )
                   })}
 
-                {/* Sentinel */}
-                <div ref={observerRef} className="col-span-full h-px" aria-hidden="true" />
+                {/* Sentinel (keyed to force remount on filter/sort/view changes) */}
+                <div
+                  key={sentinelKey}
+                  ref={observerRef}
+                  className="col-span-full h-px"
+                  aria-hidden="true"
+                />
+
 
                 {/* Extra spacer so the last row never sits flush against the bottom edge */}
                 <div className="col-span-full h-10" aria-hidden="true" />
