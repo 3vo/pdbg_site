@@ -78,7 +78,7 @@ const cachedFetch = unstable_cache(
     const params = Object.fromEntries(new URLSearchParams(qs).entries())
     return await fetchFilteredCards(params, { offset, limit })
   },
-  ['cards-api-v2'], // <-- bumped from v1
+  ['cards-api-v3'], // <-- bumped from v1
   { revalidate: DATA_CACHE_REVALIDATE }
 )
 
