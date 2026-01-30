@@ -211,8 +211,6 @@ export default function CardsPage() {
       params.delete('sort_by')
       params.delete('sort_dir')
     } else {
-      // Force WCS Tier sort to ascending (optional but matches your intent)
-      if (by === 'wcs_tier') dir = 'asc'
 
       params.set('sort_by', by)
       params.set('sort_dir', dir)
