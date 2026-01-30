@@ -46,7 +46,7 @@ export default function CardImageGallery({
 
   return (
     <div className="space-y-3">
-      <img src={active} alt={alt} className="w-full rounded-lg" />
+      <img src={active} crossOrigin="anonymous" alt={alt} className="w-full rounded-lg" />
 
       {images.length > 1 && (
         <div className="pt-1">
@@ -66,7 +66,7 @@ export default function CardImageGallery({
                   title={selected ? 'Selected' : `View variant ${idx + 1}`}
                   type="button"
                 >
-                  <img src={url} alt={`Variant ${idx + 1}`} className="w-full h-auto rounded" />
+                  <img src={url} crossOrigin="anonymous" alt={`Variant ${idx + 1}`} className="w-full h-auto rounded" />
                 </button>
               )
             })}
