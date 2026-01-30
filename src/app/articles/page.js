@@ -223,6 +223,7 @@ export default async function ArticlesPage({ searchParams }) {
                                       {url ? (
                                         <img
                                           src={url}
+                                          crossOrigin="anonymous"
                                           alt={name}
                                           className="h-6 w-6 rounded-full border border-zinc-800 object-cover bg-zinc-900"
                                           loading="lazy"
