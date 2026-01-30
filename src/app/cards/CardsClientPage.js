@@ -198,6 +198,8 @@ export default function CardsPage() {
   const sortBy = searchParams.get('sort_by') || ''
   const sortDir = searchParams.get('sort_dir') || 'asc'
   const hasSort = Boolean(sortBy)
+  const isWcsSort = sortBy === 'wcs_tier'
+
 
   function setSort(nextBy, nextDir) {
     const params = new URLSearchParams(searchParams.toString())
