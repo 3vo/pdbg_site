@@ -45,6 +45,16 @@ function listToCsv(list) {
   return Array.isArray(list) && list.length ? list.join(',') : ''
 }
 
+// Small debounce hook (no external deps)
+function useDebouncedValue(value, delayMs) {
+  const [debounced, setDebounced] = useState(value)
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebounced(value), delayMs)
+    return () => window.clearTimeout(t)
+  }, [value, delayMs])
+  return debounced
+}
+
 export default function CardFilters() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -251,6 +261,73 @@ export default function CardFilters() {
   ]
 
   const selectedSetsCount = getMulti('sets').length
+
+  // ============================================================
+  // Debounced text filters (Name + Effect)
+  // ============================================================
+  const [nameIncludeDraft, setNameIncludeDraft] = useState(searchParams.get('name_include') || '')
+  const [nameExcludeDraft, setNameExcludeDraft] = useState(searchParams.get('name_exclude') || '')
+  const [namePhraseDraft, setNamePhraseDraft] = useState(searchParams.get('name_phrase') || '')
+
+  const [effectIncludeDraft, setEffectIncludeDraft] = useState(searchParams.get('effect_include') || '')
+  const [effectExcludeDraft, setEffectExcludeDraft] = useState(searchParams.get('effect_exclude') || '')
+  const [effectPhraseDraft, setEffectPhraseDraft] = useState(searchParams.get('effect_phrase') || '')
+
+  // Keep drafts in sync if URL changes via chips/back/forward/clear buttons.
+  useEffect(() => setNameIncludeDraft(searchParams.get('name_include') || ''), [searchParams])
+  useEffect(() => setNameExcludeDraft(searchParams.get('name_exclude') || ''), [searchParams])
+  useEffect(() => setNamePhraseDraft(searchParams.get('name_phrase') || ''), [searchParams])
+
+  useEffect(() => setEffectIncludeDraft(searchParams.get('effect_include') || ''), [searchParams])
+  useEffect(() => setEffectExcludeDraft(searchParams.get('effect_exclude') || ''), [searchParams])
+  useEffect(() => setEffectPhraseDraft(searchParams.get('effect_phrase') || ''), [searchParams])
+
+  const DEBOUNCE_MS = 350
+
+  const nameIncludeDebounced = useDebouncedValue(nameIncludeDraft, DEBOUNCE_MS)
+  const nameExcludeDebounced = useDebouncedValue(nameExcludeDraft, DEBOUNCE_MS)
+  const namePhraseDebounced = useDebouncedValue(namePhraseDraft, DEBOUNCE_MS)
+
+  const effectIncludeDebounced = useDebouncedValue(effectIncludeDraft, DEBOUNCE_MS)
+  const effectExcludeDebounced = useDebouncedValue(effectExcludeDraft, DEBOUNCE_MS)
+  const effectPhraseDebounced = useDebouncedValue(effectPhraseDraft, DEBOUNCE_MS)
+
+  // Commit debounced values to URL, but only if they differ from current URL.
+  useEffect(() => {
+    const current = searchParams.get('name_include') || ''
+    if (nameIncludeDebounced !== current) updateParam('name_include', nameIncludeDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nameIncludeDebounced])
+
+  useEffect(() => {
+    const current = searchParams.get('name_exclude') || ''
+    if (nameExcludeDebounced !== current) updateParam('name_exclude', nameExcludeDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nameExcludeDebounced])
+
+  useEffect(() => {
+    const current = searchParams.get('name_phrase') || ''
+    if (namePhraseDebounced !== current) updateParam('name_phrase', namePhraseDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namePhraseDebounced])
+
+  useEffect(() => {
+    const current = searchParams.get('effect_include') || ''
+    if (effectIncludeDebounced !== current) updateParam('effect_include', effectIncludeDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectIncludeDebounced])
+
+  useEffect(() => {
+    const current = searchParams.get('effect_exclude') || ''
+    if (effectExcludeDebounced !== current) updateParam('effect_exclude', effectExcludeDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectExcludeDebounced])
+
+  useEffect(() => {
+    const current = searchParams.get('effect_phrase') || ''
+    if (effectPhraseDebounced !== current) updateParam('effect_phrase', effectPhraseDebounced)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectPhraseDebounced])
 
   // ============================================================
   // Primary Types include/exclude + mode
@@ -717,20 +794,20 @@ export default function CardFilters() {
         <input
           className="w-full border p-1 mb-2 text-sm text-black placeholder:text-zinc-400"
           placeholder="Include (comma-separated)"
-          value={searchParams.get('name_include') || ''}
-          onChange={e => updateParam('name_include', e.target.value)}
+          value={nameIncludeDraft}
+          onChange={e => setNameIncludeDraft(e.target.value)}
         />
         <input
           className="w-full border p-1 mb-2 text-sm text-black placeholder:text-zinc-400"
           placeholder="Exclude (comma-separated)"
-          value={searchParams.get('name_exclude') || ''}
-          onChange={e => updateParam('name_exclude', e.target.value)}
+          value={nameExcludeDraft}
+          onChange={e => setNameExcludeDraft(e.target.value)}
         />
         <input
           className="w-full border p-1 text-sm text-black placeholder:text-zinc-400"
           placeholder="Exact phrase"
-          value={searchParams.get('name_phrase') || ''}
-          onChange={e => updateParam('name_phrase', e.target.value)}
+          value={namePhraseDraft}
+          onChange={e => setNamePhraseDraft(e.target.value)}
         />
       </div>
 
@@ -986,20 +1063,20 @@ export default function CardFilters() {
         <input
           className="w-full border p-1 mb-2 text-sm text-black placeholder:text-zinc-400"
           placeholder="Include (comma-separated)"
-          value={searchParams.get('effect_include') || ''}
-          onChange={e => updateParam('effect_include', e.target.value)}
+          value={effectIncludeDraft}
+          onChange={e => setEffectIncludeDraft(e.target.value)}
         />
         <input
           className="w-full border p-1 mb-2 text-sm text-black placeholder:text-zinc-400"
           placeholder="Exclude (comma-separated)"
-          value={searchParams.get('effect_exclude') || ''}
-          onChange={e => updateParam('effect_exclude', e.target.value)}
+          value={effectExcludeDraft}
+          onChange={e => setEffectExcludeDraft(e.target.value)}
         />
         <input
           className="w-full border p-1 text-black placeholder:text-zinc-400"
           placeholder="Exact phrase"
-          value={searchParams.get('effect_phrase') || ''}
-          onChange={e => updateParam('effect_phrase', e.target.value)}
+          value={effectPhraseDraft}
+          onChange={e => setEffectPhraseDraft(e.target.value)}
         />
 
         <div className="mt-2 space-y-2">
