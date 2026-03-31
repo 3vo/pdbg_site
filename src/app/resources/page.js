@@ -121,18 +121,18 @@ export default async function ResourcesPage() {
           {(() => {
             const videos = [
               {
-                id: 'VIDEO_ID',
+                id: 'Lh9KSTBfC8g',
                 title: ' Tutorial',
                 description: ' How to play Pokémon Deckbuilding Game',
               },
 		    {
                 id: 'VIDEO_ID2',
-                title: ' Tabletop Simulator Setup',
+                title: ' Tabletop Simulator Setup (Coming Soon)',
                 description: ' Configuration and walkthrough for the Tabletop Simulator mod',
               },
 		    {
                 id: 'VIDEO_ID3',
-                title: ' Example Gameplay',
+                title: ' Example Gameplay (Coming Soon)',
                 description: ' Taken from a previous Twitch Stream',
               },
               // Add more later:
@@ -145,7 +145,7 @@ export default async function ResourcesPage() {
               <details className="rounded-lg border border-zinc-800 bg-zinc-950/30 mb-4">
                 <summary className="cursor-pointer select-none px-4 py-3 flex items-center justify-between">
                   <div className="min-w-0">
-                    <div className="font-semibold text-zinc-100">Videos   (Coming Soon!)</div>
+                    <div className="font-semibold text-zinc-100">Videos</div>
                     <div className="text-xs text-zinc-400 truncate">
                     </div>
                   </div>
