@@ -142,7 +142,7 @@ export default async function ResourcesPage() {
             if (videos.length === 0) return null
 
             return (
-              <details className="rounded-lg border border-zinc-800 bg-zinc-950/30 mb-4">
+              <details open className="rounded-lg border border-zinc-800 bg-zinc-950/30 mb-4">
                 <summary className="cursor-pointer select-none px-4 py-3 flex items-center justify-between">
                   <div className="min-w-0">
                     <div className="font-semibold text-zinc-100">Videos</div>
