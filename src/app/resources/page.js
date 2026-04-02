@@ -126,8 +126,8 @@ export default async function ResourcesPage() {
                 description: ' How to play Pokémon Deckbuilding Game',
               },
 		    {
-                id: 'VIDEO_ID2',
-                title: ' Tabletop Simulator Setup (Coming Soon)',
+                id: 'iFEcEjMfcms',
+                title: ' Tabletop Simulator Setup',
                 description: ' Configuration and walkthrough for the Tabletop Simulator mod',
               },
 		    {
