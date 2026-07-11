@@ -11,7 +11,7 @@ export default function SiteBanner() {
     { href: '/cards', label: 'CARD BROWSER' },
     { href: '/resources', label: 'RESOURCES' },
     { href: '/contact', label: 'CONTACT' },
-    { href: '/play', label: 'PLAY' },
+    { href: 'https://play.3vogaming.net/play/', label: 'PLAY' },
   ]
 
   const isActive = href => pathname === href || (href !== '/' && pathname?.startsWith(href + '/'))
